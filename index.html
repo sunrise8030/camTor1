@@ -403,7 +403,7 @@
 
     .gallery-toolbar {
       display: grid;
-      grid-template-columns: auto auto auto auto 1fr;
+      grid-template-columns: 1fr auto auto auto;
       gap: 6px;
       padding: 8px;
       border-bottom: 1px solid var(--border);
@@ -413,9 +413,14 @@
     .gallery-counter {
       color: var(--muted);
       font-size: 11px;
-      justify-self: end;
       white-space: nowrap;
-      text-align: right;
+      text-align: left;
+    }
+
+    .gallery-toggle-btn {
+      width: 112px;
+      min-width: 112px;
+      max-width: 112px;
     }
 
     .gallery-list {
@@ -521,6 +526,15 @@
     }
 
     .mini-btn .btn-icon { font-size: 14px; }
+
+    .icon-mini-btn {
+      min-height: 32px;
+      height: 32px;
+      padding: 0;
+      font-size: 14px;
+      border-radius: 10px;
+      box-shadow: none;
+    }
 
     .capture-preview {
       position: fixed;
@@ -673,7 +687,7 @@
       .gallery-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .capture-preview { width: min(42vw, 210px); }
       .gallery-toolbar {
-        grid-template-columns: auto auto auto auto 1fr;
+        grid-template-columns: 1fr auto auto auto;
       }
       .info-strip {
         grid-template-columns: 1fr;
@@ -725,7 +739,7 @@
           <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
           <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
           <button id="installBtn" class="install-btn" type="button">📲 Yükle</button>
-          <span class="footer-meta" id="buildInfo">v1.63 • Güncelleme: 2026-04-06 16:40</span>
+          <span class="footer-meta" id="buildInfo">v1.64 • Güncelleme: 2026-04-06 16:55</span>
         </div>
 
         <div class="tab-body">
@@ -769,34 +783,33 @@
               </label>
             </div>
 
-            <div class="status" id="status">Hazır. Aşağı çekerek kapat, yukarı çekerek paylaş. Yatay ve 90° kilitleri ±0.5° hassasiyetle renk değiştirir.</div>
-
             <div class="info-strip">
               <div id="cameraStatePill" class="pill warn">Kamera: Kapalı</div>
               <div id="sensorStatePill" class="pill warn">Sensör: Bekliyor</div>
               <div id="qualityPill" class="pill">Çözünürlük: -</div>
             </div>
+
+            <div class="status" id="status">Hazır. Aşağı çekerek kapat, yukarı çekerek paylaş. Yatay ve 90° kilitleri ±0.5° hassasiyetle renk değiştirir.</div>
           </div>
 
           <div id="galleryPane" class="tab-pane gallery-pane">
             <div class="gallery-toolbar">
-              <button id="galleryToggleSelectBtn" class="mini-btn" type="button" disabled>
+              <div class="gallery-counter" id="galleryCounter">0 öğe • 0 seçili</div>
+
+              <button id="galleryToggleSelectBtn" class="mini-btn gallery-toggle-btn" type="button" disabled>
                 <span class="btn-icon">☑️</span>
-                <span>Tümü</span>
+                <span id="galleryToggleSelectLabel">Tümü</span>
               </button>
+
               <button id="gallerySaveSelectedBtn" class="mini-btn" type="button" disabled>
                 <span class="btn-icon">💾</span>
                 <span>Seçili</span>
               </button>
+
               <button id="galleryDeleteSelectedBtn" class="mini-btn danger" type="button" disabled>
                 <span class="btn-icon">🗑️</span>
                 <span>Sil</span>
               </button>
-              <button id="galleryDownloadAllBtn" class="mini-btn" type="button" disabled>
-                <span class="btn-icon">⬇️</span>
-                <span>Tümü Kaydet</span>
-              </button>
-              <div class="gallery-counter" id="galleryCounter">0 öğe • 0 seçili</div>
             </div>
 
             <div id="galleryList" class="gallery-list">
@@ -884,10 +897,10 @@
     const galleryListEl = document.getElementById("galleryList");
     const galleryEmptyEl = document.getElementById("galleryEmpty");
     const galleryCounterEl = document.getElementById("galleryCounter");
-    const galleryDownloadAllBtnEl = document.getElementById("galleryDownloadAllBtn");
     const gallerySaveSelectedBtnEl = document.getElementById("gallerySaveSelectedBtn");
     const galleryDeleteSelectedBtnEl = document.getElementById("galleryDeleteSelectedBtn");
     const galleryToggleSelectBtnEl = document.getElementById("galleryToggleSelectBtn");
+    const galleryToggleSelectLabelEl = document.getElementById("galleryToggleSelectLabel");
 
     const capturePreviewBtnEl = document.getElementById("capturePreviewBtn");
     const capturePreviewImgEl = document.getElementById("capturePreviewImg");
@@ -1228,13 +1241,13 @@
     function updateGalleryUi() {
       const selectedCount = getSelectedGalleryItems().length;
       const totalCount = galleryItems.length;
+      const allSelected = totalCount > 0 && selectedCount === totalCount;
+
       galleryCounterEl.textContent = `${totalCount} öğe • ${selectedCount} seçili`;
-      galleryDownloadAllBtnEl.disabled = totalCount === 0;
       gallerySaveSelectedBtnEl.disabled = selectedCount === 0;
       galleryDeleteSelectedBtnEl.disabled = selectedCount === 0;
       galleryToggleSelectBtnEl.disabled = totalCount === 0;
-      galleryToggleSelectBtnEl.querySelector("span:last-child").textContent =
-        totalCount > 0 && selectedCount === totalCount ? "Seçimi Kaldır" : "Tümü";
+      galleryToggleSelectLabelEl.textContent = allSelected ? "Kaldır" : "Tümü";
       galleryEmptyEl.style.display = totalCount === 0 ? "block" : "none";
       galleryEmptyEl.textContent = "Henüz foto yok.";
     }
@@ -1937,9 +1950,9 @@
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.arc(0, 0, outerRingRadius * 0.44, 0, Math.PI * 2);
+      ctx.arc(0, 0, outerRingRadius * 0.39, 0, Math.PI * 2);
       ctx.lineWidth = Math.max(1.7, outerRingRadius * 0.007);
-      ctx.strokeStyle = "rgba(125,211,252,0.30)";
+      ctx.strokeStyle = "rgba(125,211,252,0.34)";
       ctx.stroke();
 
       for (let deg = 0; deg < 180; deg += 5) {
@@ -2250,18 +2263,22 @@
       actions.className = "gallery-actions";
 
       const saveBtn = document.createElement("button");
-      saveBtn.className = "mini-btn";
+      saveBtn.className = "icon-mini-btn";
       saveBtn.type = "button";
-      saveBtn.innerHTML = `<span class="btn-icon">⬇️</span><span>Kaydet</span>`;
+      saveBtn.setAttribute("aria-label", "Kaydet");
+      saveBtn.title = "Kaydet";
+      saveBtn.textContent = "⬇️";
       saveBtn.addEventListener("click", event => {
         event.stopPropagation();
         downloadBlob(item.blob, item.fileName);
       });
 
       const deleteBtn = document.createElement("button");
-      deleteBtn.className = "mini-btn danger";
+      deleteBtn.className = "icon-mini-btn danger";
       deleteBtn.type = "button";
-      deleteBtn.innerHTML = `<span class="btn-icon">🗑️</span><span>Sil</span>`;
+      deleteBtn.setAttribute("aria-label", "Sil");
+      deleteBtn.title = "Sil";
+      deleteBtn.textContent = "🗑️";
       deleteBtn.addEventListener("click", async event => {
         event.stopPropagation();
         const yes = window.confirm(`Bu foto silinsin mi?\n${item.fileName}`);
@@ -2814,11 +2831,6 @@
 
     galleryToggleSelectBtnEl.addEventListener("click", () => {
       toggleSelectAllGalleryItems();
-    });
-
-    galleryDownloadAllBtnEl.addEventListener("click", async () => {
-      if (!galleryItems.length) return;
-      await saveGalleryItems(galleryItems);
     });
 
     gallerySaveSelectedBtnEl.addEventListener("click", async () => {
