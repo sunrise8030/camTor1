@@ -503,7 +503,11 @@
     .capture-fly-thumb {
       position: fixed;
       z-index: 80;
-      border-radius: 14px;
+      right: max(14px, env(safe-area-inset-right) + 14px);
+      bottom: max(18px, env(safe-area-inset-bottom) + 18px);
+      width: min(38vw, 240px);
+      aspect-ratio: 4 / 3;
+      border-radius: 16px;
       overflow: hidden;
       border: 1px solid rgba(255,255,255,0.24);
       box-shadow:
@@ -513,6 +517,8 @@
       object-fit: cover;
       background: #000;
       transform-origin: center center;
+      opacity: 0;
+      transform: scale(0.94);
     }
 
     .modal-backdrop {
@@ -593,6 +599,10 @@
       .gallery-list {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
+
+      .capture-fly-thumb {
+        width: min(44vw, 230px);
+      }
     }
   </style>
 </head>
@@ -637,7 +647,7 @@
         <div class="tab-row">
           <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
           <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
-          <span class="footer-meta" id="buildInfo">v1.54 • Güncelleme: 2026-04-06 14:05</span>
+          <span class="footer-meta" id="buildInfo">v1.55 • Güncelleme: 2026-04-06 14:20</span>
         </div>
 
         <div class="tab-body">
@@ -1166,60 +1176,26 @@
     }
 
     function animatePhotoToGallery(objectUrl) {
-      const startRect = previewShellEl.getBoundingClientRect();
-      const endRect = galleryTabBtnEl.getBoundingClientRect();
-
       const thumb = document.createElement("img");
       thumb.className = "capture-fly-thumb";
       thumb.src = objectUrl;
-
-      const startWidth = Math.max(150, startRect.width * 0.42);
-      const startHeight = startWidth * 0.75;
-
-      const startLeft = startRect.left + (startRect.width - startWidth) / 2;
-      const startTop = startRect.top + (startRect.height - startHeight) / 2;
-
-      const endWidth = Math.max(30, endRect.width * 0.42);
-      const endHeight = endWidth * 0.75;
-      const endLeft = endRect.left + (endRect.width - endWidth) / 2;
-      const endTop = endRect.top + (endRect.height - endHeight) / 2;
-
-      thumb.style.left = `${startLeft}px`;
-      thumb.style.top = `${startTop}px`;
-      thumb.style.width = `${startWidth}px`;
-      thumb.style.height = `${startHeight}px`;
-      thumb.style.opacity = "0";
-      thumb.style.transform = "scale(0.96)";
-
       document.body.appendChild(thumb);
 
       requestAnimationFrame(() => {
-        thumb.style.transition = "opacity 180ms ease-out, transform 180ms ease-out";
+        thumb.style.transition = "opacity 220ms ease-out, transform 220ms ease-out";
         thumb.style.opacity = "1";
         thumb.style.transform = "scale(1)";
       });
 
       setTimeout(() => {
-        thumb.style.transition =
-          "left 520ms cubic-bezier(.2,.8,.2,1), top 520ms cubic-bezier(.2,.8,.2,1), width 520ms cubic-bezier(.2,.8,.2,1), height 520ms cubic-bezier(.2,.8,.2,1), opacity 220ms ease-out, transform 520ms cubic-bezier(.2,.8,.2,1)";
-        thumb.style.left = `${endLeft}px`;
-        thumb.style.top = `${endTop}px`;
-        thumb.style.width = `${endWidth}px`;
-        thumb.style.height = `${endHeight}px`;
-        thumb.style.opacity = "0.18";
-        thumb.style.transform = "scale(0.82)";
-      }, 2000);
-
-      setTimeout(() => {
-        galleryTabBtnEl.classList.remove("gallery-pulse");
-        void galleryTabBtnEl.offsetWidth;
-        galleryTabBtnEl.classList.add("gallery-pulse");
-      }, 2350);
+        thumb.style.transition = "opacity 480ms ease-out, transform 480ms ease-out";
+        thumb.style.opacity = "0";
+        thumb.style.transform = "scale(0.96)";
+      }, 3800);
 
       setTimeout(() => {
         thumb.remove();
-        galleryTabBtnEl.classList.remove("gallery-pulse");
-      }, 2700);
+      }, 4350);
     }
 
     function openDb() {
