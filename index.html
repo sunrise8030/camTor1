@@ -280,7 +280,6 @@
 
     .success { border-color: rgba(88, 211, 141, 0.45); }
     .danger { border-color: rgba(248, 113, 113, 0.45); }
-    .warning { border-color: rgba(240,180,41,0.42); }
 
     .capture-primary {
       min-height: 54px;
@@ -403,7 +402,7 @@
 
     .gallery-toolbar {
       display: grid;
-      grid-template-columns: 1fr auto auto auto auto;
+      grid-template-columns: 1fr auto auto auto;
       gap: 6px;
       padding: 8px;
       border-bottom: 1px solid var(--border);
@@ -721,7 +720,7 @@
           <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
           <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
           <button id="installBtn" class="install-btn" type="button">📲 Yükle</button>
-          <span class="footer-meta" id="buildInfo">v1.61 • Güncelleme: 2026-04-06 16:05</span>
+          <span class="footer-meta" id="buildInfo">v1.62 • Güncelleme: 2026-04-06 16:20</span>
         </div>
 
         <div class="tab-body">
@@ -778,10 +777,6 @@
               <button id="galleryDownloadAllBtn" class="mini-btn" type="button" disabled>
                 <span class="btn-icon">⬇️</span>
                 <span>Tümü</span>
-              </button>
-              <button id="galleryBackupBtn" class="mini-btn warning" type="button" disabled>
-                <span class="btn-icon">🧾</span>
-                <span>Yedek</span>
               </button>
               <button id="galleryDeleteSelectedBtn" class="mini-btn danger" type="button" disabled>
                 <span class="btn-icon">🗑️</span>
@@ -877,7 +872,6 @@
     const galleryDownloadAllBtnEl = document.getElementById("galleryDownloadAllBtn");
     const gallerySaveSelectedBtnEl = document.getElementById("gallerySaveSelectedBtn");
     const galleryDeleteSelectedBtnEl = document.getElementById("galleryDeleteSelectedBtn");
-    const galleryBackupBtnEl = document.getElementById("galleryBackupBtn");
 
     const capturePreviewBtnEl = document.getElementById("capturePreviewBtn");
     const capturePreviewImgEl = document.getElementById("capturePreviewImg");
@@ -1221,7 +1215,6 @@
       galleryDownloadAllBtnEl.disabled = galleryItems.length === 0;
       gallerySaveSelectedBtnEl.disabled = selectedCount === 0;
       galleryDeleteSelectedBtnEl.disabled = selectedCount === 0;
-      galleryBackupBtnEl.disabled = galleryItems.length === 0;
       galleryEmptyEl.style.display = galleryItems.length === 0 ? "block" : "none";
       galleryEmptyEl.textContent = "Henüz foto yok.";
     }
@@ -1869,249 +1862,249 @@
       ctx.restore();
     }
 
-   function drawOverlayOnContext(ctx, width, height, rollDeg, targetDeg) {
-  if (!ctx) return null;
+    function drawOverlayOnContext(ctx, width, height, rollDeg, targetDeg) {
+      if (!ctx) return null;
 
-  ctx.clearRect(0, 0, width, height);
+      ctx.clearRect(0, 0, width, height);
 
-  const cx = width / 2;
-  const cy = height / 2;
-  const radius = Math.min(width, height) * 0.33;
+      const cx = width / 2;
+      const cy = height / 2;
+      const radius = Math.min(width, height) * 0.33;
 
-  const outerRingRadius = radius;
-  const innerNumberRingRadius = radius * 0.74;
-  const reciprocalLabelRadius = (outerRingRadius + innerNumberRingRadius) * 0.5;
+      const outerRingRadius = radius;
+      const innerNumberRingRadius = radius * 0.74;
+      const reciprocalLabelRadius = (outerRingRadius + innerNumberRingRadius) * 0.5;
 
-  const innerActiveRadius = outerRingRadius * 0.72;
-  const outerActiveRadius = outerRingRadius * 1.03;
-  const halfLineWidth = radius * 1.14;
+      const innerActiveRadius = outerRingRadius * 0.72;
+      const outerActiveRadius = outerRingRadius * 1.03;
+      const halfLineWidth = radius * 1.14;
 
-  const normalizedRollAxis = ((rollDeg % 180) + 180) % 180;
-  const diffToTarget = getAxisDiffDeg(normalizedRollAxis, targetDeg);
-  const isNearTarget = diffToTarget <= 3;
+      const normalizedRollAxis = ((rollDeg % 180) + 180) % 180;
+      const diffToTarget = getAxisDiffDeg(normalizedRollAxis, targetDeg);
+      const isNearTarget = diffToTarget <= 3;
 
-  const horizontalError = Math.min(
-    Math.abs(normalizedRollAxis - 0),
-    Math.abs(normalizedRollAxis - 180)
-  );
-  const verticalError = Math.abs(normalizedRollAxis - 90);
+      const horizontalError = Math.min(
+        Math.abs(normalizedRollAxis - 0),
+        Math.abs(normalizedRollAxis - 180)
+      );
+      const verticalError = Math.abs(normalizedRollAxis - 90);
 
-  const isHorizontalLocked = horizontalError <= 0.5;
-  const isVerticalLocked = verticalError <= 0.5;
+      const isHorizontalLocked = horizontalError <= 0.5;
+      const isVerticalLocked = verticalError <= 0.5;
 
-  const targetStroke = isNearTarget ? "rgba(88,211,141,0.98)" : "rgba(77,163,255,0.98)";
-  const targetGlow = isNearTarget ? "rgba(88,211,141,0.18)" : "rgba(77,163,255,0.18)";
+      const targetStroke = isNearTarget ? "rgba(88,211,141,0.98)" : "rgba(77,163,255,0.98)";
+      const targetGlow = isNearTarget ? "rgba(88,211,141,0.18)" : "rgba(77,163,255,0.18)";
 
-  ctx.save();
-  ctx.translate(cx, cy);
+      ctx.save();
+      ctx.translate(cx, cy);
 
-  ctx.beginPath();
-  ctx.arc(0, 0, outerRingRadius, 0, Math.PI * 2);
-  ctx.lineWidth = Math.max(2.6, outerRingRadius * 0.0118);
-  ctx.strokeStyle = "rgba(255,255,255,0.52)";
-  ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, outerRingRadius, 0, Math.PI * 2);
+      ctx.lineWidth = Math.max(2.6, outerRingRadius * 0.0118);
+      ctx.strokeStyle = "rgba(255,255,255,0.52)";
+      ctx.stroke();
 
-  ctx.beginPath();
-  ctx.arc(0, 0, innerNumberRingRadius, 0, Math.PI * 2);
-  ctx.lineWidth = Math.max(1.9, outerRingRadius * 0.0075);
-  ctx.strokeStyle = "rgba(190,210,235,0.38)";
-  ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, innerNumberRingRadius, 0, Math.PI * 2);
+      ctx.lineWidth = Math.max(1.9, outerRingRadius * 0.0075);
+      ctx.strokeStyle = "rgba(190,210,235,0.38)";
+      ctx.stroke();
 
-  ctx.beginPath();
-  ctx.arc(0, 0, outerRingRadius * 0.22, 0, Math.PI * 2);
-  ctx.lineWidth = Math.max(1.5, outerRingRadius * 0.006);
-  ctx.strokeStyle = "rgba(255,255,255,0.16)";
-  ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, outerRingRadius * 0.22, 0, Math.PI * 2);
+      ctx.lineWidth = Math.max(1.5, outerRingRadius * 0.006);
+      ctx.strokeStyle = "rgba(255,255,255,0.16)";
+      ctx.stroke();
 
-  for (let deg = 0; deg < 180; deg += 5) {
-    const rad = angleToCanvasRad(deg);
-    const oppositeRad = angleToCanvasRad(deg + 180);
+      for (let deg = 0; deg < 180; deg += 5) {
+        const rad = angleToCanvasRad(deg);
+        const oppositeRad = angleToCanvasRad(deg + 180);
 
-    const isMajor = deg % 30 === 0;
-    const isMid = deg % 10 === 0;
-    const isPrimary = deg === 0 || deg === 90;
+        const isMajor = deg % 30 === 0;
+        const isMid = deg % 10 === 0;
+        const isPrimary = deg === 0 || deg === 90;
 
-    const outerTickOuter = outerRingRadius + (isPrimary ? outerRingRadius * 0.085 : isMajor ? outerRingRadius * 0.075 : isMid ? outerRingRadius * 0.055 : outerRingRadius * 0.034);
-    const outerTickInner = outerRingRadius - (isPrimary ? outerRingRadius * 0.20 : isMajor ? outerRingRadius * 0.17 : isMid ? outerRingRadius * 0.12 : outerRingRadius * 0.075);
+        const outerTickOuter = outerRingRadius + (isPrimary ? outerRingRadius * 0.085 : isMajor ? outerRingRadius * 0.075 : isMid ? outerRingRadius * 0.055 : outerRingRadius * 0.034);
+        const outerTickInner = outerRingRadius - (isPrimary ? outerRingRadius * 0.20 : isMajor ? outerRingRadius * 0.17 : isMid ? outerRingRadius * 0.12 : outerRingRadius * 0.075);
 
-    const tickDiff = getAxisDiffDeg(normalizedRollAxis, deg);
-    const isTickHot = tickDiff <= 6;
-    const tickIntensity = Math.max(0, 1 - tickDiff / 6);
+        const tickDiff = getAxisDiffDeg(normalizedRollAxis, deg);
+        const isTickHot = tickDiff <= 6;
+        const tickIntensity = Math.max(0, 1 - tickDiff / 6);
 
-    let outerTickColor = isPrimary
-      ? "rgba(255,255,255,1)"
-      : isMajor
-        ? "rgba(245,248,252,0.98)"
-        : isMid
-          ? "rgba(170,195,225,0.70)"
-          : "rgba(205,185,140,0.42)";
+        let outerTickColor = isPrimary
+          ? "rgba(255,255,255,1)"
+          : isMajor
+            ? "rgba(245,248,252,0.98)"
+            : isMid
+              ? "rgba(170,195,225,0.70)"
+              : "rgba(205,185,140,0.42)";
 
-    if (isTickHot) {
-      outerTickColor = `rgba(240,180,41,${0.45 + tickIntensity * 0.5})`;
-    }
+        if (isTickHot) {
+          outerTickColor = `rgba(240,180,41,${0.45 + tickIntensity * 0.5})`;
+        }
 
-    ctx.beginPath();
-    ctx.moveTo(Math.cos(rad) * outerTickInner, Math.sin(rad) * outerTickInner);
-    ctx.lineTo(Math.cos(rad) * outerTickOuter, Math.sin(rad) * outerTickOuter);
-    ctx.moveTo(Math.cos(oppositeRad) * outerTickInner, Math.sin(oppositeRad) * outerTickInner);
-    ctx.lineTo(Math.cos(oppositeRad) * outerTickOuter, Math.sin(oppositeRad) * outerTickOuter);
-    ctx.lineWidth = isTickHot
-      ? (isPrimary ? 3.6 : isMajor ? 3.0 : isMid ? 2.1 : 1.4)
-      : (isPrimary ? 3.2 : isMajor ? 2.8 : isMid ? 1.9 : 1.1);
-    ctx.strokeStyle = outerTickColor;
-    ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(rad) * outerTickInner, Math.sin(rad) * outerTickInner);
+        ctx.lineTo(Math.cos(rad) * outerTickOuter, Math.sin(rad) * outerTickOuter);
+        ctx.moveTo(Math.cos(oppositeRad) * outerTickInner, Math.sin(oppositeRad) * outerTickInner);
+        ctx.lineTo(Math.cos(oppositeRad) * outerTickOuter, Math.sin(oppositeRad) * outerTickOuter);
+        ctx.lineWidth = isTickHot
+          ? (isPrimary ? 3.6 : isMajor ? 3.0 : isMid ? 2.1 : 1.4)
+          : (isPrimary ? 3.2 : isMajor ? 2.8 : isMid ? 1.9 : 1.1);
+        ctx.strokeStyle = outerTickColor;
+        ctx.stroke();
 
-    const innerTickOuter = innerNumberRingRadius + (isMajor ? innerNumberRingRadius * 0.04 : isMid ? innerNumberRingRadius * 0.03 : innerNumberRingRadius * 0.018);
-    const innerTickInner = innerNumberRingRadius - (isMajor ? innerNumberRingRadius * 0.10 : isMid ? innerNumberRingRadius * 0.072 : innerNumberRingRadius * 0.046);
+        const innerTickOuter = innerNumberRingRadius + (isMajor ? innerNumberRingRadius * 0.04 : isMid ? innerNumberRingRadius * 0.03 : innerNumberRingRadius * 0.018);
+        const innerTickInner = innerNumberRingRadius - (isMajor ? innerNumberRingRadius * 0.10 : isMid ? innerNumberRingRadius * 0.072 : innerNumberRingRadius * 0.046);
 
-    const innerTickColor = isPrimary
-      ? "rgba(235,244,255,0.90)"
-      : isMajor
-        ? "rgba(220,232,246,0.78)"
-        : isMid
-          ? "rgba(170,195,225,0.50)"
-          : "rgba(210,190,150,0.26)";
+        const innerTickColor = isPrimary
+          ? "rgba(235,244,255,0.90)"
+          : isMajor
+            ? "rgba(220,232,246,0.78)"
+            : isMid
+              ? "rgba(170,195,225,0.50)"
+              : "rgba(210,190,150,0.26)";
 
-    ctx.beginPath();
-    ctx.moveTo(Math.cos(rad) * innerTickInner, Math.sin(rad) * innerTickInner);
-    ctx.lineTo(Math.cos(rad) * innerTickOuter, Math.sin(rad) * innerTickOuter);
-    ctx.moveTo(Math.cos(oppositeRad) * innerTickInner, Math.sin(oppositeRad) * innerTickInner);
-    ctx.lineTo(Math.cos(oppositeRad) * innerTickOuter, Math.sin(oppositeRad) * innerTickOuter);
-    ctx.lineWidth = isPrimary ? 2.0 : isMajor ? 1.7 : isMid ? 1.15 : 0.82;
-    ctx.strokeStyle = innerTickColor;
-    ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(rad) * innerTickInner, Math.sin(rad) * innerTickInner);
+        ctx.lineTo(Math.cos(rad) * innerTickOuter, Math.sin(rad) * innerTickOuter);
+        ctx.moveTo(Math.cos(oppositeRad) * innerTickInner, Math.sin(oppositeRad) * innerTickInner);
+        ctx.lineTo(Math.cos(oppositeRad) * innerTickOuter, Math.sin(oppositeRad) * innerTickOuter);
+        ctx.lineWidth = isPrimary ? 2.0 : isMajor ? 1.7 : isMid ? 1.15 : 0.82;
+        ctx.strokeStyle = innerTickColor;
+        ctx.stroke();
 
-    if (isMajor) {
-      const topLabelRadius = outerRingRadius - outerRingRadius * 0.18;
+        if (isMajor) {
+          const topLabelRadius = outerRingRadius - outerRingRadius * 0.18;
 
-      drawText(ctx, String(deg), Math.cos(rad) * topLabelRadius, Math.sin(rad) * topLabelRadius, {
-        font: `800 ${Math.max(11, outerRingRadius * 0.078)}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
-        fillStyle: isPrimary ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.97)"
+          drawText(ctx, String(deg), Math.cos(rad) * topLabelRadius, Math.sin(rad) * topLabelRadius, {
+            font: `800 ${Math.max(11, outerRingRadius * 0.078)}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
+            fillStyle: isPrimary ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.97)"
+          });
+
+          drawText(
+            ctx,
+            String(deg),
+            Math.cos(oppositeRad) * reciprocalLabelRadius,
+            Math.sin(oppositeRad) * reciprocalLabelRadius,
+            {
+              font: `760 ${Math.max(10, outerRingRadius * 0.063)}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
+              fillStyle: isPrimary ? "rgba(195,230,255,1)" : "rgba(175,215,245,0.95)"
+            }
+          );
+        }
+      }
+
+      const targetRad = angleToCanvasRad(targetDeg);
+      const oppositeTargetRad = angleToCanvasRad(targetDeg + 180);
+
+      ctx.save();
+      ctx.shadowColor = targetGlow;
+      ctx.shadowBlur = Math.max(8, outerRingRadius * 0.06);
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(targetRad) * outerRingRadius, Math.sin(targetRad) * outerRingRadius);
+      ctx.lineTo(Math.cos(oppositeTargetRad) * outerRingRadius, Math.sin(oppositeTargetRad) * outerRingRadius);
+      ctx.lineWidth = Math.max(3.6, outerRingRadius * 0.0155);
+      ctx.strokeStyle = targetStroke;
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.save();
+      ctx.rotate((rollDeg * Math.PI) / 180);
+
+      const horizontalGuideColor = isHorizontalLocked
+        ? "rgba(88,211,141,0.98)"
+        : "rgba(240,180,41,0.98)";
+
+      const verticalGuideColor = isVerticalLocked
+        ? "rgba(88,211,141,0.98)"
+        : "rgba(255,255,255,0.96)";
+
+      const centerMarkerColor = isNearTarget
+        ? "rgba(88,211,141,0.99)"
+        : "rgba(88,211,141,0.92)";
+
+      const outerHorizontalGuide = outerRingRadius * 0.98;
+      const innerHorizontalGuide = outerRingRadius * 0.78;
+
+      ctx.beginPath();
+      ctx.moveTo(-outerHorizontalGuide, 0);
+      ctx.lineTo(-innerHorizontalGuide, 0);
+      ctx.moveTo(innerHorizontalGuide, 0);
+      ctx.lineTo(outerHorizontalGuide, 0);
+      ctx.lineWidth = Math.max(2.2, outerRingRadius * 0.0105);
+      ctx.strokeStyle = horizontalGuideColor;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(-halfLineWidth, 0);
+      ctx.lineTo(halfLineWidth, 0);
+      ctx.lineWidth = Math.max(4.4, outerRingRadius * 0.0185);
+      ctx.strokeStyle = horizontalGuideColor;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(-outerRingRadius * 0.16, 0);
+      ctx.lineTo(outerRingRadius * 0.16, 0);
+      ctx.lineWidth = Math.max(7.5, outerRingRadius * 0.031);
+      ctx.strokeStyle = centerMarkerColor;
+      ctx.stroke();
+
+      const thinVerticalOuter = outerRingRadius * 0.98;
+      const thickVerticalInner = outerRingRadius * 0.24;
+
+      ctx.beginPath();
+      ctx.moveTo(0, -thinVerticalOuter);
+      ctx.lineTo(0, -thickVerticalInner);
+      ctx.moveTo(0, thickVerticalInner);
+      ctx.lineTo(0, thinVerticalOuter);
+      ctx.lineWidth = Math.max(1.6, outerRingRadius * 0.007);
+      ctx.strokeStyle = verticalGuideColor;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(0, -outerRingRadius * 0.24);
+      ctx.lineTo(0, outerRingRadius * 0.24);
+      ctx.lineWidth = Math.max(3.1, outerRingRadius * 0.0135);
+      ctx.strokeStyle = verticalGuideColor;
+      ctx.stroke();
+
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, Math.max(5, outerRingRadius * 0.024), 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.98)";
+      ctx.fill();
+
+      ctx.restore();
+
+      const targetLabel = `${String(clampAxis180(targetDeg)).padStart(3, "0")}°`;
+      const tiltLabel = `${formatSignedAngle(rollDeg)} • Δ${diffToTarget.toFixed(1)}°`;
+
+      ctx.save();
+      const boxWidth = Math.max(170, width * 0.28);
+      const boxHeight = Math.max(60, height * 0.095);
+      const boxX = (width - boxWidth) / 2;
+      const boxY = Math.max(14, height * 0.028);
+      ctx.fillStyle = "rgba(0,0,0,0.34)";
+      ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+      ctx.strokeStyle = "rgba(255,255,255,0.18)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+      ctx.restore();
+
+      drawText(ctx, targetLabel, width / 2, Math.max(42, height * 0.072), {
+        font: `900 ${Math.max(34, Math.round(height * 0.058))}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
+        fillStyle: targetStroke
       });
 
-      drawText(
-        ctx,
-        String(deg),
-        Math.cos(oppositeRad) * reciprocalLabelRadius,
-        Math.sin(oppositeRad) * reciprocalLabelRadius,
-        {
-          font: `760 ${Math.max(10, outerRingRadius * 0.063)}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
-          fillStyle: isPrimary ? "rgba(195,230,255,1)" : "rgba(175,215,245,0.95)"
-        }
-      );
+      drawText(ctx, tiltLabel, width / 2, height * 0.66, {
+        font: `800 ${Math.max(17, Math.round(height * 0.026))}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
+        fillStyle: diffToTarget <= 3 ? "rgba(88,211,141,0.98)" : "rgba(240,180,41,0.98)"
+      });
+
+      return { cx, cy, innerActiveRadius, outerActiveRadius };
     }
-  }
-
-  const targetRad = angleToCanvasRad(targetDeg);
-  const oppositeTargetRad = angleToCanvasRad(targetDeg + 180);
-
-  ctx.save();
-  ctx.shadowColor = targetGlow;
-  ctx.shadowBlur = Math.max(8, outerRingRadius * 0.06);
-  ctx.beginPath();
-  ctx.moveTo(Math.cos(targetRad) * outerRingRadius, Math.sin(targetRad) * outerRingRadius);
-  ctx.lineTo(Math.cos(oppositeTargetRad) * outerRingRadius, Math.sin(oppositeTargetRad) * outerRingRadius);
-  ctx.lineWidth = Math.max(3.6, outerRingRadius * 0.0155);
-  ctx.strokeStyle = targetStroke;
-  ctx.stroke();
-  ctx.restore();
-
-  ctx.save();
-  ctx.rotate((rollDeg * Math.PI) / 180);
-
-  const horizontalGuideColor = isHorizontalLocked
-    ? "rgba(88,211,141,0.98)"
-    : "rgba(240,180,41,0.98)";
-
-  const verticalGuideColor = isVerticalLocked
-    ? "rgba(88,211,141,0.98)"
-    : "rgba(255,255,255,0.96)";
-
-  const centerMarkerColor = isNearTarget
-    ? "rgba(88,211,141,0.99)"
-    : "rgba(88,211,141,0.92)";
-
-  const outerHorizontalGuide = outerRingRadius * 0.98;
-  const innerHorizontalGuide = outerRingRadius * 0.78;
-
-  ctx.beginPath();
-  ctx.moveTo(-outerHorizontalGuide, 0);
-  ctx.lineTo(-innerHorizontalGuide, 0);
-  ctx.moveTo(innerHorizontalGuide, 0);
-  ctx.lineTo(outerHorizontalGuide, 0);
-  ctx.lineWidth = Math.max(2.2, outerRingRadius * 0.0105);
-  ctx.strokeStyle = horizontalGuideColor;
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(-halfLineWidth, 0);
-  ctx.lineTo(halfLineWidth, 0);
-  ctx.lineWidth = Math.max(4.4, outerRingRadius * 0.0185);
-  ctx.strokeStyle = horizontalGuideColor;
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(-outerRingRadius * 0.16, 0);
-  ctx.lineTo(outerRingRadius * 0.16, 0);
-  ctx.lineWidth = Math.max(7.5, outerRingRadius * 0.031);
-  ctx.strokeStyle = centerMarkerColor;
-  ctx.stroke();
-
-  const thinVerticalOuter = outerRingRadius * 0.98;
-  const thickVerticalInner = outerRingRadius * 0.24;
-
-  ctx.beginPath();
-  ctx.moveTo(0, -thinVerticalOuter);
-  ctx.lineTo(0, -thickVerticalInner);
-  ctx.moveTo(0, thickVerticalInner);
-  ctx.lineTo(0, thinVerticalOuter);
-  ctx.lineWidth = Math.max(1.6, outerRingRadius * 0.007);
-  ctx.strokeStyle = verticalGuideColor;
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(0, -outerRingRadius * 0.24);
-  ctx.lineTo(0, outerRingRadius * 0.24);
-  ctx.lineWidth = Math.max(3.1, outerRingRadius * 0.0135);
-  ctx.strokeStyle = verticalGuideColor;
-  ctx.stroke();
-
-  ctx.restore();
-
-  ctx.beginPath();
-  ctx.arc(0, 0, Math.max(5, outerRingRadius * 0.024), 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(255,255,255,0.98)";
-  ctx.fill();
-
-  ctx.restore();
-
-  const targetLabel = `${String(clampAxis180(targetDeg)).padStart(3, "0")}°`;
-  const tiltLabel = `${formatSignedAngle(rollDeg)} • Δ${diffToTarget.toFixed(1)}°`;
-
-  ctx.save();
-  const boxWidth = Math.max(170, width * 0.28);
-  const boxHeight = Math.max(60, height * 0.095);
-  const boxX = (width - boxWidth) / 2;
-  const boxY = Math.max(14, height * 0.028);
-  ctx.fillStyle = "rgba(0,0,0,0.34)";
-  ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-  ctx.strokeStyle = "rgba(255,255,255,0.18)";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
-  ctx.restore();
-
-  drawText(ctx, targetLabel, width / 2, Math.max(42, height * 0.072), {
-    font: `900 ${Math.max(34, Math.round(height * 0.058))}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
-    fillStyle: targetStroke
-  });
-
-  drawText(ctx, tiltLabel, width / 2, height * 0.66, {
-    font: `800 ${Math.max(17, Math.round(height * 0.026))}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
-    fillStyle: diffToTarget <= 3 ? "rgba(88,211,141,0.98)" : "rgba(240,180,41,0.98)"
-  });
-
-  return { cx, cy, innerActiveRadius, outerActiveRadius };
-}
 
     function drawOverlay() {
       resizeOverlayCanvas();
@@ -2338,23 +2331,6 @@
         downloadBlob(item.blob, item.fileName);
         await new Promise(resolve => setTimeout(resolve, 120));
       }
-    }
-
-    function exportBackupJson() {
-      const payload = galleryItems.map(item => ({
-        id: item.id,
-        fileName: item.fileName,
-        createdAt: item.createdAt,
-        createdAtLabel: item.createdAtLabel,
-        width: item.width,
-        height: item.height,
-        size: item.size,
-        patientName: item.patientName || "",
-        iolType: item.iolType || ""
-      }));
-
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-      downloadBlob(blob, `torik_gallery_backup_${createTimeStampFilePart(Date.now())}.json`);
     }
 
     function openPreviewModal(id) {
@@ -2794,12 +2770,6 @@
       const selected = getSelectedGalleryItems();
       if (!selected.length) return;
       await saveGalleryItems(selected);
-    });
-
-    galleryBackupBtnEl.addEventListener("click", () => {
-      if (!galleryItems.length) return;
-      exportBackupJson();
-      updateDiagnosticStatus("Galeri yedeği dışa aktarıldı.");
     });
 
     galleryDeleteSelectedBtnEl.addEventListener("click", async () => {
