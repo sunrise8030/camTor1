@@ -510,6 +510,7 @@
       transition:
         opacity 260ms ease,
         transform 260ms ease;
+      touch-action: none;
     }
 
     .capture-preview.visible {
@@ -554,6 +555,8 @@
         12px
         max(12px, env(safe-area-inset-bottom))
         12px;
+      transition: background 180ms ease;
+      touch-action: none;
     }
 
     .modal-backdrop.active {
@@ -570,6 +573,9 @@
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 16px;
       padding: 10px;
+      transition: transform 180ms ease;
+      touch-action: none;
+      will-change: transform;
     }
 
     .modal-head {
@@ -667,7 +673,7 @@
         <div class="tab-row">
           <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
           <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
-          <span class="footer-meta" id="buildInfo">v1.56 • Güncelleme: 2026-04-06 14:30</span>
+          <span class="footer-meta" id="buildInfo">v1.57 • Güncelleme: 2026-04-06 14:45</span>
         </div>
 
         <div class="tab-body">
@@ -711,7 +717,7 @@
               </label>
             </div>
 
-            <div class="status" id="status">Hazır. Foto çek her sekmede aktiftir. Sağ alttaki önizlemeye dokununca büyük açılır.</div>
+            <div class="status" id="status">Hazır. Foto çek her sekmede aktiftir. Son foto veri sekmesinde görünür. Aşağı çekerek kapanır.</div>
           </div>
 
           <div id="galleryPane" class="tab-pane gallery-pane">
@@ -746,7 +752,7 @@
   </button>
 
   <div id="previewModal" class="modal-backdrop">
-    <div class="modal-card">
+    <div id="modalCard" class="modal-card">
       <div class="modal-head">
         <div id="modalTitle" class="modal-title">Önizleme</div>
         <button id="modalCloseBtn" class="modal-close" type="button">✕</button>
@@ -818,6 +824,7 @@
     const capturePreviewImgEl = document.getElementById("capturePreviewImg");
 
     const previewModalEl = document.getElementById("previewModal");
+    const modalCardEl = document.getElementById("modalCard");
     const modalImageEl = document.getElementById("modalImage");
     const modalTitleEl = document.getElementById("modalTitle");
     const modalCloseBtnEl = document.getElementById("modalCloseBtn");
@@ -867,12 +874,30 @@
     let modalItemId = null;
     let activeTab = "data";
     let lastCapturedItemId = null;
+    let capturePreviewDismissed = false;
+
+    const previewSwipeState = {
+      active: false,
+      pointerId: null,
+      startY: 0,
+      currentY: 0,
+      dragging: false
+    };
+
+    const modalSwipeState = {
+      active: false,
+      pointerId: null,
+      startY: 0,
+      currentY: 0,
+      dragging: false
+    };
 
     const LOW_PASS_ALPHA = 0.16;
     const ANGLE_SMOOTH_ALPHA = 0.18;
     const HAPTIC_STEP_DEG = 5;
     const HAPTIC_MIN_INTERVAL_MS = 50;
     const SENSOR_TIMEOUT_MS = 1800;
+    const SWIPE_CLOSE_THRESHOLD = 90;
 
     function setStatus(message) {
       statusEl.textContent = message;
@@ -930,6 +955,7 @@
       galleryTabBtnEl.classList.toggle("active", !isData);
       dataPaneEl.classList.toggle("active", isData);
       galleryPaneEl.classList.toggle("active", !isData);
+      updateCapturePreviewVisibility();
     }
 
     function vibratePattern(pattern) {
@@ -1067,6 +1093,7 @@
       updateTorchUi();
       updateMainActionUi();
       updateGalleryUi();
+      updateCapturePreviewVisibility();
     }
 
     function updateDiagnosticStatus(prefix = "") {
@@ -1206,10 +1233,37 @@
       captureFlashEl.classList.add("active");
     }
 
+    function resetCapturePreviewTransform() {
+      capturePreviewBtnEl.style.transition = "";
+      capturePreviewBtnEl.style.transform = "";
+      capturePreviewBtnEl.style.opacity = "";
+    }
+
+    function resetModalTransform() {
+      modalCardEl.style.transition = "";
+      modalCardEl.style.transform = "";
+      previewModalEl.style.transition = "";
+      previewModalEl.style.background = "";
+    }
+
+    function updateCapturePreviewVisibility() {
+      const shouldShow = Boolean(lastCapturedItemId) && !capturePreviewDismissed && activeTab !== "gallery";
+      capturePreviewBtnEl.classList.toggle("visible", shouldShow);
+      if (!shouldShow) {
+        resetCapturePreviewTransform();
+      }
+    }
+
     function showLastCapturePreview(item) {
       lastCapturedItemId = item.id;
+      capturePreviewDismissed = false;
       capturePreviewImgEl.src = item.objectUrl;
-      capturePreviewBtnEl.classList.add("visible");
+      updateCapturePreviewVisibility();
+    }
+
+    function dismissCapturePreview() {
+      capturePreviewDismissed = true;
+      updateCapturePreviewVisibility();
     }
 
     function openLastCapturePreview() {
@@ -2008,6 +2062,7 @@
           showLastCapturePreview(nextItem);
         } else {
           lastCapturedItemId = null;
+          capturePreviewDismissed = false;
           capturePreviewBtnEl.classList.remove("visible");
           capturePreviewImgEl.removeAttribute("src");
         }
@@ -2038,6 +2093,7 @@
       modalImageEl.src = item.objectUrl;
       modalTitleEl.textContent = item.fileName;
       previewModalEl.classList.add("active");
+      resetModalTransform();
     }
 
     function closePreviewModal() {
@@ -2045,6 +2101,103 @@
       modalImageEl.src = "";
       modalTitleEl.textContent = "Önizleme";
       previewModalEl.classList.remove("active");
+      resetModalTransform();
+    }
+
+    function applyPreviewSwipeTransform(offsetY) {
+      const positive = Math.max(0, offsetY);
+      const opacity = Math.max(0.18, 1 - positive / 220);
+      capturePreviewBtnEl.style.transition = "none";
+      capturePreviewBtnEl.style.transform = `translateY(${positive}px) scale(${1 - Math.min(positive / 800, 0.08)})`;
+      capturePreviewBtnEl.style.opacity = String(opacity);
+    }
+
+    function applyModalSwipeTransform(offsetY) {
+      const positive = Math.max(0, offsetY);
+      const bgAlpha = Math.max(0.18, 0.82 - positive / 360);
+      modalCardEl.style.transition = "none";
+      previewModalEl.style.transition = "none";
+      modalCardEl.style.transform = `translateY(${positive}px)`;
+      previewModalEl.style.background = `rgba(0,0,0,${bgAlpha})`;
+    }
+
+    function previewSwipeStart(event) {
+      if (!capturePreviewBtnEl.classList.contains("visible")) return;
+      previewSwipeState.active = true;
+      previewSwipeState.dragging = false;
+      previewSwipeState.pointerId = event.pointerId;
+      previewSwipeState.startY = event.clientY;
+      previewSwipeState.currentY = event.clientY;
+      capturePreviewBtnEl.setPointerCapture?.(event.pointerId);
+    }
+
+    function previewSwipeMove(event) {
+      if (!previewSwipeState.active || previewSwipeState.pointerId !== event.pointerId) return;
+      previewSwipeState.currentY = event.clientY;
+      const dy = previewSwipeState.currentY - previewSwipeState.startY;
+      if (dy > 0) {
+        previewSwipeState.dragging = true;
+        applyPreviewSwipeTransform(dy);
+      }
+    }
+
+    function previewSwipeEnd(event) {
+      if (!previewSwipeState.active || previewSwipeState.pointerId !== event.pointerId) return;
+
+      const dy = previewSwipeState.currentY - previewSwipeState.startY;
+      const shouldClose = dy > SWIPE_CLOSE_THRESHOLD;
+
+      previewSwipeState.active = false;
+      previewSwipeState.pointerId = null;
+
+      if (previewSwipeState.dragging && shouldClose) {
+        dismissCapturePreview();
+      } else {
+        resetCapturePreviewTransform();
+        if (!previewSwipeState.dragging) {
+          openLastCapturePreview();
+        }
+      }
+
+      previewSwipeState.dragging = false;
+    }
+
+    function modalSwipeStart(event) {
+      if (!previewModalEl.classList.contains("active")) return;
+      modalSwipeState.active = true;
+      modalSwipeState.dragging = false;
+      modalSwipeState.pointerId = event.pointerId;
+      modalSwipeState.startY = event.clientY;
+      modalSwipeState.currentY = event.clientY;
+      modalCardEl.setPointerCapture?.(event.pointerId);
+    }
+
+    function modalSwipeMove(event) {
+      if (!modalSwipeState.active || modalSwipeState.pointerId !== event.pointerId) return;
+      modalSwipeState.currentY = event.clientY;
+      const dy = modalSwipeState.currentY - modalSwipeState.startY;
+      if (dy > 0) {
+        modalSwipeState.dragging = true;
+        applyModalSwipeTransform(dy);
+      }
+    }
+
+    function modalSwipeEnd(event) {
+      if (!modalSwipeState.active || modalSwipeState.pointerId !== event.pointerId) return;
+
+      const dy = modalSwipeState.currentY - modalSwipeState.startY;
+      const shouldClose = dy > SWIPE_CLOSE_THRESHOLD;
+
+      modalSwipeState.active = false;
+      modalSwipeState.pointerId = null;
+
+      if (modalSwipeState.dragging && shouldClose) {
+        closePreviewModal();
+      } else {
+        resetModalTransform();
+      }
+
+      modalSwipeState.dragging = false;
     }
 
     async function capturePhoto() {
@@ -2213,9 +2366,15 @@
       updateDiagnosticStatus("Seçili fotoğraflar silindi.");
     });
 
-    capturePreviewBtnEl.addEventListener("click", () => {
-      openLastCapturePreview();
-    });
+    capturePreviewBtnEl.addEventListener("pointerdown", previewSwipeStart);
+    capturePreviewBtnEl.addEventListener("pointermove", previewSwipeMove);
+    capturePreviewBtnEl.addEventListener("pointerup", previewSwipeEnd);
+    capturePreviewBtnEl.addEventListener("pointercancel", previewSwipeEnd);
+
+    modalCardEl.addEventListener("pointerdown", modalSwipeStart);
+    modalCardEl.addEventListener("pointermove", modalSwipeMove);
+    modalCardEl.addEventListener("pointerup", modalSwipeEnd);
+    modalCardEl.addEventListener("pointercancel", modalSwipeEnd);
 
     modalCloseBtnEl.addEventListener("click", closePreviewModal);
     modalDismissBtnEl.addEventListener("click", closePreviewModal);
