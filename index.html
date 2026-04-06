@@ -387,6 +387,7 @@
     .gallery-pane {
       grid-template-rows: auto minmax(0, 1fr);
       min-height: 0;
+      overflow: hidden;
     }
 
     .gallery-toolbar {
@@ -405,12 +406,15 @@
 
     .gallery-list {
       min-height: 0;
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
       padding: 8px;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
       align-content: start;
+      align-items: start;
+      grid-auto-rows: max-content;
       -webkit-overflow-scrolling: touch;
     }
 
@@ -432,6 +436,8 @@
       display: grid;
       grid-template-rows: auto auto auto;
       transition: border-color 120ms ease, box-shadow 120ms ease;
+      align-self: start;
+      height: auto;
     }
 
     .gallery-card.selected {
@@ -449,6 +455,8 @@
       background: #000;
       overflow: hidden;
       position: relative;
+      width: 100%;
+      height: auto;
     }
 
     .gallery-thumb {
@@ -495,12 +503,12 @@
     .capture-fly-thumb {
       position: fixed;
       z-index: 80;
-      border-radius: 12px;
+      border-radius: 14px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.22);
+      border: 1px solid rgba(255,255,255,0.24);
       box-shadow:
-        0 14px 30px rgba(0,0,0,0.42),
-        0 0 0 1px rgba(255,255,255,0.08) inset;
+        0 16px 36px rgba(0,0,0,0.48),
+        0 0 0 1px rgba(255,255,255,0.10) inset;
       pointer-events: none;
       object-fit: cover;
       background: #000;
@@ -629,7 +637,7 @@
         <div class="tab-row">
           <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
           <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
-          <span class="footer-meta" id="buildInfo">v1.53 • Güncelleme: 2026-04-06 13:35</span>
+          <span class="footer-meta" id="buildInfo">v1.54 • Güncelleme: 2026-04-06 14:05</span>
         </div>
 
         <div class="tab-body">
@@ -1092,45 +1100,63 @@
 
       const now = ctx.currentTime;
 
-      const noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.08), ctx.sampleRate);
-      const data = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < data.length; i += 1) {
-        data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.9, now);
+      master.connect(ctx.destination);
+
+      const click1 = ctx.createOscillator();
+      click1.type = "triangle";
+      click1.frequency.setValueAtTime(2100, now);
+
+      const click1Gain = ctx.createGain();
+      click1Gain.gain.setValueAtTime(0.0001, now);
+      click1Gain.gain.linearRampToValueAtTime(0.14, now + 0.002);
+      click1Gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.028);
+
+      click1.connect(click1Gain);
+      click1Gain.connect(master);
+      click1.start(now);
+      click1.stop(now + 0.03);
+
+      const click2 = ctx.createOscillator();
+      click2.type = "triangle";
+      click2.frequency.setValueAtTime(1200, now + 0.038);
+
+      const click2Gain = ctx.createGain();
+      click2Gain.gain.setValueAtTime(0.0001, now + 0.038);
+      click2Gain.gain.linearRampToValueAtTime(0.11, now + 0.042);
+      click2Gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.085);
+
+      click2.connect(click2Gain);
+      click2Gain.connect(master);
+      click2.start(now + 0.038);
+      click2.stop(now + 0.09);
+
+      const noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.10), ctx.sampleRate);
+      const noiseData = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < noiseData.length; i += 1) {
+        noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseData.length);
       }
 
-      const noiseSource = ctx.createBufferSource();
-      noiseSource.buffer = noiseBuffer;
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
 
       const noiseFilter = ctx.createBiquadFilter();
-      noiseFilter.type = "highpass";
-      noiseFilter.frequency.setValueAtTime(900, now);
+      noiseFilter.type = "bandpass";
+      noiseFilter.frequency.setValueAtTime(1800, now);
+      noiseFilter.Q.setValueAtTime(0.8, now);
 
       const noiseGain = ctx.createGain();
       noiseGain.gain.setValueAtTime(0.0001, now);
-      noiseGain.gain.linearRampToValueAtTime(0.22, now + 0.004);
-      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.075);
+      noiseGain.gain.linearRampToValueAtTime(0.08, now + 0.003);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.10);
 
-      const clickOsc = ctx.createOscillator();
-      clickOsc.type = "triangle";
-      clickOsc.frequency.setValueAtTime(1600, now);
-
-      const clickGain = ctx.createGain();
-      clickGain.gain.setValueAtTime(0.0001, now);
-      clickGain.gain.linearRampToValueAtTime(0.16, now + 0.003);
-      clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
-
-      noiseSource.connect(noiseFilter);
+      noise.connect(noiseFilter);
       noiseFilter.connect(noiseGain);
-      noiseGain.connect(ctx.destination);
+      noiseGain.connect(master);
 
-      clickOsc.connect(clickGain);
-      clickGain.connect(ctx.destination);
-
-      noiseSource.start(now);
-      noiseSource.stop(now + 0.08);
-
-      clickOsc.start(now);
-      clickOsc.stop(now + 0.05);
+      noise.start(now);
+      noise.stop(now + 0.10);
     }
 
     function flashCapture() {
@@ -1147,12 +1173,13 @@
       thumb.className = "capture-fly-thumb";
       thumb.src = objectUrl;
 
-      const startWidth = Math.max(84, startRect.width * 0.28);
+      const startWidth = Math.max(150, startRect.width * 0.42);
       const startHeight = startWidth * 0.75;
+
       const startLeft = startRect.left + (startRect.width - startWidth) / 2;
       const startTop = startRect.top + (startRect.height - startHeight) / 2;
 
-      const endWidth = Math.max(28, endRect.width * 0.42);
+      const endWidth = Math.max(30, endRect.width * 0.42);
       const endHeight = endWidth * 0.75;
       const endLeft = endRect.left + (endRect.width - endWidth) / 2;
       const endTop = endRect.top + (endRect.height - endHeight) / 2;
@@ -1163,34 +1190,36 @@
       thumb.style.height = `${startHeight}px`;
       thumb.style.opacity = "0";
       thumb.style.transform = "scale(0.96)";
+
       document.body.appendChild(thumb);
 
       requestAnimationFrame(() => {
-        thumb.style.transition =
-          "left 420ms cubic-bezier(.2,.8,.2,1), top 420ms cubic-bezier(.2,.8,.2,1), width 420ms cubic-bezier(.2,.8,.2,1), height 420ms cubic-bezier(.2,.8,.2,1), opacity 160ms ease-out, transform 420ms cubic-bezier(.2,.8,.2,1)";
+        thumb.style.transition = "opacity 180ms ease-out, transform 180ms ease-out";
         thumb.style.opacity = "1";
         thumb.style.transform = "scale(1)";
+      });
+
+      setTimeout(() => {
+        thumb.style.transition =
+          "left 520ms cubic-bezier(.2,.8,.2,1), top 520ms cubic-bezier(.2,.8,.2,1), width 520ms cubic-bezier(.2,.8,.2,1), height 520ms cubic-bezier(.2,.8,.2,1), opacity 220ms ease-out, transform 520ms cubic-bezier(.2,.8,.2,1)";
         thumb.style.left = `${endLeft}px`;
         thumb.style.top = `${endTop}px`;
         thumb.style.width = `${endWidth}px`;
         thumb.style.height = `${endHeight}px`;
-      });
+        thumb.style.opacity = "0.18";
+        thumb.style.transform = "scale(0.82)";
+      }, 2000);
 
       setTimeout(() => {
         galleryTabBtnEl.classList.remove("gallery-pulse");
         void galleryTabBtnEl.offsetWidth;
         galleryTabBtnEl.classList.add("gallery-pulse");
-      }, 240);
-
-      setTimeout(() => {
-        thumb.style.opacity = "0";
-        thumb.style.transform = "scale(0.88)";
-      }, 360);
+      }, 2350);
 
       setTimeout(() => {
         thumb.remove();
         galleryTabBtnEl.classList.remove("gallery-pulse");
-      }, 520);
+      }, 2700);
     }
 
     function openDb() {
