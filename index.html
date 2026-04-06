@@ -14,12 +14,13 @@
       --text: #edf2f7;
       --muted: #a6b0c0;
       --success: #58d38d;
-      --warning: #f0b429;
       --danger: #f87171;
       --tab: #0f141b;
       --tab-active: #1d2633;
       --select: #60a5fa;
       --accent: #4da3ff;
+      --warm: #f0b429;
+      --cool: #7dd3fc;
     }
 
     html { -webkit-text-size-adjust: 100%; }
@@ -78,30 +79,6 @@
       line-height: 1.05;
     }
 
-    .top-meta {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .pill {
-      border-radius: 999px;
-      padding: 5px 8px;
-      font-size: 11px;
-      background: rgba(10, 12, 16, 0.78);
-      border: 1px solid rgba(255,255,255,0.12);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      display: inline-flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .pill.ok { border-color: rgba(88,211,141,0.35); }
-    .pill.warn { border-color: rgba(240,180,41,0.35); }
-    .pill.bad { border-color: rgba(248,113,113,0.35); }
-
     .preview-card {
       padding: 8px;
       min-height: 0;
@@ -149,6 +126,24 @@
       pointer-events: none;
       z-index: 3;
     }
+
+    .pill {
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 11px;
+      background: rgba(10, 12, 16, 0.78);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .pill.ok { border-color: rgba(88,211,141,0.35); }
+    .pill.warn { border-color: rgba(240,180,41,0.35); }
+    .pill.bad { border-color: rgba(248,113,113,0.35); }
 
     .gesture-hint {
       position: absolute;
@@ -254,7 +249,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       cursor: pointer;
       font-weight: 600;
       background:
@@ -347,7 +342,7 @@
     .tab-pane.active { display: grid; }
 
     .data-pane {
-      grid-template-rows: auto auto auto;
+      grid-template-rows: auto auto auto auto;
       gap: 6px;
       padding: 8px;
       overflow: auto;
@@ -369,6 +364,12 @@
       color: var(--muted);
       font-size: 10px;
       min-width: 0;
+    }
+
+    .info-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
     }
 
     .status {
@@ -402,7 +403,7 @@
 
     .gallery-toolbar {
       display: grid;
-      grid-template-columns: 1fr auto auto auto;
+      grid-template-columns: auto auto auto auto 1fr;
       gap: 6px;
       padding: 8px;
       border-bottom: 1px solid var(--border);
@@ -412,6 +413,9 @@
     .gallery-counter {
       color: var(--muted);
       font-size: 11px;
+      justify-self: end;
+      white-space: nowrap;
+      text-align: right;
     }
 
     .gallery-list {
@@ -513,6 +517,7 @@
       font-size: 11px;
       border-radius: 10px;
       box-shadow: none;
+      padding: 0 8px;
     }
 
     .mini-btn .btn-icon { font-size: 14px; }
@@ -667,7 +672,12 @@
     @media (max-width: 980px) {
       .gallery-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .capture-preview { width: min(42vw, 210px); }
-      .gallery-toolbar { grid-template-columns: 1fr auto auto; }
+      .gallery-toolbar {
+        grid-template-columns: auto auto auto auto 1fr;
+      }
+      .info-strip {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -675,11 +685,6 @@
   <main class="app">
     <section class="card header-card">
       <h1>Torik IOL Marker</h1>
-      <div class="top-meta">
-        <div id="cameraStatePill" class="pill warn">Kamera: Kapalı</div>
-        <div id="sensorStatePill" class="pill warn">Sensör: Bekliyor</div>
-        <div id="qualityPill" class="pill">Çözünürlük: -</div>
-      </div>
     </section>
 
     <section class="card preview-card">
@@ -720,7 +725,7 @@
           <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
           <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
           <button id="installBtn" class="install-btn" type="button">📲 Yükle</button>
-          <span class="footer-meta" id="buildInfo">v1.62 • Güncelleme: 2026-04-06 16:20</span>
+          <span class="footer-meta" id="buildInfo">v1.63 • Güncelleme: 2026-04-06 16:40</span>
         </div>
 
         <div class="tab-body">
@@ -765,23 +770,33 @@
             </div>
 
             <div class="status" id="status">Hazır. Aşağı çekerek kapat, yukarı çekerek paylaş. Yatay ve 90° kilitleri ±0.5° hassasiyetle renk değiştirir.</div>
+
+            <div class="info-strip">
+              <div id="cameraStatePill" class="pill warn">Kamera: Kapalı</div>
+              <div id="sensorStatePill" class="pill warn">Sensör: Bekliyor</div>
+              <div id="qualityPill" class="pill">Çözünürlük: -</div>
+            </div>
           </div>
 
           <div id="galleryPane" class="tab-pane gallery-pane">
             <div class="gallery-toolbar">
-              <div class="gallery-counter" id="galleryCounter">0 öğe</div>
+              <button id="galleryToggleSelectBtn" class="mini-btn" type="button" disabled>
+                <span class="btn-icon">☑️</span>
+                <span>Tümü</span>
+              </button>
               <button id="gallerySaveSelectedBtn" class="mini-btn" type="button" disabled>
                 <span class="btn-icon">💾</span>
                 <span>Seçili</span>
-              </button>
-              <button id="galleryDownloadAllBtn" class="mini-btn" type="button" disabled>
-                <span class="btn-icon">⬇️</span>
-                <span>Tümü</span>
               </button>
               <button id="galleryDeleteSelectedBtn" class="mini-btn danger" type="button" disabled>
                 <span class="btn-icon">🗑️</span>
                 <span>Sil</span>
               </button>
+              <button id="galleryDownloadAllBtn" class="mini-btn" type="button" disabled>
+                <span class="btn-icon">⬇️</span>
+                <span>Tümü Kaydet</span>
+              </button>
+              <div class="gallery-counter" id="galleryCounter">0 öğe • 0 seçili</div>
             </div>
 
             <div id="galleryList" class="gallery-list">
@@ -872,6 +887,7 @@
     const galleryDownloadAllBtnEl = document.getElementById("galleryDownloadAllBtn");
     const gallerySaveSelectedBtnEl = document.getElementById("gallerySaveSelectedBtn");
     const galleryDeleteSelectedBtnEl = document.getElementById("galleryDeleteSelectedBtn");
+    const galleryToggleSelectBtnEl = document.getElementById("galleryToggleSelectBtn");
 
     const capturePreviewBtnEl = document.getElementById("capturePreviewBtn");
     const capturePreviewImgEl = document.getElementById("capturePreviewImg");
@@ -1211,11 +1227,15 @@
 
     function updateGalleryUi() {
       const selectedCount = getSelectedGalleryItems().length;
-      galleryCounterEl.textContent = `${galleryItems.length} öğe • ${selectedCount} seçili`;
-      galleryDownloadAllBtnEl.disabled = galleryItems.length === 0;
+      const totalCount = galleryItems.length;
+      galleryCounterEl.textContent = `${totalCount} öğe • ${selectedCount} seçili`;
+      galleryDownloadAllBtnEl.disabled = totalCount === 0;
       gallerySaveSelectedBtnEl.disabled = selectedCount === 0;
       galleryDeleteSelectedBtnEl.disabled = selectedCount === 0;
-      galleryEmptyEl.style.display = galleryItems.length === 0 ? "block" : "none";
+      galleryToggleSelectBtnEl.disabled = totalCount === 0;
+      galleryToggleSelectBtnEl.querySelector("span:last-child").textContent =
+        totalCount > 0 && selectedCount === totalCount ? "Seçimi Kaldır" : "Tümü";
+      galleryEmptyEl.style.display = totalCount === 0 ? "block" : "none";
       galleryEmptyEl.textContent = "Henüz foto yok.";
     }
 
@@ -1916,6 +1936,12 @@
       ctx.strokeStyle = "rgba(255,255,255,0.16)";
       ctx.stroke();
 
+      ctx.beginPath();
+      ctx.arc(0, 0, outerRingRadius * 0.44, 0, Math.PI * 2);
+      ctx.lineWidth = Math.max(1.7, outerRingRadius * 0.007);
+      ctx.strokeStyle = "rgba(125,211,252,0.30)";
+      ctx.stroke();
+
       for (let deg = 0; deg < 180; deg += 5) {
         const rad = angleToCanvasRad(deg);
         const oppositeRad = angleToCanvasRad(deg + 180);
@@ -1994,6 +2020,22 @@
           );
         }
       }
+
+      const dynamicNotchAngle = normalizedRollAxis;
+      const dynamicRad = angleToCanvasRad(dynamicNotchAngle);
+      const dynamicOppRad = angleToCanvasRad(dynamicNotchAngle + 180);
+      const dynamicOuter = outerRingRadius + outerRingRadius * 0.09;
+      const dynamicInner = outerRingRadius - outerRingRadius * 0.21;
+      const dynamicColor = isHorizontalLocked ? "rgba(88,211,141,0.98)" : "rgba(240,180,41,0.98)";
+
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(dynamicRad) * dynamicInner, Math.sin(dynamicRad) * dynamicInner);
+      ctx.lineTo(Math.cos(dynamicRad) * dynamicOuter, Math.sin(dynamicRad) * dynamicOuter);
+      ctx.moveTo(Math.cos(dynamicOppRad) * dynamicInner, Math.sin(dynamicOppRad) * dynamicInner);
+      ctx.lineTo(Math.cos(dynamicOppRad) * dynamicOuter, Math.sin(dynamicOppRad) * dynamicOuter);
+      ctx.lineWidth = Math.max(4.0, outerRingRadius * 0.016);
+      ctx.strokeStyle = dynamicColor;
+      ctx.stroke();
 
       const targetRad = angleToCanvasRad(targetDeg);
       const oppositeTargetRad = angleToCanvasRad(targetDeg + 180);
@@ -2291,6 +2333,15 @@
       const card = galleryListEl.querySelector(`[data-id="${CSS.escape(id)}"]`);
       card?.classList.toggle("selected", item.selected);
       updateGalleryUi();
+    }
+
+    function toggleSelectAllGalleryItems() {
+      if (!galleryItems.length) return;
+      const allSelected = galleryItems.every(item => item.selected);
+      for (const item of galleryItems) {
+        item.selected = !allSelected;
+      }
+      renderGallery();
     }
 
     async function removeGalleryItem(id) {
@@ -2760,6 +2811,10 @@
 
     dataTabBtnEl.addEventListener("click", () => setActiveTab("data"));
     galleryTabBtnEl.addEventListener("click", () => setActiveTab("gallery"));
+
+    galleryToggleSelectBtnEl.addEventListener("click", () => {
+      toggleSelectAllGalleryItems();
+    });
 
     galleryDownloadAllBtnEl.addEventListener("click", async () => {
       if (!galleryItems.length) return;
