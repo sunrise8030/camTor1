@@ -200,11 +200,11 @@
       z-index: 6;
     }
 
-    .capture-flash.active { animation: captureFlashAnim 180ms ease-out; }
+    .capture-flash.active { animation: captureFlashAnim 160ms ease-out; }
 
     @keyframes captureFlashAnim {
       0% { opacity: 0; }
-      15% { opacity: 0.9; }
+      15% { opacity: 0.95; }
       100% { opacity: 0; }
     }
 
@@ -752,7 +752,7 @@
           <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
           <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
           <button id="installBtn" class="install-btn" type="button">📲 Yükle</button>
-          <span class="footer-meta" id="buildInfo">v1.65 • Güncelleme: 2026-04-06 17:05</span>
+          <span class="footer-meta" id="buildInfo">v1.66 • Güncelleme: 2026-04-06 17:20</span>
         </div>
 
         <div class="tab-body">
@@ -804,7 +804,7 @@
               </div>
             </div>
 
-            <div class="status" id="status">Hazır. Aşağı çekerek kapat, yukarı çekerek paylaş. Yatay ve 90° kilitleri ±0.5° hassasiyetle renk değiştirir.</div>
+            <div class="status" id="status">Hazır. Gecikme azaltıldı, PNG korunuyor. Aşağı çekerek kapat, yukarı çekerek paylaş.</div>
           </div>
 
           <div id="galleryPane" class="tab-pane gallery-pane">
@@ -1365,65 +1365,91 @@
     async function playShutterSound() {
       const ctx = ensureAudioContext();
       if (!ctx) return;
+
       if (ctx.state === "suspended") {
         try { await ctx.resume(); } catch (_) { return; }
       }
 
       const now = ctx.currentTime;
       const master = ctx.createGain();
-      master.gain.setValueAtTime(0.95, now);
+      master.gain.setValueAtTime(0.98, now);
       master.connect(ctx.destination);
 
-      const click1 = ctx.createOscillator();
-      click1.type = "triangle";
-      click1.frequency.setValueAtTime(2100, now);
+      const body = ctx.createOscillator();
+      body.type = "triangle";
+      body.frequency.setValueAtTime(980, now);
+      body.frequency.exponentialRampToValueAtTime(310, now + 0.085);
 
-      const click1Gain = ctx.createGain();
-      click1Gain.gain.setValueAtTime(0.0001, now);
-      click1Gain.gain.linearRampToValueAtTime(0.14, now + 0.002);
-      click1Gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.028);
-      click1.connect(click1Gain);
-      click1Gain.connect(master);
-      click1.start(now);
-      click1.stop(now + 0.03);
+      const bodyGain = ctx.createGain();
+      bodyGain.gain.setValueAtTime(0.0001, now);
+      bodyGain.gain.linearRampToValueAtTime(0.23, now + 0.003);
+      bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.095);
 
-      const click2 = ctx.createOscillator();
-      click2.type = "triangle";
-      click2.frequency.setValueAtTime(1200, now + 0.038);
+      body.connect(bodyGain);
+      bodyGain.connect(master);
+      body.start(now);
+      body.stop(now + 0.10);
 
-      const click2Gain = ctx.createGain();
-      click2Gain.gain.setValueAtTime(0.0001, now + 0.038);
-      click2Gain.gain.linearRampToValueAtTime(0.11, now + 0.042);
-      click2Gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.085);
-      click2.connect(click2Gain);
-      click2Gain.connect(master);
-      click2.start(now + 0.038);
-      click2.stop(now + 0.09);
+      const snap = ctx.createOscillator();
+      snap.type = "square";
+      snap.frequency.setValueAtTime(2300, now + 0.006);
+      snap.frequency.exponentialRampToValueAtTime(780, now + 0.032);
 
-      const noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.10), ctx.sampleRate);
+      const snapGain = ctx.createGain();
+      snapGain.gain.setValueAtTime(0.0001, now + 0.006);
+      snapGain.gain.linearRampToValueAtTime(0.14, now + 0.008);
+      snapGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.038);
+
+      snap.connect(snapGain);
+      snapGain.connect(master);
+      snap.start(now + 0.006);
+      snap.stop(now + 0.040);
+
+      const tail = ctx.createOscillator();
+      tail.type = "sine";
+      tail.frequency.setValueAtTime(420, now + 0.040);
+      tail.frequency.exponentialRampToValueAtTime(180, now + 0.130);
+
+      const tailGain = ctx.createGain();
+      tailGain.gain.setValueAtTime(0.0001, now + 0.040);
+      tailGain.gain.linearRampToValueAtTime(0.07, now + 0.046);
+      tailGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.135);
+
+      tail.connect(tailGain);
+      tailGain.connect(master);
+      tail.start(now + 0.040);
+      tail.stop(now + 0.14);
+
+      const noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.12), ctx.sampleRate);
       const noiseData = noiseBuffer.getChannelData(0);
       for (let i = 0; i < noiseData.length; i += 1) {
-        noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseData.length);
+        const decay = 1 - i / noiseData.length;
+        noiseData[i] = (Math.random() * 2 - 1) * decay;
       }
 
       const noise = ctx.createBufferSource();
       noise.buffer = noiseBuffer;
 
-      const noiseFilter = ctx.createBiquadFilter();
-      noiseFilter.type = "bandpass";
-      noiseFilter.frequency.setValueAtTime(1800, now);
-      noiseFilter.Q.setValueAtTime(0.8, now);
+      const highpass = ctx.createBiquadFilter();
+      highpass.type = "highpass";
+      highpass.frequency.setValueAtTime(1200, now);
+
+      const band = ctx.createBiquadFilter();
+      band.type = "bandpass";
+      band.frequency.setValueAtTime(2100, now);
+      band.Q.setValueAtTime(0.9, now);
 
       const noiseGain = ctx.createGain();
       noiseGain.gain.setValueAtTime(0.0001, now);
-      noiseGain.gain.linearRampToValueAtTime(0.08, now + 0.003);
-      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.10);
+      noiseGain.gain.linearRampToValueAtTime(0.12, now + 0.002);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.065);
 
-      noise.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
+      noise.connect(highpass);
+      highpass.connect(band);
+      band.connect(noiseGain);
       noiseGain.connect(master);
       noise.start(now);
-      noise.stop(now + 0.10);
+      noise.stop(now + 0.07);
     }
 
     function flashCapture() {
@@ -2646,7 +2672,6 @@
       const height = videoEl.videoHeight;
       if (!width || !height) throw new Error("Video hazır değil.");
 
-      await new Promise(resolve => setTimeout(resolve, 120));
       playShutterSound();
       flashCapture();
 
@@ -2654,7 +2679,7 @@
       canvas.width = width;
       canvas.height = height;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext("2d", { alpha: false, willReadFrequently: false });
       if (!ctx) throw new Error("Canvas alınamadı.");
 
       ctx.drawImage(videoEl, 0, 0, width, height);
@@ -2663,7 +2688,7 @@
       overlayCanvas.width = width;
       overlayCanvas.height = height;
 
-      const overlayCanvasCtx = overlayCanvas.getContext("2d");
+      const overlayCanvasCtx = overlayCanvas.getContext("2d", { alpha: true, willReadFrequently: false });
       if (!overlayCanvasCtx) throw new Error("Overlay canvas alınamadı.");
 
       drawOverlayOnContext(
