@@ -221,6 +221,17 @@
       font-size: 14px;
     }
 
+    input[type="number"] {
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
     button {
       display: inline-flex;
       align-items: center;
@@ -706,7 +717,7 @@
               </label>
             </div>
 
-            <div class="status" id="status">Hazır. Foto çek her sekmede aktiftir. Son foto veri sekmesinde görünür. Aşağı çekerek kapanır.</div>
+            <div class="status" id="status">Hazır. Foto çek her sekmede aktiftir. Son foto veri sekmesinde görünür. Aşağı çekerek kapanır, yukarı çekerek paylaşılır.</div>
           </div>
 
           <div id="galleryPane" class="tab-pane gallery-pane">
@@ -886,7 +897,8 @@
     const HAPTIC_STEP_DEG = 5;
     const HAPTIC_MIN_INTERVAL_MS = 50;
     const SENSOR_TIMEOUT_MS = 1800;
-    const SWIPE_CLOSE_THRESHOLD = 90;
+    const SWIPE_CLOSE_THRESHOLD = 42;
+    const SWIPE_SHARE_THRESHOLD = 42;
 
     function setStatus(message) {
       statusEl.textContent = message;
@@ -1122,6 +1134,42 @@
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+
+    async function shareBlobOrDownload(blob, fileName) {
+      const file = new File([blob], fileName, { type: blob.type || "image/png" });
+
+      if (navigator.share && navigator.canShare) {
+        try {
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: fileName
+            });
+            return "shared";
+          }
+        } catch (error) {
+          if (error?.name === "AbortError") {
+            return "cancelled";
+          }
+        }
+      }
+
+      downloadBlob(blob, fileName);
+      return "downloaded";
+    }
+
+    async function shareGalleryItemById(id) {
+      const item = getGalleryItemById(id);
+      if (!item) return;
+
+      const result = await shareBlobOrDownload(item.blob, item.fileName);
+
+      if (result === "shared") {
+        updateDiagnosticStatus(`Paylaşım açıldı.\n${item.fileName}`);
+      } else if (result === "downloaded") {
+        updateDiagnosticStatus(`Paylaşım desteklenmedi. İndirme başlatıldı.\n${item.fileName}`);
+      }
     }
 
     function ensureAudioContext() {
@@ -2094,19 +2142,21 @@
     }
 
     function applyPreviewSwipeTransform(offsetY) {
-      const positive = Math.max(0, offsetY);
-      const opacity = Math.max(0.18, 1 - positive / 220);
+      const limited = Math.max(-140, Math.min(140, offsetY));
+      const opacity = Math.max(0.12, 1 - Math.abs(limited) / 140);
+
       capturePreviewBtnEl.style.transition = "none";
-      capturePreviewBtnEl.style.transform = `translateY(${positive}px) scale(${1 - Math.min(positive / 800, 0.08)})`;
+      capturePreviewBtnEl.style.transform = `translateY(${limited}px) scale(${1 - Math.min(Math.abs(limited) / 500, 0.12)})`;
       capturePreviewBtnEl.style.opacity = String(opacity);
     }
 
     function applyModalSwipeTransform(offsetY) {
-      const positive = Math.max(0, offsetY);
-      const bgAlpha = Math.max(0.18, 0.82 - positive / 360);
+      const limited = Math.max(-180, Math.min(180, offsetY));
+      const bgAlpha = Math.max(0.10, 0.82 - Math.abs(limited) / 180);
+
       modalCardEl.style.transition = "none";
       previewModalEl.style.transition = "none";
-      modalCardEl.style.transform = `translateY(${positive}px)`;
+      modalCardEl.style.transform = `translateY(${limited}px) scale(${1 - Math.min(Math.abs(limited) / 700, 0.08)})`;
       previewModalEl.style.background = `rgba(0,0,0,${bgAlpha})`;
     }
 
@@ -2122,25 +2172,31 @@
 
     function previewSwipeMove(event) {
       if (!previewSwipeState.active || previewSwipeState.pointerId !== event.pointerId) return;
+
       previewSwipeState.currentY = event.clientY;
       const dy = previewSwipeState.currentY - previewSwipeState.startY;
-      if (dy > 0) {
+
+      if (Math.abs(dy) > 8) {
         previewSwipeState.dragging = true;
         applyPreviewSwipeTransform(dy);
       }
     }
 
-    function previewSwipeEnd(event) {
+    async function previewSwipeEnd(event) {
       if (!previewSwipeState.active || previewSwipeState.pointerId !== event.pointerId) return;
 
       const dy = previewSwipeState.currentY - previewSwipeState.startY;
       const shouldClose = dy > SWIPE_CLOSE_THRESHOLD;
+      const shouldShare = dy < -SWIPE_SHARE_THRESHOLD;
 
       previewSwipeState.active = false;
       previewSwipeState.pointerId = null;
 
       if (previewSwipeState.dragging && shouldClose) {
         dismissCapturePreview();
+      } else if (previewSwipeState.dragging && shouldShare) {
+        resetCapturePreviewTransform();
+        await shareGalleryItemById(lastCapturedItemId);
       } else {
         resetCapturePreviewTransform();
         if (!previewSwipeState.dragging) {
@@ -2163,25 +2219,31 @@
 
     function modalSwipeMove(event) {
       if (!modalSwipeState.active || modalSwipeState.pointerId !== event.pointerId) return;
+
       modalSwipeState.currentY = event.clientY;
       const dy = modalSwipeState.currentY - modalSwipeState.startY;
-      if (dy > 0) {
+
+      if (Math.abs(dy) > 8) {
         modalSwipeState.dragging = true;
         applyModalSwipeTransform(dy);
       }
     }
 
-    function modalSwipeEnd(event) {
+    async function modalSwipeEnd(event) {
       if (!modalSwipeState.active || modalSwipeState.pointerId !== event.pointerId) return;
 
       const dy = modalSwipeState.currentY - modalSwipeState.startY;
       const shouldClose = dy > SWIPE_CLOSE_THRESHOLD;
+      const shouldShare = dy < -SWIPE_SHARE_THRESHOLD;
 
       modalSwipeState.active = false;
       modalSwipeState.pointerId = null;
 
       if (modalSwipeState.dragging && shouldClose) {
         closePreviewModal();
+      } else if (modalSwipeState.dragging && shouldShare) {
+        resetModalTransform();
+        await shareGalleryItemById(modalItemId);
       } else {
         resetModalTransform();
       }
@@ -2444,64 +2506,6 @@
       await removeGalleryItem(modalItemId);
     });
 
-    function moveCaretToEnd(input) {
-      const value = input.value ?? "";
-      const end = value.length;
-      input.setSelectionRange(end, end);
-    }
-
-    function attachSmartFieldSelection(input) {
-      let pointerDownX = 0;
-      let pointerDownY = 0;
-      let pointerMoved = false;
-
-      input.addEventListener("pointerdown", event => {
-        pointerDownX = event.clientX;
-        pointerDownY = event.clientY;
-        pointerMoved = false;
-      });
-
-      input.addEventListener("pointermove", event => {
-        if (Math.abs(event.clientX - pointerDownX) > 6 || Math.abs(event.clientY - pointerDownY) > 6) {
-          pointerMoved = true;
-        }
-      });
-
-      input.addEventListener("focus", () => {
-        requestAnimationFrame(() => {
-          if (document.activeElement === input) {
-            input.select();
-          }
-        });
-      });
-
-      input.addEventListener("pointerup", event => {
-        if (pointerMoved) return;
-        if (document.activeElement !== input) return;
-
-        const rect = input.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const valueLength = (input.value ?? "").length;
-
-        if (!valueLength) {
-          input.select();
-          return;
-        }
-
-        const isNearEnd = x > rect.width * 0.82;
-
-        requestAnimationFrame(() => {
-          if (document.activeElement !== input) return;
-
-          if (isNearEnd) {
-            moveCaretToEnd(input);
-          } else {
-            input.select();
-          }
-        });
-      });
-    }
-
     [
       patientNameInputEl,
       iolTypeInputEl,
@@ -2607,4 +2611,3 @@
   </script>
 </body>
 </html>
-                                                
