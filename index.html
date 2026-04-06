@@ -309,16 +309,6 @@
       border-color: rgba(255,255,255,0.16);
     }
 
-    .tab-btn.gallery-pulse {
-      animation: galleryPulseAnim 420ms ease-out;
-    }
-
-    @keyframes galleryPulseAnim {
-      0% { transform: scale(1); }
-      35% { transform: scale(1.06); }
-      100% { transform: scale(1); }
-    }
-
     .tab-body {
       min-height: 0;
       border: 1px solid var(--border);
@@ -500,25 +490,55 @@
       font-size: 14px;
     }
 
-    .capture-fly-thumb {
+    .capture-preview {
       position: fixed;
-      z-index: 80;
       right: max(14px, env(safe-area-inset-right) + 14px);
       bottom: max(18px, env(safe-area-inset-bottom) + 18px);
-      width: min(38vw, 240px);
+      width: min(36vw, 220px);
       aspect-ratio: 4 / 3;
       border-radius: 16px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.24);
+      border: 1px solid rgba(255,255,255,0.26);
       box-shadow:
-        0 16px 36px rgba(0,0,0,0.48),
+        0 18px 40px rgba(0,0,0,0.50),
         0 0 0 1px rgba(255,255,255,0.10) inset;
-      pointer-events: none;
-      object-fit: cover;
       background: #000;
-      transform-origin: center center;
+      z-index: 80;
       opacity: 0;
-      transform: scale(0.94);
+      transform: translateY(10px) scale(0.95);
+      pointer-events: none;
+      transition:
+        opacity 260ms ease,
+        transform 260ms ease;
+    }
+
+    .capture-preview.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .capture-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .capture-preview-badge {
+      position: absolute;
+      left: 8px;
+      top: 8px;
+      z-index: 2;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      pointer-events: none;
     }
 
     .modal-backdrop {
@@ -591,7 +611,7 @@
 
     .modal-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 8px;
     }
 
@@ -600,8 +620,8 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
-      .capture-fly-thumb {
-        width: min(44vw, 230px);
+      .capture-preview {
+        width: min(42vw, 210px);
       }
     }
   </style>
@@ -647,7 +667,7 @@
         <div class="tab-row">
           <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
           <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
-          <span class="footer-meta" id="buildInfo">v1.55 • Güncelleme: 2026-04-06 14:20</span>
+          <span class="footer-meta" id="buildInfo">v1.56 • Güncelleme: 2026-04-06 14:30</span>
         </div>
 
         <div class="tab-body">
@@ -691,7 +711,7 @@
               </label>
             </div>
 
-            <div class="status" id="status">Hazır. Foto çek veri sekmesinde kalır. Galeri sekmesinde kaydet/sil yapılır.</div>
+            <div class="status" id="status">Hazır. Foto çek her sekmede aktiftir. Sağ alttaki önizlemeye dokununca büyük açılır.</div>
           </div>
 
           <div id="galleryPane" class="tab-pane gallery-pane">
@@ -720,6 +740,11 @@
     </section>
   </main>
 
+  <button id="capturePreviewBtn" class="capture-preview" type="button" aria-label="Son foto önizleme">
+    <div class="capture-preview-badge">Son foto</div>
+    <img id="capturePreviewImg" alt="Son çekilen foto" />
+  </button>
+
   <div id="previewModal" class="modal-backdrop">
     <div class="modal-card">
       <div class="modal-head">
@@ -739,6 +764,10 @@
         <button id="modalDeleteBtn" class="danger" type="button">
           <span class="btn-icon">🗑️</span>
           <span>Sil</span>
+        </button>
+        <button id="modalDismissBtn" type="button">
+          <span class="btn-icon">✕</span>
+          <span>Kapat</span>
         </button>
       </div>
     </div>
@@ -785,12 +814,16 @@
     const gallerySaveSelectedBtnEl = document.getElementById("gallerySaveSelectedBtn");
     const galleryDeleteSelectedBtnEl = document.getElementById("galleryDeleteSelectedBtn");
 
+    const capturePreviewBtnEl = document.getElementById("capturePreviewBtn");
+    const capturePreviewImgEl = document.getElementById("capturePreviewImg");
+
     const previewModalEl = document.getElementById("previewModal");
     const modalImageEl = document.getElementById("modalImage");
     const modalTitleEl = document.getElementById("modalTitle");
     const modalCloseBtnEl = document.getElementById("modalCloseBtn");
     const modalSaveBtnEl = document.getElementById("modalSaveBtn");
     const modalDeleteBtnEl = document.getElementById("modalDeleteBtn");
+    const modalDismissBtnEl = document.getElementById("modalDismissBtn");
 
     const audioState = { ctx: null };
 
@@ -833,6 +866,7 @@
     const galleryItems = [];
     let modalItemId = null;
     let activeTab = "data";
+    let lastCapturedItemId = null;
 
     const LOW_PASS_ALPHA = 0.16;
     const ANGLE_SMOOTH_ALPHA = 0.18;
@@ -896,7 +930,6 @@
       galleryTabBtnEl.classList.toggle("active", !isData);
       dataPaneEl.classList.toggle("active", isData);
       galleryPaneEl.classList.toggle("active", !isData);
-      updateMainActionUi();
     }
 
     function vibratePattern(pattern) {
@@ -991,6 +1024,10 @@
       return galleryItems.filter(item => item.selected);
     }
 
+    function getGalleryItemById(id) {
+      return galleryItems.find(item => item.id === id) || null;
+    }
+
     function updateTorchUi() {
       if (!torchSupported) {
         torchIconEl.textContent = "🚫";
@@ -1006,12 +1043,6 @@
       if (!currentStream) {
         mainActionIconEl.textContent = "🔓";
         mainActionLabelEl.textContent = "İzin Ver ve Başlat";
-        return;
-      }
-
-      if (activeTab === "gallery") {
-        mainActionIconEl.textContent = "💾";
-        mainActionLabelEl.textContent = "Kaydet";
         return;
       }
 
@@ -1175,27 +1206,15 @@
       captureFlashEl.classList.add("active");
     }
 
-    function animatePhotoToGallery(objectUrl) {
-      const thumb = document.createElement("img");
-      thumb.className = "capture-fly-thumb";
-      thumb.src = objectUrl;
-      document.body.appendChild(thumb);
+    function showLastCapturePreview(item) {
+      lastCapturedItemId = item.id;
+      capturePreviewImgEl.src = item.objectUrl;
+      capturePreviewBtnEl.classList.add("visible");
+    }
 
-      requestAnimationFrame(() => {
-        thumb.style.transition = "opacity 220ms ease-out, transform 220ms ease-out";
-        thumb.style.opacity = "1";
-        thumb.style.transform = "scale(1)";
-      });
-
-      setTimeout(() => {
-        thumb.style.transition = "opacity 480ms ease-out, transform 480ms ease-out";
-        thumb.style.opacity = "0";
-        thumb.style.transform = "scale(0.96)";
-      }, 3800);
-
-      setTimeout(() => {
-        thumb.remove();
-      }, 4350);
+    function openLastCapturePreview() {
+      if (!lastCapturedItemId) return;
+      openPreviewModal(lastCapturedItemId);
     }
 
     function openDb() {
@@ -1262,6 +1281,10 @@
         };
         galleryItems.push(item);
         galleryListEl.appendChild(createGalleryCard(item));
+      }
+
+      if (galleryItems.length) {
+        showLastCapturePreview(galleryItems[0]);
       }
 
       updateGalleryUi();
@@ -1979,6 +2002,17 @@
         closePreviewModal();
       }
 
+      if (lastCapturedItemId === id) {
+        const nextItem = galleryItems[0] || null;
+        if (nextItem) {
+          showLastCapturePreview(nextItem);
+        } else {
+          lastCapturedItemId = null;
+          capturePreviewBtnEl.classList.remove("visible");
+          capturePreviewImgEl.removeAttribute("src");
+        }
+      }
+
       updateGalleryUi();
     }
 
@@ -1997,7 +2031,7 @@
     }
 
     function openPreviewModal(id) {
-      const item = galleryItems.find(entry => entry.id === id);
+      const item = getGalleryItemById(id);
       if (!item) return;
 
       modalItemId = id;
@@ -2086,7 +2120,7 @@
       };
 
       await addGalleryItem(item);
-      animatePhotoToGallery(objectUrl);
+      showLastCapturePreview(item);
       updateDiagnosticStatus(`Foto çekildi.\nGaleride saklandı: ${fileName}`);
     }
 
@@ -2118,17 +2152,6 @@
           }
         }, 1200);
 
-        return;
-      }
-
-      if (activeTab === "gallery") {
-        const selected = getSelectedGalleryItems();
-        await saveGalleryItems(selected.length ? selected : galleryItems);
-        updateDiagnosticStatus(
-          selected.length
-            ? `${selected.length} seçili foto kaydetmeye gönderildi.`
-            : `${galleryItems.length} foto kaydetmeye gönderildi.`
-        );
         return;
       }
 
@@ -2190,7 +2213,12 @@
       updateDiagnosticStatus("Seçili fotoğraflar silindi.");
     });
 
+    capturePreviewBtnEl.addEventListener("click", () => {
+      openLastCapturePreview();
+    });
+
     modalCloseBtnEl.addEventListener("click", closePreviewModal);
+    modalDismissBtnEl.addEventListener("click", closePreviewModal);
 
     previewModalEl.addEventListener("click", event => {
       if (event.target === previewModalEl) {
@@ -2200,7 +2228,7 @@
 
     modalSaveBtnEl.addEventListener("click", () => {
       if (!modalItemId) return;
-      const item = galleryItems.find(entry => entry.id === modalItemId);
+      const item = getGalleryItemById(modalItemId);
       if (!item) return;
       downloadBlob(item.blob, item.fileName);
     });
