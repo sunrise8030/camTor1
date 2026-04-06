@@ -200,7 +200,7 @@
       z-index: 6;
     }
 
-    .capture-flash.active { animation: captureFlashAnim 160ms ease-out; }
+    .capture-flash.active { animation: captureFlashAnim 120ms ease-out; }
 
     @keyframes captureFlashAnim {
       0% { opacity: 0; }
@@ -752,7 +752,7 @@
           <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
           <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
           <button id="installBtn" class="install-btn" type="button">📲 Yükle</button>
-          <span class="footer-meta" id="buildInfo">v1.68 • Güncelleme: 2026-04-06 17:45</span>
+          <span class="footer-meta" id="buildInfo">v1.69 • Güncelleme: 2026-04-06 18:00</span>
         </div>
 
         <div class="tab-body">
@@ -804,7 +804,7 @@
               </div>
             </div>
 
-            <div class="status" id="status">Hazır. WAV gömülü ses kullanılıyor. PNG korunuyor. Aşağı çekerek kapat, yukarı çekerek paylaş.</div>
+            <div class="status" id="status">Hazır. Basit klik sesi kullanılıyor. PNG korunuyor. Aşağı çekerek kapat, yukarı çekerek paylaş.</div>
           </div>
 
           <div id="galleryPane" class="tab-pane gallery-pane">
@@ -877,9 +877,6 @@
     const DB_VERSION = 1;
     const STORE_NAME = "gallery_items";
 
-    const SHUTTER_WAV =
-      "data:audio/wav;base64,UklGRjQCAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAABAAgAZGF0YRACAACAgoeLjpGUlZaYmZqbnJ2en6ChoqOkpaanqKmqra6vsLGys7S1tre4ubq7vL2+v8DAwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7////9/Pv59/Xz8e/u6+nk4N3Z1dDPysW+u7i1srCtq6mop6alpKOioaCfnp2cm5qZmJeWlZSTkpGQj46NjIuKiYiHhoWEg4KBgH9+fXJwbnVoYFxUUEhAPDg0MCwoJCAcGBQQDAgEAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CAgYKDgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7////9/fv69/b08vDv7Orn5eHg3tzZ1NLPzMvGwb26t7Sxr66sq6mop6alpKOioaCfnp2cm5qZmJeWlZSTkpGQj46NjIuKiYiHhoWEg4KBgH9+";
-
     const previewShellEl = document.getElementById("previewShell");
     const videoEl = document.getElementById("video");
     const overlayCanvasEl = document.getElementById("overlayCanvas");
@@ -936,9 +933,7 @@
 
     const installBtnEl = document.getElementById("installBtn");
 
-    const shutterAudio = new Audio(SHUTTER_WAV);
-    shutterAudio.preload = "auto";
-    shutterAudio.volume = 1.0;
+    const audioState = { ctx: null };
 
     let db = null;
     let deferredInstallPrompt = null;
@@ -1353,26 +1348,60 @@
       }
     }
 
-    function primeAudio() {
-      shutterAudio.muted = true;
-      const p = shutterAudio.play();
-      if (p && typeof p.then === "function") {
-        p.then(() => {
-          shutterAudio.pause();
-          shutterAudio.currentTime = 0;
-          shutterAudio.muted = false;
-        }).catch(() => {
-          shutterAudio.muted = false;
-        });
-      } else {
-        shutterAudio.muted = false;
+    function ensureAudioContext() {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return null;
+      if (!audioState.ctx) {
+        audioState.ctx = new AudioCtx();
+      }
+      return audioState.ctx;
+    }
+
+    async function primeAudio() {
+      const ctx = ensureAudioContext();
+      if (!ctx) return;
+      if (ctx.state === "suspended") {
+        try {
+          await ctx.resume();
+        } catch (_) {}
       }
     }
 
-    function playShutterSound() {
-      shutterAudio.pause();
-      shutterAudio.currentTime = 0;
-      shutterAudio.play().catch(() => {});
+    async function playShutterSound() {
+      const ctx = ensureAudioContext();
+      if (!ctx) return;
+
+      if (ctx.state === "suspended") {
+        try {
+          await ctx.resume();
+        } catch (_) {
+          return;
+        }
+      }
+
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = "square";
+      osc.frequency.setValueAtTime(1600, now);
+      osc.frequency.exponentialRampToValueAtTime(700, now + 0.018);
+
+      filter.type = "highpass";
+      filter.frequency.setValueAtTime(900, now);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.linearRampToValueAtTime(0.16, now + 0.002);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.028);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.03);
     }
 
     function flashCapture() {
@@ -2661,7 +2690,7 @@
 
     async function handleMainAction() {
       if (!currentStream) {
-        primeAudio();
+        await primeAudio();
         await requestSensorPermissionFromGesture();
         updateDiagnosticStatus("Sensör izni alındı.");
 
