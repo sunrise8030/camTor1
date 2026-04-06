@@ -20,12 +20,9 @@
       --tab-active: #1d2633;
       --select: #60a5fa;
       --accent: #4da3ff;
-      --accent-soft: rgba(77,163,255,0.18);
     }
 
-    html {
-      -webkit-text-size-adjust: 100%;
-    }
+    html { -webkit-text-size-adjust: 100%; }
 
     * {
       box-sizing: border-box;
@@ -170,17 +167,9 @@
       white-space: nowrap;
     }
 
-    .gesture-hint.visible {
-      opacity: 1;
-    }
-
-    #previewGestureHint {
-      top: 12px;
-    }
-
-    #modalGestureHint {
-      top: 14px;
-    }
+    .gesture-hint.visible { opacity: 1; }
+    #previewGestureHint { top: 12px; }
+    #modalGestureHint { top: 14px; }
 
     .overlay-corner-actions {
       position: absolute;
@@ -205,9 +194,7 @@
         0 6px 14px rgba(0,0,0,0.18);
     }
 
-    .overlay-icon-btn .btn-icon {
-      font-size: 22px;
-    }
+    .overlay-icon-btn .btn-icon { font-size: 22px; }
 
     .capture-flash {
       position: absolute;
@@ -218,9 +205,7 @@
       z-index: 6;
     }
 
-    .capture-flash.active {
-      animation: captureFlashAnim 180ms ease-out;
-    }
+    .capture-flash.active { animation: captureFlashAnim 180ms ease-out; }
 
     @keyframes captureFlashAnim {
       0% { opacity: 0; }
@@ -252,9 +237,7 @@
       border-radius: 14px;
     }
 
-    .mini-square-btn .btn-icon {
-      font-size: 22px;
-    }
+    .mini-square-btn .btn-icon { font-size: 22px; }
 
     input, select, button {
       width: 100%;
@@ -306,9 +289,7 @@
       border-radius: 14px;
     }
 
-    .capture-primary .btn-icon {
-      font-size: 24px;
-    }
+    .capture-primary .btn-icon { font-size: 24px; }
 
     .bottom-panel {
       min-height: 0;
@@ -348,9 +329,7 @@
       box-shadow: none;
     }
 
-    .install-btn.visible {
-      display: inline-flex;
-    }
+    .install-btn.visible { display: inline-flex; }
 
     .tab-body {
       min-height: 0;
@@ -366,9 +345,7 @@
       min-height: 0;
     }
 
-    .tab-pane.active {
-      display: grid;
-    }
+    .tab-pane.active { display: grid; }
 
     .data-pane {
       grid-template-rows: auto auto auto;
@@ -384,7 +361,6 @@
     }
 
     .span-3 { grid-column: span 3; }
-    .span-4 { grid-column: span 4; }
     .span-6 { grid-column: span 6; }
 
     label.field {
@@ -491,9 +467,7 @@
       height: auto;
     }
 
-    .gallery-card.hidden {
-      display: none;
-    }
+    .gallery-card.hidden { display: none; }
 
     .gallery-card.selected {
       border-color: rgba(96,165,250,0.9);
@@ -551,9 +525,7 @@
       box-shadow: none;
     }
 
-    .mini-btn .btn-icon {
-      font-size: 14px;
-    }
+    .mini-btn .btn-icon { font-size: 14px; }
 
     .capture-preview {
       position: fixed;
@@ -622,9 +594,7 @@
       touch-action: none;
     }
 
-    .modal-backdrop.active {
-      display: flex;
-    }
+    .modal-backdrop.active { display: flex; }
 
     .modal-card {
       width: min(100%, 720px);
@@ -705,17 +675,9 @@
     }
 
     @media (max-width: 980px) {
-      .gallery-list {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .capture-preview {
-        width: min(42vw, 210px);
-      }
-
-      .gallery-toolbar {
-        grid-template-columns: 1fr auto auto;
-      }
+      .gallery-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .capture-preview { width: min(42vw, 210px); }
+      .gallery-toolbar { grid-template-columns: 1fr auto auto; }
     }
   </style>
 </head>
@@ -768,7 +730,7 @@
           <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
           <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
           <button id="installBtn" class="install-btn" type="button">📲 Yükle</button>
-          <span class="footer-meta" id="buildInfo">v1.59 • Güncelleme: 2026-04-06 15:35</span>
+          <span class="footer-meta" id="buildInfo">v1.60 • Güncelleme: 2026-04-06 15:50</span>
         </div>
 
         <div class="tab-body">
@@ -822,7 +784,7 @@
               </label>
             </div>
 
-            <div class="status" id="status">Hazır. Aşağı çekerek kapat, yukarı çekerek paylaş. Klinik hizalama için merkez halkası ve aks yakınlık vurgusu aktif.</div>
+            <div class="status" id="status">Hazır. Aşağı çekerek kapat, yukarı çekerek paylaş. Yatay ve 90° kilitleri ±0.5° hassasiyetle renk değiştirir.</div>
           </div>
 
           <div id="galleryPane" class="tab-pane gallery-pane">
@@ -1336,10 +1298,6 @@
       streamPillEl.textContent = "Kapalı";
     }
 
-    function getSelectedDeviceLabel() {
-      return videoDeviceEl.options[videoDeviceEl.selectedIndex]?.textContent ?? "-";
-    }
-
     function downloadBlob(blob, fileName) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -1364,9 +1322,7 @@
             return "shared";
           }
         } catch (error) {
-          if (error?.name === "AbortError") {
-            return "cancelled";
-          }
+          if (error?.name === "AbortError") return "cancelled";
         }
       }
 
@@ -1390,9 +1346,7 @@
     function ensureAudioContext() {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return null;
-      if (!audioState.ctx) {
-        audioState.ctx = new AudioCtx();
-      }
+      if (!audioState.ctx) audioState.ctx = new AudioCtx();
       return audioState.ctx;
     }
 
@@ -1400,22 +1354,15 @@
       const ctx = ensureAudioContext();
       if (!ctx) return;
       if (ctx.state === "suspended") {
-        try {
-          await ctx.resume();
-        } catch (_) {}
+        try { await ctx.resume(); } catch (_) {}
       }
     }
 
     async function playShutterSound() {
       const ctx = ensureAudioContext();
       if (!ctx) return;
-
       if (ctx.state === "suspended") {
-        try {
-          await ctx.resume();
-        } catch (_) {
-          return;
-        }
+        try { await ctx.resume(); } catch (_) { return; }
       }
 
       const now = ctx.currentTime;
@@ -1431,7 +1378,6 @@
       click1Gain.gain.setValueAtTime(0.0001, now);
       click1Gain.gain.linearRampToValueAtTime(0.14, now + 0.002);
       click1Gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.028);
-
       click1.connect(click1Gain);
       click1Gain.connect(master);
       click1.start(now);
@@ -1445,7 +1391,6 @@
       click2Gain.gain.setValueAtTime(0.0001, now + 0.038);
       click2Gain.gain.linearRampToValueAtTime(0.11, now + 0.042);
       click2Gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.085);
-
       click2.connect(click2Gain);
       click2Gain.connect(master);
       click2.start(now + 0.038);
@@ -1473,7 +1418,6 @@
       noise.connect(noiseFilter);
       noiseFilter.connect(noiseGain);
       noiseGain.connect(master);
-
       noise.start(now);
       noise.stop(now + 0.10);
     }
@@ -1512,9 +1456,7 @@
     function updateCapturePreviewVisibility() {
       const shouldShow = Boolean(lastCapturedItemId) && !capturePreviewDismissed && activeTab !== "gallery";
       capturePreviewBtnEl.classList.toggle("visible", shouldShow);
-      if (!shouldShow) {
-        resetCapturePreviewTransform();
-      }
+      if (!shouldShow) resetCapturePreviewTransform();
     }
 
     function showLastCapturePreview(item) {
@@ -1725,9 +1667,7 @@
 
     async function startSelectedCamera() {
       const deviceId = videoDeviceEl.value;
-      if (!deviceId) {
-        throw new Error("Önce kamera seç.");
-      }
+      if (!deviceId) throw new Error("Önce kamera seç.");
 
       cleanupStream();
 
@@ -1776,12 +1716,8 @@
     }
 
     function getScreenAngle() {
-      if (screen.orientation && typeof screen.orientation.angle === "number") {
-        return screen.orientation.angle;
-      }
-      if (typeof window.orientation === "number") {
-        return window.orientation;
-      }
+      if (screen.orientation && typeof screen.orientation.angle === "number") return screen.orientation.angle;
+      if (typeof window.orientation === "number") return window.orientation;
       return 0;
     }
 
@@ -1832,9 +1768,7 @@
       lastOrientationAt = Date.now();
       recordSensorHit("orientation");
 
-      if (eventCount % 5 === 0) {
-        updateDiagnosticStatus();
-      }
+      if (eventCount % 5 === 0) updateDiagnosticStatus();
     }
 
     function handleDeviceMotion(event) {
@@ -1844,7 +1778,1786 @@
       lastGX = Number.isFinite(g.x) ? g.x : 0;
       lastGY = Number.isFinite(g.y) ? g.y : 0;
       lastGZ = Number.isFinite(g.z) ? g.z : 0;
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <title>Torik IOL Marker</title>
+  <meta name="theme-color" content="#0b0f16" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f16;
+      --panel: #151b24;
+      --border: #2a3140;
+      --text: #edf2f7;
+      --muted: #a6b0c0;
+      --success: #58d38d;
+      --warning: #f0b429;
+      --danger: #f87171;
+      --tab: #0f141b;
+      --tab-active: #1d2633;
+      --select: #60a5fa;
+      --accent: #4da3ff;
+    }
 
+    html { -webkit-text-size-adjust: 100%; }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      min-width: 0;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+    }
+
+    body {
+      padding:
+        max(4px, env(safe-area-inset-top))
+        6px
+        max(10px, env(safe-area-inset-bottom))
+        6px;
+    }
+
+    .app {
+      height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 14px);
+      display: grid;
+      grid-template-rows: auto minmax(0, 56dvh) minmax(0, 1fr);
+      gap: 4px;
+      overflow: hidden;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 8px;
+      min-height: 0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .header-card {
+      padding: 6px 10px;
+      display: grid;
+      gap: 4px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.05;
+    }
+
+    .top-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 11px;
+      background: rgba(10, 12, 16, 0.78);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .pill.ok { border-color: rgba(88,211,141,0.35); }
+    .pill.warn { border-color: rgba(240,180,41,0.35); }
+    .pill.bad { border-color: rgba(248,113,113,0.35); }
+
+    .preview-card {
+      padding: 8px;
+      min-height: 0;
+      overflow: hidden;
+      display: grid;
+    }
+
+    .preview-shell {
+      position: relative;
+      min-height: 0;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+      touch-action: none;
+    }
+
+    video, canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    video {
+      object-fit: cover;
+      background: #000;
+      z-index: 1;
+    }
+
+    #overlayCanvas {
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .preview-head {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .gesture-hint {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 6;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      background: rgba(0,0,0,0.58);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.96);
+      opacity: 0;
+      transition: opacity 120ms ease, transform 120ms ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .gesture-hint.visible { opacity: 1; }
+    #previewGestureHint { top: 12px; }
+    #modalGestureHint { top: 14px; }
+
+    .overlay-corner-actions {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      z-index: 4;
+      pointer-events: auto;
+    }
+
+    .overlay-icon-btn {
+      width: 48px;
+      height: 48px;
+      min-height: 48px;
+      padding: 0;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(12, 16, 22, 0.34);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 6px 14px rgba(0,0,0,0.18);
+    }
+
+    .overlay-icon-btn .btn-icon { font-size: 22px; }
+
+    .capture-flash {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.92);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 6;
+    }
+
+    .capture-flash.active { animation: captureFlashAnim 180ms ease-out; }
+
+    @keyframes captureFlashAnim {
+      0% { opacity: 0; }
+      15% { opacity: 0.9; }
+      100% { opacity: 0; }
+    }
+
+    .controls {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 6px;
+      min-height: 0;
+      padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+    }
+
+    .capture-row {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 6px;
+      align-items: stretch;
+      flex: 0 0 auto;
+    }
+
+    .mini-square-btn {
+      width: 54px;
+      height: 54px;
+      min-height: 54px;
+      padding: 0;
+      border-radius: 14px;
+    }
+
+    .mini-square-btn .btn-icon { font-size: 22px; }
+
+    input, select, button {
+      width: 100%;
+      min-height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0f141b;
+      color: var(--text);
+      padding: 0 10px;
+      font-size: 14px;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+        linear-gradient(180deg, #313847, #1c222d);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        inset 0 -1px 0 rgba(0,0,0,0.25),
+        0 1px 1px rgba(0,0,0,0.35),
+        0 8px 18px rgba(0,0,0,0.12);
+    }
+
+    button:disabled, input:disabled, select:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-icon {
+      font-size: 18px;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    .success { border-color: rgba(88, 211, 141, 0.45); }
+    .danger { border-color: rgba(248, 113, 113, 0.45); }
+    .warning { border-color: rgba(240,180,41,0.42); }
+
+    .capture-primary {
+      min-height: 54px;
+      font-size: 17px;
+      font-weight: 800;
+      border-radius: 14px;
+    }
+
+    .capture-primary .btn-icon { font-size: 24px; }
+
+    .bottom-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 6px;
+    }
+
+    .tab-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto auto;
+      gap: 6px;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .tab-btn {
+      min-height: 34px;
+      font-size: 12px;
+      border-radius: 10px;
+      background: var(--tab);
+      box-shadow: none;
+    }
+
+    .tab-btn.active {
+      background: var(--tab-active);
+      border-color: rgba(255,255,255,0.16);
+    }
+
+    .install-btn {
+      min-height: 34px;
+      width: auto;
+      padding: 0 10px;
+      font-size: 12px;
+      border-radius: 10px;
+      display: none;
+      box-shadow: none;
+    }
+
+    .install-btn.visible { display: inline-flex; }
+
+    .tab-body {
+      min-height: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(10, 15, 23, 0.92);
+      overflow: hidden;
+    }
+
+    .tab-pane {
+      display: none;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .tab-pane.active { display: grid; }
+
+    .data-pane {
+      grid-template-rows: auto auto auto;
+      gap: 6px;
+      padding: 8px;
+      overflow: auto;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 5px;
+    }
+
+    .span-3 { grid-column: span 3; }
+    .span-6 { grid-column: span 6; }
+
+    label.field {
+      display: grid;
+      gap: 2px;
+      color: var(--muted);
+      font-size: 10px;
+      min-width: 0;
+    }
+
+    .status {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(10, 15, 23, 0.92);
+      padding: 7px 9px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+      white-space: pre-wrap;
+      min-height: 52px;
+      max-height: 96px;
+      overflow: auto;
+    }
+
+    .footer-meta {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.25;
+      text-align: center;
+      opacity: 0.9;
+      padding-top: 1px;
+    }
+
+    .gallery-pane {
+      grid-template-rows: auto auto minmax(0, 1fr);
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .gallery-toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto auto;
+      gap: 6px;
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+
+    .gallery-counter {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .gallery-filter-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      padding: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .gallery-list {
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      align-content: start;
+      align-items: start;
+      grid-auto-rows: max-content;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .gallery-date-separator {
+      grid-column: 1 / -1;
+      font-size: 10px;
+      color: var(--muted);
+      padding: 4px 2px 2px 2px;
+      border-top: 1px dashed rgba(255,255,255,0.08);
+      margin-top: 2px;
+    }
+
+    .gallery-empty {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 16px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      grid-column: 1 / -1;
+    }
+
+    .gallery-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0f141b;
+      display: grid;
+      grid-template-rows: auto auto auto;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+      align-self: start;
+      height: auto;
+    }
+
+    .gallery-card.hidden { display: none; }
+
+    .gallery-card.selected {
+      border-color: rgba(96,165,250,0.9);
+      box-shadow: 0 0 0 2px rgba(96,165,250,0.22);
+    }
+
+    .gallery-card.selected .gallery-name::before {
+      content: "✓ ";
+      color: var(--select);
+    }
+
+    .gallery-thumb-wrap {
+      aspect-ratio: 4 / 3;
+      background: #000;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      height: auto;
+    }
+
+    .gallery-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+
+    .gallery-meta {
+      padding: 6px 8px 0 8px;
+      display: grid;
+      gap: 2px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .gallery-name {
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .gallery-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 8px;
+    }
+
+    .mini-btn {
+      min-height: 32px;
+      font-size: 11px;
+      border-radius: 10px;
+      box-shadow: none;
+    }
+
+    .mini-btn .btn-icon { font-size: 14px; }
+
+    .capture-preview {
+      position: fixed;
+      right: max(14px, env(safe-area-inset-right) + 14px);
+      bottom: max(18px, env(safe-area-inset-bottom) + 18px);
+      width: min(36vw, 220px);
+      aspect-ratio: 4 / 3;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.26);
+      box-shadow:
+        0 18px 40px rgba(0,0,0,0.50),
+        0 0 0 1px rgba(255,255,255,0.10) inset;
+      background: #000;
+      z-index: 80;
+      opacity: 0;
+      transform: translateY(10px) scale(0.95);
+      pointer-events: none;
+      transition: opacity 260ms ease, transform 260ms ease;
+      touch-action: none;
+    }
+
+    .capture-preview.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .capture-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .capture-preview-badge {
+      position: absolute;
+      left: 8px;
+      top: 8px;
+      z-index: 2;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      pointer-events: none;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding:
+        max(12px, env(safe-area-inset-top))
+        12px
+        max(12px, env(safe-area-inset-bottom))
+        12px;
+      transition: background 180ms ease;
+      touch-action: none;
+    }
+
+    .modal-backdrop.active { display: flex; }
+
+    .modal-card {
+      width: min(100%, 720px);
+      max-height: 100%;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 8px;
+      background: #111827;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 10px;
+      transition: transform 180ms ease;
+      touch-action: none;
+      will-change: transform;
+      position: relative;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 13px;
+      color: var(--muted);
+      word-break: break-word;
+    }
+
+    .modal-close {
+      width: 42px;
+      min-width: 42px;
+      min-height: 42px;
+      padding: 0;
+    }
+
+    .modal-image-wrap {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      background: #000;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+    }
+
+    .modal-image {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .hint-badge {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      padding: 4px 8px;
+      font-size: 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.48);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.92);
+      z-index: 7;
+    }
+
+    input.invalid {
+      border-color: rgba(248,113,113,0.72);
+      box-shadow: 0 0 0 1px rgba(248,113,113,0.20) inset;
+    }
+
+    @media (max-width: 980px) {
+      .gallery-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .capture-preview { width: min(42vw, 210px); }
+      .gallery-toolbar { grid-template-columns: 1fr auto auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card header-card">
+      <h1>Torik IOL Marker</h1>
+      <div class="top-meta">
+        <div id="cameraStatePill" class="pill warn">Kamera: Kapalı</div>
+        <div id="sensorStatePill" class="pill warn">Sensör: Bekliyor</div>
+        <div id="qualityPill" class="pill">Çözünürlük: -</div>
+      </div>
+    </section>
+
+    <section class="card preview-card">
+      <div id="previewShell" class="preview-shell">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="overlayCanvas"></canvas>
+        <div id="captureFlash" class="capture-flash"></div>
+
+        <div class="preview-head">
+          <div class="pill">📸 Foto</div>
+          <div class="pill" id="streamPill">Hazır değil</div>
+        </div>
+
+        <div id="previewGestureHint" class="gesture-hint"></div>
+
+        <div class="overlay-corner-actions">
+          <button id="torchBtn" class="overlay-icon-btn" type="button" disabled aria-label="Torch">
+            <span class="btn-icon" id="torchIcon">💡</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card controls">
+      <div class="capture-row">
+        <button id="refreshBtn" class="mini-square-btn" type="button" disabled aria-label="Yenile">
+          <span class="btn-icon">🔄</span>
+        </button>
+
+        <button id="mainActionBtn" class="success capture-primary" type="button">
+          <span class="btn-icon" id="mainActionIcon">🔓</span>
+          <span id="mainActionLabel">İzin Ver ve Başlat</span>
+        </button>
+      </div>
+
+      <div class="bottom-panel">
+        <div class="tab-row">
+          <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
+          <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
+          <button id="installBtn" class="install-btn" type="button">📲 Yükle</button>
+          <span class="footer-meta" id="buildInfo">v1.60 • Güncelleme: 2026-04-06 15:50</span>
+        </div>
+
+        <div class="tab-body">
+          <div id="dataPane" class="tab-pane data-pane active">
+            <div class="form-grid">
+              <label class="field span-6">
+                İsim
+                <input id="patientNameInput" type="text" autocomplete="off" placeholder="Örn: Ahmet Yılmaz" />
+              </label>
+
+              <label class="field span-6">
+                IOL Tipi
+                <input id="iolTypeInput" type="text" autocomplete="off" placeholder="Torik IOL" />
+              </label>
+
+              <label class="field span-3">
+                Sph
+                <input id="sphInput" type="text" inputmode="decimal" autocomplete="off" placeholder="22.5" />
+              </label>
+
+              <label class="field span-3">
+                Cyl
+                <input id="cylInput" type="text" inputmode="decimal" autocomplete="off" placeholder="-1.25" />
+              </label>
+
+              <label class="field span-3">
+                Axl
+                <input id="axlInput" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="63" />
+              </label>
+
+              <label class="field span-3">
+                Hedef Açı
+                <input id="targetAngleInput" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="63" />
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label class="field span-6">
+                Kamera
+                <select id="videoDevice"></select>
+              </label>
+
+              <label class="field span-3">
+                Filtre
+                <input id="galleryFilterMirror" type="text" placeholder="Galeri filtre" autocomplete="off" />
+              </label>
+
+              <label class="field span-3">
+                Durum
+                <input id="captureQualityMirror" type="text" disabled value="-" />
+              </label>
+            </div>
+
+            <div class="status" id="status">Hazır. Aşağı çekerek kapat, yukarı çekerek paylaş. Yatay ve 90° kilitleri ±0.5° hassasiyetle renk değiştirir.</div>
+          </div>
+
+          <div id="galleryPane" class="tab-pane gallery-pane">
+            <div class="gallery-toolbar">
+              <div class="gallery-counter" id="galleryCounter">0 öğe</div>
+              <button id="gallerySaveSelectedBtn" class="mini-btn" type="button" disabled>
+                <span class="btn-icon">💾</span>
+                <span>Seçili</span>
+              </button>
+              <button id="galleryDownloadAllBtn" class="mini-btn" type="button" disabled>
+                <span class="btn-icon">⬇️</span>
+                <span>Tümü</span>
+              </button>
+              <button id="galleryBackupBtn" class="mini-btn warning" type="button" disabled>
+                <span class="btn-icon">🧾</span>
+                <span>Yedek</span>
+              </button>
+              <button id="galleryDeleteSelectedBtn" class="mini-btn danger" type="button" disabled>
+                <span class="btn-icon">🗑️</span>
+                <span>Sil</span>
+              </button>
+            </div>
+
+            <div class="gallery-filter-row">
+              <input id="galleryFilterInput" type="text" autocomplete="off" placeholder="Hasta adına / dosya adına göre filtrele" />
+              <button id="clearFilterBtn" class="mini-btn" type="button">Temizle</button>
+            </div>
+
+            <div id="galleryList" class="gallery-list">
+              <div class="gallery-empty" id="galleryEmpty">Henüz foto yok.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <button id="capturePreviewBtn" class="capture-preview" type="button" aria-label="Son foto önizleme">
+    <div class="capture-preview-badge">Son foto</div>
+    <img id="capturePreviewImg" alt="Son çekilen foto" />
+  </button>
+
+  <div id="previewModal" class="modal-backdrop">
+    <div id="modalCard" class="modal-card">
+      <div id="modalGestureHint" class="gesture-hint"></div>
+
+      <div class="modal-head">
+        <div id="modalTitle" class="modal-title">Önizleme</div>
+        <button id="modalCloseBtn" class="modal-close" type="button">✕</button>
+      </div>
+
+      <div class="modal-image-wrap">
+        <div class="hint-badge">↓ Kapat • ↑ Paylaş</div>
+        <img id="modalImage" class="modal-image" alt="Büyük önizleme" />
+      </div>
+
+      <div class="modal-actions">
+        <button id="modalSaveBtn" type="button">
+          <span class="btn-icon">⬇️</span>
+          <span>Kaydet</span>
+        </button>
+        <button id="modalDeleteBtn" class="danger" type="button">
+          <span class="btn-icon">🗑️</span>
+          <span>Sil</span>
+        </button>
+        <button id="modalDismissBtn" type="button">
+          <span class="btn-icon">✕</span>
+          <span>Kapat</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DB_NAME = "torik_iol_marker_db";
+    const DB_VERSION = 1;
+    const STORE_NAME = "gallery_items";
+
+    const previewShellEl = document.getElementById("previewShell");
+    const videoEl = document.getElementById("video");
+    const overlayCanvasEl = document.getElementById("overlayCanvas");
+    const overlayCtx = overlayCanvasEl.getContext("2d");
+    const captureFlashEl = document.getElementById("captureFlash");
+
+    const patientNameInputEl = document.getElementById("patientNameInput");
+    const iolTypeInputEl = document.getElementById("iolTypeInput");
+    const sphInputEl = document.getElementById("sphInput");
+    const cylInputEl = document.getElementById("cylInput");
+    const axlInputEl = document.getElementById("axlInput");
+    const targetAngleInputEl = document.getElementById("targetAngleInput");
+    const videoDeviceEl = document.getElementById("videoDevice");
+
+    const galleryFilterMirrorEl = document.getElementById("galleryFilterMirror");
+    const captureQualityMirrorEl = document.getElementById("captureQualityMirror");
+
+    const mainActionBtnEl = document.getElementById("mainActionBtn");
+    const mainActionIconEl = document.getElementById("mainActionIcon");
+    const mainActionLabelEl = document.getElementById("mainActionLabel");
+    const refreshBtnEl = document.getElementById("refreshBtn");
+    const torchBtnEl = document.getElementById("torchBtn");
+    const torchIconEl = document.getElementById("torchIcon");
+
+    const statusEl = document.getElementById("status");
+    const streamPillEl = document.getElementById("streamPill");
+    const cameraStatePillEl = document.getElementById("cameraStatePill");
+    const sensorStatePillEl = document.getElementById("sensorStatePill");
+    const qualityPillEl = document.getElementById("qualityPill");
+
+    const dataTabBtnEl = document.getElementById("dataTabBtn");
+    const galleryTabBtnEl = document.getElementById("galleryTabBtn");
+    const dataPaneEl = document.getElementById("dataPane");
+    const galleryPaneEl = document.getElementById("galleryPane");
+
+    const galleryListEl = document.getElementById("galleryList");
+    const galleryEmptyEl = document.getElementById("galleryEmpty");
+    const galleryCounterEl = document.getElementById("galleryCounter");
+    const galleryDownloadAllBtnEl = document.getElementById("galleryDownloadAllBtn");
+    const gallerySaveSelectedBtnEl = document.getElementById("gallerySaveSelectedBtn");
+    const galleryDeleteSelectedBtnEl = document.getElementById("galleryDeleteSelectedBtn");
+    const galleryBackupBtnEl = document.getElementById("galleryBackupBtn");
+    const galleryFilterInputEl = document.getElementById("galleryFilterInput");
+    const clearFilterBtnEl = document.getElementById("clearFilterBtn");
+
+    const capturePreviewBtnEl = document.getElementById("capturePreviewBtn");
+    const capturePreviewImgEl = document.getElementById("capturePreviewImg");
+    const previewGestureHintEl = document.getElementById("previewGestureHint");
+
+    const previewModalEl = document.getElementById("previewModal");
+    const modalCardEl = document.getElementById("modalCard");
+    const modalImageEl = document.getElementById("modalImage");
+    const modalTitleEl = document.getElementById("modalTitle");
+    const modalCloseBtnEl = document.getElementById("modalCloseBtn");
+    const modalSaveBtnEl = document.getElementById("modalSaveBtn");
+    const modalDeleteBtnEl = document.getElementById("modalDeleteBtn");
+    const modalDismissBtnEl = document.getElementById("modalDismissBtn");
+    const modalGestureHintEl = document.getElementById("modalGestureHint");
+
+    const installBtnEl = document.getElementById("installBtn");
+
+    const audioState = { ctx: null };
+    let db = null;
+    let deferredInstallPrompt = null;
+
+    let currentStream = null;
+    let currentTrack = null;
+    let permissionGranted = false;
+    let torchSupported = false;
+    let torchEnabled = false;
+
+    let sensorPermissionGranted = false;
+    let motionListening = false;
+    let orientationListening = false;
+    let overlayAnimationId = null;
+    let sensorWatchdogId = null;
+    let isDraggingAxis = false;
+
+    let gravityX = 0;
+    let gravityY = 0;
+    let gravityZ = 0;
+    let rawRollDeg = 0;
+    let eventCount = 0;
+
+    let lastGX = 0;
+    let lastGY = 0;
+    let lastGZ = 0;
+    let lastBeta = null;
+    let lastGamma = null;
+
+    let lastHapticStep = null;
+    let lastHapticAt = 0;
+
+    let sensorSource = "none";
+    let lastSensorAt = 0;
+    let lastOrientationAt = 0;
+    let lastMotionAt = 0;
+    let sensorFailureShown = false;
+
+    let captureResolutionText = "-";
+
+    const galleryItems = [];
+    let modalItemId = null;
+    let activeTab = "data";
+    let lastCapturedItemId = null;
+    let capturePreviewDismissed = false;
+    let galleryFilterText = "";
+
+    const previewSwipeState = {
+      active: false,
+      pointerId: null,
+      startY: 0,
+      startX: 0,
+      currentY: 0,
+      currentX: 0,
+      dragging: false
+    };
+
+    const modalSwipeState = {
+      active: false,
+      pointerId: null,
+      startY: 0,
+      startX: 0,
+      currentY: 0,
+      currentX: 0,
+      dragging: false
+    };
+
+    const LOW_PASS_ALPHA = 0.16;
+    const ANGLE_SMOOTH_ALPHA = 0.18;
+    const HAPTIC_STEP_DEG = 5;
+    const HAPTIC_MIN_INTERVAL_MS = 50;
+    const SENSOR_TIMEOUT_MS = 1800;
+    const SWIPE_CLOSE_THRESHOLD = 42;
+    const SWIPE_SHARE_THRESHOLD = 42;
+
+    function setStatus(message) {
+      statusEl.textContent = message;
+    }
+
+    function pad2(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function clampAxis180(value) {
+      return clamp(Math.round(Number(value) || 0), 0, 180);
+    }
+
+    function clampAngle360(value) {
+      let result = value % 360;
+      if (result < 0) result += 360;
+      return result;
+    }
+
+    function normalizeSigned180(value) {
+      let result = clampAngle360(value);
+      if (result > 180) result -= 360;
+      return result;
+    }
+
+    function angleToCanvasRad(deg) {
+      return (-deg * Math.PI) / 180;
+    }
+
+    function formatSignedAngle(value) {
+      const rounded = Math.round(value * 10) / 10;
+      const sign = rounded > 0 ? "+" : "";
+      return `${sign}${rounded.toFixed(1)}°`;
+    }
+
+    function smoothAngleDeg(previous, next, alpha) {
+      const delta = normalizeSigned180(next - previous);
+      return normalizeSigned180(previous + delta * alpha);
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    }
+
+    function sanitizeDecimalInput(raw, allowNegative = true) {
+      let value = String(raw ?? "").replace(",", ".").replace(/[^\d.\-]/g, "");
+      if (!allowNegative) value = value.replace(/-/g, "");
+      const negative = allowNegative && value.startsWith("-");
+      value = value.replace(/-/g, "");
+      const parts = value.split(".");
+      const intPart = parts.shift() ?? "";
+      const fracPart = parts.length ? parts.join("") : "";
+      return `${negative ? "-" : ""}${intPart}${fracPart ? `.${fracPart}` : ""}`;
+    }
+
+    function sanitizeIntegerInput(raw) {
+      return String(raw ?? "").replace(/[^\d]/g, "");
+    }
+
+    function normalizeAngleFieldInput(inputEl, fallback = 0) {
+      const cleaned = sanitizeIntegerInput(inputEl.value);
+      if (cleaned === "") {
+        inputEl.value = "";
+        inputEl.classList.remove("invalid");
+        return fallback;
+      }
+      const clamped = clampAxis180(cleaned);
+      inputEl.value = String(clamped);
+      inputEl.classList.remove("invalid");
+      return clamped;
+    }
+
+    function normalizeDecimalFieldInput(inputEl, { min = -999, max = 999, allowNegative = true } = {}) {
+      const cleaned = sanitizeDecimalInput(inputEl.value, allowNegative);
+      inputEl.value = cleaned;
+      if (cleaned === "" || cleaned === "-") {
+        inputEl.classList.remove("invalid");
+        return null;
+      }
+      const number = Number(cleaned);
+      if (!Number.isFinite(number) || number < min || number > max) {
+        inputEl.classList.add("invalid");
+        return null;
+      }
+      inputEl.classList.remove("invalid");
+      return number;
+    }
+
+    function setActiveTab(tab) {
+      activeTab = tab;
+      const isData = tab === "data";
+      dataTabBtnEl.classList.toggle("active", isData);
+      galleryTabBtnEl.classList.toggle("active", !isData);
+      dataPaneEl.classList.toggle("active", isData);
+      galleryPaneEl.classList.toggle("active", !isData);
+      updateCapturePreviewVisibility();
+    }
+
+    function vibratePattern(pattern) {
+      if (navigator.vibrate) navigator.vibrate(pattern);
+    }
+
+    function maybeHapticOnAngle(angle) {
+      const snapped = Math.round(angle / HAPTIC_STEP_DEG) * HAPTIC_STEP_DEG;
+      const now = Date.now();
+
+      if (snapped === lastHapticStep && now - lastHapticAt < HAPTIC_MIN_INTERVAL_MS) {
+        return;
+      }
+
+      if (snapped !== lastHapticStep) {
+        if (snapped === 0 || snapped === 90 || snapped === 180) {
+          vibratePattern([18, 24, 18]);
+        } else {
+          vibratePattern(8);
+        }
+        lastHapticStep = snapped;
+        lastHapticAt = now;
+      }
+    }
+
+    function syncAxisFieldsFrom(source) {
+      if (source === "axl") {
+        const value = normalizeAngleFieldInput(axlInputEl, 0);
+        axlInputEl.value = String(value);
+        targetAngleInputEl.value = String(value);
+        return value;
+      }
+
+      const value = normalizeAngleFieldInput(targetAngleInputEl, 0);
+      targetAngleInputEl.value = String(value);
+      axlInputEl.value = String(value);
+      return value;
+    }
+
+    function setTargetAngle(angle) {
+      const normalized = clampAxis180(angle);
+      targetAngleInputEl.value = String(normalized);
+      axlInputEl.value = String(normalized);
+      maybeHapticOnAngle(normalized);
+      drawOverlay();
+    }
+
+    function getTargetAngle() {
+      return clampAxis180(targetAngleInputEl.value || 63);
+    }
+
+    function getCurrentRollDeg() {
+      return normalizeSigned180(rawRollDeg);
+    }
+
+    function getAxisDiffDeg(angleA, angleB) {
+      const delta = Math.abs(((angleA - angleB + 90) % 180) - 90);
+      return Math.abs(delta);
+    }
+
+    function createTimeStampFilePart(timestamp) {
+      const d = new Date(timestamp);
+      return `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+    }
+
+    function formatDateTime(timestamp) {
+      const d = new Date(timestamp);
+      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+    }
+
+    function formatDateOnly(timestamp) {
+      const d = new Date(timestamp);
+      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    }
+
+    function sanitizePart(value, fallback = "x") {
+      const v = String(value || "").trim();
+      if (!v) return fallback;
+      return v
+        .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-")
+        .replace(/\s+/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^[_\-.]+|[_\-.]+$/g, "")
+        .slice(0, 60) || fallback;
+    }
+
+    function normalizeAngleValue(value) {
+      return String(clampAxis180(value)).padStart(3, "0");
+    }
+
+    function getOutputBaseName() {
+      const name = sanitizePart(patientNameInputEl.value, "hasta");
+      const iol = sanitizePart(iolTypeInputEl.value, "Torik_IOL");
+      const sph = sanitizePart(sphInputEl.value, "xSph");
+      const cyl = sanitizePart(cylInputEl.value, "xCyl");
+      const axl = normalizeAngleValue(axlInputEl.value || 0);
+      const angle = normalizeAngleValue(targetAngleInputEl.value || 63);
+      return `${name}_${iol}_${sph}_${cyl}_${axl}axl_${angle}deg`;
+    }
+
+    function getSelectedGalleryItems() {
+      return galleryItems.filter(item => item.selected && item.visible !== false);
+    }
+
+    function getGalleryItemById(id) {
+      return galleryItems.find(item => item.id === id) || null;
+    }
+
+    function updateTorchUi() {
+      if (!torchSupported) {
+        torchIconEl.textContent = "🚫";
+        torchBtnEl.disabled = true;
+        return;
+      }
+
+      torchIconEl.textContent = torchEnabled ? "🔦" : "💡";
+      torchBtnEl.disabled = !currentTrack;
+    }
+
+    function updateMainActionUi() {
+      if (!currentStream) {
+        mainActionIconEl.textContent = "🔓";
+        mainActionLabelEl.textContent = "İzin Ver ve Başlat";
+        return;
+      }
+
+      mainActionIconEl.textContent = "📸";
+      mainActionLabelEl.textContent = "Foto Çek";
+    }
+
+    function updateStatePills() {
+      cameraStatePillEl.textContent = `Kamera: ${currentStream ? "Canlı" : "Kapalı"}`;
+      cameraStatePillEl.className = `pill ${currentStream ? "ok" : "warn"}`;
+
+      const sensorOk = Date.now() - lastSensorAt < SENSOR_TIMEOUT_MS && sensorPermissionGranted;
+      const sensorLabel = sensorPermissionGranted
+        ? (sensorOk ? `Sensör: ${sensorSource}` : "Sensör: Veri yok")
+        : "Sensör: Bekliyor";
+
+      sensorStatePillEl.textContent = sensorLabel;
+      sensorStatePillEl.className = `pill ${sensorOk ? "ok" : sensorPermissionGranted ? "bad" : "warn"}`;
+
+      qualityPillEl.textContent = `Çözünürlük: ${captureResolutionText}`;
+      captureQualityMirrorEl.value = captureResolutionText;
+    }
+
+    function updateGalleryUi() {
+      const visibleItems = galleryItems.filter(item => item.visible !== false);
+      const selectedCount = getSelectedGalleryItems().length;
+      galleryCounterEl.textContent = `${visibleItems.length} öğe • ${selectedCount} seçili`;
+      galleryDownloadAllBtnEl.disabled = galleryItems.length === 0;
+      gallerySaveSelectedBtnEl.disabled = selectedCount === 0;
+      galleryDeleteSelectedBtnEl.disabled = selectedCount === 0;
+      galleryBackupBtnEl.disabled = galleryItems.length === 0;
+
+      const noVisible = visibleItems.length === 0;
+      galleryEmptyEl.style.display = noVisible ? "block" : "none";
+      galleryEmptyEl.textContent = galleryItems.length === 0 ? "Henüz foto yok." : "Filtreye uyan foto yok.";
+    }
+
+    function updateUiState() {
+      refreshBtnEl.disabled = !permissionGranted;
+      videoDeviceEl.disabled = !permissionGranted;
+      streamPillEl.textContent = currentStream ? "Canlı" : "Kapalı";
+      updateTorchUi();
+      updateMainActionUi();
+      updateGalleryUi();
+      updateCapturePreviewVisibility();
+      updateStatePills();
+    }
+
+    function updateDiagnosticStatus(prefix = "") {
+      const lines = [];
+      if (prefix) lines.push(prefix);
+      lines.push(`kaynak=${sensorSource}`);
+      lines.push(`roll=${formatSignedAngle(getCurrentRollDeg())}`);
+      lines.push(`events=${eventCount}`);
+      lines.push(`orientation=${lastOrientationAt ? "ok" : "yok"} • motion=${lastMotionAt ? "ok" : "yok"}`);
+      lines.push(`beta=${Number.isFinite(lastBeta) ? lastBeta.toFixed(1) : "-"} • gamma=${Number.isFinite(lastGamma) ? lastGamma.toFixed(1) : "-"}`);
+      lines.push(`gx=${lastGX.toFixed(2)} • gy=${lastGY.toFixed(2)} • gz=${lastGZ.toFixed(2)}`);
+      lines.push(`quality=${captureResolutionText}`);
+      setStatus(lines.join("\n"));
+      updateStatePills();
+    }
+
+    function cleanupStream() {
+      if (!currentStream) return;
+      currentStream.getTracks().forEach(track => track.stop());
+      currentStream = null;
+      currentTrack = null;
+      torchSupported = false;
+      torchEnabled = false;
+      captureResolutionText = "-";
+      videoEl.pause();
+      videoEl.srcObject = null;
+      streamPillEl.textContent = "Kapalı";
+    }
+
+    function downloadBlob(blob, fileName) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+
+    async function shareBlobOrDownload(blob, fileName) {
+      const file = new File([blob], fileName, { type: blob.type || "image/png" });
+
+      if (navigator.share && navigator.canShare) {
+        try {
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: fileName
+            });
+            return "shared";
+          }
+        } catch (error) {
+          if (error?.name === "AbortError") return "cancelled";
+        }
+      }
+
+      downloadBlob(blob, fileName);
+      return "downloaded";
+    }
+
+    async function shareGalleryItemById(id) {
+      const item = getGalleryItemById(id);
+      if (!item) return;
+
+      const result = await shareBlobOrDownload(item.blob, item.fileName);
+
+      if (result === "shared") {
+        updateDiagnosticStatus(`Paylaşım açıldı.\n${item.fileName}`);
+      } else if (result === "downloaded") {
+        updateDiagnosticStatus(`Paylaşım desteklenmedi. İndirme başlatıldı.\n${item.fileName}`);
+      }
+    }
+
+    function ensureAudioContext() {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return null;
+      if (!audioState.ctx) audioState.ctx = new AudioCtx();
+      return audioState.ctx;
+    }
+
+    async function primeAudio() {
+      const ctx = ensureAudioContext();
+      if (!ctx) return;
+      if (ctx.state === "suspended") {
+        try { await ctx.resume(); } catch (_) {}
+      }
+    }
+
+    async function playShutterSound() {
+      const ctx = ensureAudioContext();
+      if (!ctx) return;
+      if (ctx.state === "suspended") {
+        try { await ctx.resume(); } catch (_) { return; }
+      }
+
+      const now = ctx.currentTime;
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.95, now);
+      master.connect(ctx.destination);
+
+      const click1 = ctx.createOscillator();
+      click1.type = "triangle";
+      click1.frequency.setValueAtTime(2100, now);
+
+      const click1Gain = ctx.createGain();
+      click1Gain.gain.setValueAtTime(0.0001, now);
+      click1Gain.gain.linearRampToValueAtTime(0.14, now + 0.002);
+      click1Gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.028);
+      click1.connect(click1Gain);
+      click1Gain.connect(master);
+      click1.start(now);
+      click1.stop(now + 0.03);
+
+      const click2 = ctx.createOscillator();
+      click2.type = "triangle";
+      click2.frequency.setValueAtTime(1200, now + 0.038);
+
+      const click2Gain = ctx.createGain();
+      click2Gain.gain.setValueAtTime(0.0001, now + 0.038);
+      click2Gain.gain.linearRampToValueAtTime(0.11, now + 0.042);
+      click2Gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.085);
+      click2.connect(click2Gain);
+      click2Gain.connect(master);
+      click2.start(now + 0.038);
+      click2.stop(now + 0.09);
+
+      const noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.10), ctx.sampleRate);
+      const noiseData = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < noiseData.length; i += 1) {
+        noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseData.length);
+      }
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = "bandpass";
+      noiseFilter.frequency.setValueAtTime(1800, now);
+      noiseFilter.Q.setValueAtTime(0.8, now);
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.0001, now);
+      noiseGain.gain.linearRampToValueAtTime(0.08, now + 0.003);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.10);
+
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(master);
+      noise.start(now);
+      noise.stop(now + 0.10);
+    }
+
+    function flashCapture() {
+      captureFlashEl.classList.remove("active");
+      void captureFlashEl.offsetWidth;
+      captureFlashEl.classList.add("active");
+    }
+
+    function showGestureHint(el, text) {
+      el.textContent = text;
+      el.classList.add("visible");
+    }
+
+    function hideGestureHint(el) {
+      el.classList.remove("visible");
+      el.textContent = "";
+    }
+
+    function resetCapturePreviewTransform() {
+      capturePreviewBtnEl.style.transition = "";
+      capturePreviewBtnEl.style.transform = "";
+      capturePreviewBtnEl.style.opacity = "";
+      hideGestureHint(previewGestureHintEl);
+    }
+
+    function resetModalTransform() {
+      modalCardEl.style.transition = "";
+      modalCardEl.style.transform = "";
+      previewModalEl.style.transition = "";
+      previewModalEl.style.background = "";
+      hideGestureHint(modalGestureHintEl);
+    }
+
+    function updateCapturePreviewVisibility() {
+      const shouldShow = Boolean(lastCapturedItemId) && !capturePreviewDismissed && activeTab !== "gallery";
+      capturePreviewBtnEl.classList.toggle("visible", shouldShow);
+      if (!shouldShow) resetCapturePreviewTransform();
+    }
+
+    function showLastCapturePreview(item) {
+      lastCapturedItemId = item.id;
+      capturePreviewDismissed = false;
+      capturePreviewImgEl.src = item.objectUrl;
+      updateCapturePreviewVisibility();
+    }
+
+    function dismissCapturePreview() {
+      capturePreviewDismissed = true;
+      updateCapturePreviewVisibility();
+    }
+
+    function openLastCapturePreview() {
+      if (!lastCapturedItemId) return;
+      openPreviewModal(lastCapturedItemId);
+    }
+
+    function openDb() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onupgradeneeded = () => {
+          const database = request.result;
+          if (!database.objectStoreNames.contains(STORE_NAME)) {
+            database.createObjectStore(STORE_NAME, { keyPath: "id" });
+          }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function dbPut(item) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+        store.put(item);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function dbDelete(id) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+        store.delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function dbGetAll() {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function initDb() {
+      if (!("indexedDB" in window)) {
+        setStatus("IndexedDB desteklenmiyor. Kalıcı galeri çalışmayabilir.");
+        return;
+      }
+
+      db = await openDb();
+      const savedItems = await dbGetAll();
+      savedItems.sort((a, b) => b.createdAt - a.createdAt);
+
+      for (const saved of savedItems) {
+        const item = {
+          ...saved,
+          selected: false,
+          visible: true,
+          objectUrl: URL.createObjectURL(saved.blob)
+        };
+        galleryItems.push(item);
+      }
+
+      renderGallery();
+
+      if (galleryItems.length) {
+        showLastCapturePreview(galleryItems[0]);
+      }
+
+      updateGalleryUi();
+      if (savedItems.length) {
+        updateDiagnosticStatus(`${savedItems.length} kayıtlı foto yüklendi.`);
+      }
+    }
+
+    async function requestCameraPermission() {
+      if (permissionGranted) return;
+
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Tarayıcı kamera erişimini desteklemiyor.");
+      }
+
+      const tempStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+        audio: false
+      });
+
+      tempStream.getTracks().forEach(track => track.stop());
+      permissionGranted = true;
+    }
+
+    async function requestSensorPermissionFromGesture() {
+      if (sensorPermissionGranted) return;
+
+      if (!window.isSecureContext) {
+        throw new Error("Sensör için HTTPS gerekli.");
+      }
+
+      const hasOrientationApi = typeof DeviceOrientationEvent !== "undefined";
+      const hasMotionApi = typeof DeviceMotionEvent !== "undefined";
+
+      if (!hasOrientationApi && !hasMotionApi) {
+        throw new Error("Bu cihaz/tarayıcı sensör API desteklemiyor.");
+      }
+
+      if (hasOrientationApi && typeof DeviceOrientationEvent.requestPermission === "function") {
+        const orientationResult = await DeviceOrientationEvent.requestPermission();
+        if (orientationResult !== "granted") {
+          throw new Error("Orientation izni verilmedi.");
+        }
+      }
+
+      if (hasMotionApi && typeof DeviceMotionEvent.requestPermission === "function") {
+        const motionResult = await DeviceMotionEvent.requestPermission();
+        if (motionResult !== "granted") {
+          throw new Error("Motion izni verilmedi.");
+        }
+      }
+
+      if (!orientationListening && hasOrientationApi) {
+        window.addEventListener("deviceorientation", handleDeviceOrientation, true);
+        orientationListening = true;
+      }
+
+      if (!motionListening && hasMotionApi) {
+        window.addEventListener("devicemotion", handleDeviceMotion, true);
+        motionListening = true;
+      }
+
+      sensorPermissionGranted = true;
+      sensorFailureShown = false;
+    }
+
+    async function populateDevices() {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = devices.filter(device => device.kind === "videoinput");
+      const previous = videoDeviceEl.value;
+
+      videoDeviceEl.innerHTML = "";
+
+      if (!videoInputs.length) {
+        throw new Error("Kamera bulunamadı.");
+      }
+
+      for (const device of videoInputs) {
+        const option = document.createElement("option");
+        option.value = device.deviceId;
+        option.textContent = device.label?.trim() || `Kamera ${videoDeviceEl.options.length + 1}`;
+        videoDeviceEl.appendChild(option);
+      }
+
+      const ultraWideIndex = videoInputs.findIndex(item => /ultra|0\.5|0,5|wide/i.test(item.label || ""));
+      const backIndex = videoInputs.findIndex(item => /triple|arka|back|rear/i.test(item.label || ""));
+      const previousIndex = videoInputs.findIndex(item => item.deviceId === previous);
+
+      videoDeviceEl.selectedIndex =
+        previousIndex >= 0 ? previousIndex :
+        ultraWideIndex >= 0 ? ultraWideIndex :
+        backIndex >= 0 ? backIndex :
+        0;
+    }
+
+    function waitForVideoReady(video) {
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error("Video hazır olmadı.")), 5000);
+        video.addEventListener("loadedmetadata", () => {
+          clearTimeout(timeout);
+          resolve();
+        }, { once: true });
+      });
+    }
+
+    async function detectTorchSupport(track) {
+      torchSupported = false;
+      torchEnabled = false;
+
+      if (!track?.getCapabilities) {
+        updateTorchUi();
+        return;
+      }
+
+      const caps = track.getCapabilities();
+      torchSupported = Boolean(caps?.torch);
+      updateTorchUi();
+    }
+
+    async function startSelectedCamera() {
+      const deviceId = videoDeviceEl.value;
+      if (!deviceId) throw new Error("Önce kamera seç.");
+
+      cleanupStream();
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          deviceId: { exact: deviceId },
+          width: { ideal: 3840, max: 4096 },
+          height: { ideal: 2160, max: 2160 },
+          frameRate: { ideal: 30, max: 60 }
+        }
+      });
+
+      currentStream = stream;
+      currentTrack = stream.getVideoTracks()[0];
+      videoEl.srcObject = stream;
+
+      currentTrack.addEventListener("ended", () => {
+        cleanupStream();
+        updateUiState();
+        setStatus("Kamera akışı sona erdi.");
+      });
+
+      await waitForVideoReady(videoEl);
+      await videoEl.play();
+      await detectTorchSupport(currentTrack);
+
+      const settings = currentTrack.getSettings?.() || {};
+      captureResolutionText = `${settings.width || videoEl.videoWidth || "-"}x${settings.height || videoEl.videoHeight || "-"}${settings.frameRate ? ` • ${Math.round(settings.frameRate)}fps` : ""}`;
+
+      updateUiState();
+      resizeOverlayCanvas();
+      drawOverlay();
+      updateDiagnosticStatus("Kamera açıldı.");
+    }
+
+    async function toggleTorch() {
+      if (!currentTrack || !torchSupported) return;
+
+      const nextState = !torchEnabled;
+      await currentTrack.applyConstraints({ advanced: [{ torch: nextState }] });
+
+      torchEnabled = nextState;
+      updateTorchUi();
+      updateDiagnosticStatus(torchEnabled ? "Torch açıldı." : "Torch kapatıldı.");
+    }
+
+    function getScreenAngle() {
+      if (screen.orientation && typeof screen.orientation.angle === "number") return screen.orientation.angle;
+      if (typeof window.orientation === "number") return window.orientation;
+      return 0;
+    }
+
+    function computeRollFromGravity(x, y) {
+      const screenAngle = getScreenAngle();
+      let gx = x;
+      let gy = y;
+
+      if (screenAngle === 90) {
+        gx = -y;
+        gy = x;
+      } else if (screenAngle === -90 || screenAngle === 270) {
+        gx = y;
+        gy = -x;
+      } else if (screenAngle === 180) {
+        gx = -x;
+        gy = -y;
+      }
+
+      return Math.atan2(gx, -gy) * 180 / Math.PI;
+    }
+
+    function computeRollFromOrientation(beta, gamma) {
+      const screenAngle = getScreenAngle();
+      if (screenAngle === 90) return beta;
+      if (screenAngle === -90 || screenAngle === 270) return -beta;
+      if (screenAngle === 180) return -gamma;
+      return gamma;
+    }
+
+    function recordSensorHit(source) {
+      sensorSource = source;
+      lastSensorAt = Date.now();
+      eventCount += 1;
+      sensorFailureShown = false;
+      updateStatePills();
+    }
+
+    function handleDeviceOrientation(event) {
+      if (!Number.isFinite(event.beta) || !Number.isFinite(event.gamma)) return;
+
+      lastBeta = event.beta;
+      lastGamma = event.gamma;
+
+      const nextRoll = computeRollFromOrientation(event.beta, event.gamma);
+      rawRollDeg = smoothAngleDeg(rawRollDeg, nextRoll, ANGLE_SMOOTH_ALPHA);
+
+      lastOrientationAt = Date.now();
+      recordSensorHit("orientation");
+
+      if (eventCount % 5 === 0) updateDiagnosticStatus();
+    }
+
+    function handleDeviceMotion(event) {
+      const g = event.accelerationIncludingGravity;
+      if (!g) return;
+
+      lastGX = Number.isFinite(g.x) ? g.x : 0;
+      lastGY = Number.isFinite(g.y) ? g.y : 0;
+      lastGZ = Number.isFinite(g.z) ? g.z : 0;
       gravityX += LOW_PASS_ALPHA * (lastGX - gravityX);
       gravityY += LOW_PASS_ALPHA * (lastGY - gravityY);
       gravityZ += LOW_PASS_ALPHA * (lastGZ - gravityZ);
@@ -1861,9 +3574,7 @@
 
       lastMotionAt = Date.now();
 
-      if (eventCount % 5 === 0) {
-        updateDiagnosticStatus();
-      }
+      if (eventCount % 5 === 0) updateDiagnosticStatus();
     }
 
     function startSensorWatchdog() {
@@ -1995,6 +3706,16 @@
       const normalizedRollAxis = ((rollDeg % 180) + 180) % 180;
       const diffToTarget = getAxisDiffDeg(normalizedRollAxis, targetDeg);
       const isNearTarget = diffToTarget <= 3;
+
+      const horizontalError = Math.min(
+        Math.abs(normalizedRollAxis - 0),
+        Math.abs(normalizedRollAxis - 180)
+      );
+      const verticalError = Math.abs(normalizedRollAxis - 90);
+
+      const isHorizontalLocked = horizontalError <= 0.5;
+      const isVerticalLocked = verticalError <= 0.5;
+
       const targetStroke = isNearTarget ? "rgba(88,211,141,0.98)" : "rgba(77,163,255,0.98)";
       const targetGlow = isNearTarget ? "rgba(88,211,141,0.18)" : "rgba(77,163,255,0.18)";
 
@@ -2003,8 +3724,8 @@
 
       ctx.beginPath();
       ctx.arc(0, 0, outerRingRadius, 0, Math.PI * 2);
-      ctx.lineWidth = Math.max(2.5, outerRingRadius * 0.0115);
-      ctx.strokeStyle = "rgba(255,255,255,0.50)";
+      ctx.lineWidth = Math.max(2.6, outerRingRadius * 0.0118);
+      ctx.strokeStyle = "rgba(255,255,255,0.52)";
       ctx.stroke();
 
       ctx.beginPath();
@@ -2030,7 +3751,11 @@
         const outerTickOuter = outerRingRadius + (isPrimary ? outerRingRadius * 0.085 : isMajor ? outerRingRadius * 0.075 : isMid ? outerRingRadius * 0.055 : outerRingRadius * 0.034);
         const outerTickInner = outerRingRadius - (isPrimary ? outerRingRadius * 0.20 : isMajor ? outerRingRadius * 0.17 : isMid ? outerRingRadius * 0.12 : outerRingRadius * 0.075);
 
-        const outerTickColor = isPrimary
+        const tickDiff = getAxisDiffDeg(normalizedRollAxis, deg);
+        const isTickHot = tickDiff <= 6;
+        const tickIntensity = Math.max(0, 1 - tickDiff / 6);
+
+        let outerTickColor = isPrimary
           ? "rgba(255,255,255,1)"
           : isMajor
             ? "rgba(245,248,252,0.98)"
@@ -2038,12 +3763,18 @@
               ? "rgba(170,195,225,0.70)"
               : "rgba(205,185,140,0.42)";
 
+        if (isTickHot) {
+          outerTickColor = `rgba(240,180,41,${0.45 + tickIntensity * 0.5})`;
+        }
+
         ctx.beginPath();
         ctx.moveTo(Math.cos(rad) * outerTickInner, Math.sin(rad) * outerTickInner);
         ctx.lineTo(Math.cos(rad) * outerTickOuter, Math.sin(rad) * outerTickOuter);
         ctx.moveTo(Math.cos(oppositeRad) * outerTickInner, Math.sin(oppositeRad) * outerTickInner);
         ctx.lineTo(Math.cos(oppositeRad) * outerTickOuter, Math.sin(oppositeRad) * outerTickOuter);
-        ctx.lineWidth = isPrimary ? 3.2 : isMajor ? 2.8 : isMid ? 1.9 : 1.1;
+        ctx.lineWidth = isTickHot
+          ? (isPrimary ? 3.6 : isMajor ? 3.0 : isMid ? 2.1 : 1.4)
+          : (isPrimary ? 3.2 : isMajor ? 2.8 : isMid ? 1.9 : 1.1);
         ctx.strokeStyle = outerTickColor;
         ctx.stroke();
 
@@ -2105,11 +3836,31 @@
       ctx.save();
       ctx.rotate((rollDeg * Math.PI) / 180);
 
+      const horizontalGuideColor = isHorizontalLocked
+        ? "rgba(88,211,141,0.98)"
+        : "rgba(240,180,41,0.98)";
+
+      const verticalGuideColor = isVerticalLocked
+        ? "rgba(88,211,141,0.98)"
+        : "rgba(255,255,255,0.96)";
+
+      const outerHorizontalGuide = outerRingRadius * 0.98;
+      const innerHorizontalGuide = outerRingRadius * 0.78;
+
+      ctx.beginPath();
+      ctx.moveTo(-outerHorizontalGuide, 0);
+      ctx.lineTo(-innerHorizontalGuide, 0);
+      ctx.moveTo(innerHorizontalGuide, 0);
+      ctx.lineTo(outerHorizontalGuide, 0);
+      ctx.lineWidth = Math.max(2.2, outerRingRadius * 0.0105);
+      ctx.strokeStyle = horizontalGuideColor;
+      ctx.stroke();
+
       ctx.beginPath();
       ctx.moveTo(-halfLineWidth, 0);
       ctx.lineTo(halfLineWidth, 0);
       ctx.lineWidth = Math.max(4.4, outerRingRadius * 0.0185);
-      ctx.strokeStyle = "rgba(240,180,41,0.98)";
+      ctx.strokeStyle = horizontalGuideColor;
       ctx.stroke();
 
       ctx.beginPath();
@@ -2120,10 +3871,17 @@
       ctx.stroke();
 
       ctx.beginPath();
+      ctx.moveTo(0, -outerRingRadius * 0.36);
+      ctx.lineTo(0, outerRingRadius * 0.36);
+      ctx.lineWidth = Math.max(1.7, outerRingRadius * 0.0075);
+      ctx.strokeStyle = verticalGuideColor;
+      ctx.stroke();
+
+      ctx.beginPath();
       ctx.moveTo(0, -outerRingRadius * 0.24);
       ctx.lineTo(0, outerRingRadius * 0.24);
       ctx.lineWidth = Math.max(3.1, outerRingRadius * 0.0135);
-      ctx.strokeStyle = "rgba(255,255,255,0.96)";
+      ctx.strokeStyle = verticalGuideColor;
       ctx.stroke();
 
       ctx.restore();
@@ -2235,9 +3993,7 @@
         }
 
         const card = createGalleryCard(item);
-        if (item.visible === false) {
-          card.classList.add("hidden");
-        }
+        if (item.visible === false) card.classList.add("hidden");
         galleryListEl.appendChild(card);
       }
 
@@ -2312,9 +4068,7 @@
         lastTapAt = now;
       }, { passive: false });
 
-      if (item.selected) {
-        card.classList.add("selected");
-      }
+      if (item.selected) card.classList.add("selected");
 
       card.appendChild(thumbWrap);
       card.appendChild(meta);
@@ -2325,6 +4079,7 @@
 
     async function persistGalleryItem(item) {
       if (!db) return;
+
       const stored = {
         id: item.id,
         fileName: item.fileName,
@@ -2337,6 +4092,7 @@
         patientName: item.patientName || "",
         iolType: item.iolType || ""
       };
+
       await dbPut(stored);
     }
 
@@ -2350,6 +4106,7 @@
     function toggleGallerySelection(id) {
       const item = galleryItems.find(entry => entry.id === id);
       if (!item) return;
+
       item.selected = !item.selected;
       const card = galleryListEl.querySelector(`[data-id="${CSS.escape(id)}"]`);
       card?.classList.toggle("selected", item.selected);
@@ -2363,13 +4120,9 @@
       const [item] = galleryItems.splice(index, 1);
       URL.revokeObjectURL(item.objectUrl);
 
-      if (db) {
-        await dbDelete(id);
-      }
+      if (db) await dbDelete(id);
 
-      if (modalItemId === id) {
-        closePreviewModal();
-      }
+      if (modalItemId === id) closePreviewModal();
 
       if (lastCapturedItemId === id) {
         const nextItem = galleryItems[0] || null;
@@ -2428,6 +4181,7 @@
           item.iolType,
           item.createdAtLabel
         ].join(" ").toLowerCase();
+
         item.visible = q ? hay.includes(q) : true;
       }
 
@@ -2490,6 +4244,7 @@
 
     function previewSwipeStart(event) {
       if (!capturePreviewBtnEl.classList.contains("visible")) return;
+
       previewSwipeState.active = true;
       previewSwipeState.dragging = false;
       previewSwipeState.pointerId = event.pointerId;
@@ -2533,9 +4288,7 @@
         await shareGalleryItemById(lastCapturedItemId);
       } else {
         resetCapturePreviewTransform();
-        if (!previewSwipeState.dragging) {
-          openLastCapturePreview();
-        }
+        if (!previewSwipeState.dragging) openLastCapturePreview();
       }
 
       previewSwipeState.dragging = false;
@@ -2543,6 +4296,7 @@
 
     function modalSwipeStart(event) {
       if (!previewModalEl.classList.contains("active")) return;
+
       modalSwipeState.active = true;
       modalSwipeState.dragging = false;
       modalSwipeState.pointerId = event.pointerId;
@@ -2616,9 +4370,7 @@
 
       input.addEventListener("focus", () => {
         requestAnimationFrame(() => {
-          if (document.activeElement === input) {
-            input.select();
-          }
+          if (document.activeElement === input) input.select();
         });
       });
 
@@ -2655,22 +4407,16 @@
 
       inputEl.addEventListener("blur", () => {
         const parsed = normalizeDecimalFieldInput(inputEl, options);
-        if (parsed !== null) {
-          inputEl.value = String(parsed);
-        }
+        if (parsed !== null) inputEl.value = String(parsed);
       });
     }
 
     async function capturePhoto() {
-      if (!currentStream) {
-        throw new Error("Önce kamera açılmalı.");
-      }
+      if (!currentStream) throw new Error("Önce kamera açılmalı.");
 
       const width = videoEl.videoWidth;
       const height = videoEl.videoHeight;
-      if (!width || !height) {
-        throw new Error("Video hazır değil.");
-      }
+      if (!width || !height) throw new Error("Video hazır değil.");
 
       await new Promise(resolve => setTimeout(resolve, 120));
       playShutterSound();
@@ -2681,9 +4427,7 @@
       canvas.height = height;
 
       const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        throw new Error("Canvas alınamadı.");
-      }
+      if (!ctx) throw new Error("Canvas alınamadı.");
 
       ctx.drawImage(videoEl, 0, 0, width, height);
 
@@ -2692,9 +4436,7 @@
       overlayCanvas.height = height;
 
       const overlayCanvasCtx = overlayCanvas.getContext("2d");
-      if (!overlayCanvasCtx) {
-        throw new Error("Overlay canvas alınamadı.");
-      }
+      if (!overlayCanvasCtx) throw new Error("Overlay canvas alınamadı.");
 
       drawOverlayOnContext(
         overlayCanvasCtx,
@@ -2814,14 +4556,9 @@
       if ("serviceWorker" in navigator) {
         try {
           const swCode = `
-            self.addEventListener("install", event => {
-              self.skipWaiting();
-            });
-            self.addEventListener("activate", event => {
-              event.waitUntil(self.clients.claim());
-            });
-            self.addEventListener("fetch", event => {
-            });
+            self.addEventListener("install", event => { self.skipWaiting(); });
+            self.addEventListener("activate", event => { event.waitUntil(self.clients.claim()); });
+            self.addEventListener("fetch", event => {});
           `;
           const swBlob = new Blob([swCode], { type: "text/javascript" });
           const swUrl = URL.createObjectURL(swBlob);
@@ -2838,9 +4575,7 @@
       installBtnEl.addEventListener("click", async () => {
         if (!deferredInstallPrompt) return;
         deferredInstallPrompt.prompt();
-        try {
-          await deferredInstallPrompt.userChoice;
-        } catch (_) {}
+        try { await deferredInstallPrompt.userChoice; } catch (_) {}
         deferredInstallPrompt = null;
         installBtnEl.classList.remove("visible");
       });
@@ -2945,9 +4680,7 @@
     modalDismissBtnEl.addEventListener("click", closePreviewModal);
 
     previewModalEl.addEventListener("click", event => {
-      if (event.target === previewModalEl) {
-        closePreviewModal();
-      }
+      if (event.target === previewModalEl) closePreviewModal();
     });
 
     modalSaveBtnEl.addEventListener("click", () => {
@@ -3041,9 +4774,7 @@
     });
 
     window.addEventListener("keydown", event => {
-      if (event.key === "Escape") {
-        closePreviewModal();
-      }
+      if (event.key === "Escape") closePreviewModal();
     });
 
     window.addEventListener("beforeunload", () => {
@@ -3088,3 +4819,4 @@
   </script>
 </body>
 </html>
+    
