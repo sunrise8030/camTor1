@@ -221,17 +221,6 @@
       font-size: 14px;
     }
 
-    input[type="number"] {
-      appearance: textfield;
-      -moz-appearance: textfield;
-    }
-
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
     button {
       display: inline-flex;
       align-items: center;
@@ -673,7 +662,7 @@
         <div class="tab-row">
           <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
           <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
-          <span class="footer-meta" id="buildInfo">v1.57 • Güncelleme: 2026-04-06 14:45</span>
+          <span class="footer-meta" id="buildInfo">v1.58 • Güncelleme: 2026-04-06 15:05</span>
         </div>
 
         <div class="tab-body">
@@ -691,22 +680,22 @@
 
               <label class="field span-3">
                 Sph
-                <input id="sphInput" type="text" placeholder="22.5" />
+                <input id="sphInput" type="text" inputmode="decimal" placeholder="22.5" />
               </label>
 
               <label class="field span-3">
                 Cyl
-                <input id="cylInput" type="text" placeholder="-1.25" />
+                <input id="cylInput" type="text" inputmode="decimal" placeholder="-1.25" />
               </label>
 
               <label class="field span-3">
                 Axl
-                <input id="axlInput" type="number" min="0" max="180" step="1" placeholder="63" />
+                <input id="axlInput" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="63" />
               </label>
 
               <label class="field span-3">
                 Hedef Açı
-                <input id="targetAngleInput" type="number" min="0" max="180" step="1" value="63" />
+                <input id="targetAngleInput" type="text" inputmode="numeric" pattern="[0-9]*" value="63" />
               </label>
             </div>
 
@@ -2200,6 +2189,64 @@
       modalSwipeState.dragging = false;
     }
 
+    function moveCaretToEnd(input) {
+      const value = input.value ?? "";
+      const end = value.length;
+      input.setSelectionRange(end, end);
+    }
+
+    function attachSmartFieldSelection(input) {
+      let pointerDownX = 0;
+      let pointerDownY = 0;
+      let pointerMoved = false;
+
+      input.addEventListener("pointerdown", event => {
+        pointerDownX = event.clientX;
+        pointerDownY = event.clientY;
+        pointerMoved = false;
+      });
+
+      input.addEventListener("pointermove", event => {
+        if (Math.abs(event.clientX - pointerDownX) > 6 || Math.abs(event.clientY - pointerDownY) > 6) {
+          pointerMoved = true;
+        }
+      });
+
+      input.addEventListener("focus", () => {
+        requestAnimationFrame(() => {
+          if (document.activeElement === input) {
+            input.select();
+          }
+        });
+      });
+
+      input.addEventListener("pointerup", event => {
+        if (pointerMoved) return;
+        if (document.activeElement !== input) return;
+
+        const rect = input.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const valueLength = (input.value ?? "").length;
+
+        if (!valueLength) {
+          input.select();
+          return;
+        }
+
+        const isNearEnd = x > rect.width * 0.82;
+
+        requestAnimationFrame(() => {
+          if (document.activeElement !== input) return;
+
+          if (isNearEnd) {
+            moveCaretToEnd(input);
+          } else {
+            input.select();
+          }
+        });
+      });
+    }
+
     async function capturePhoto() {
       if (!currentStream) {
         throw new Error("Önce kamera açılmalı.");
@@ -2397,16 +2444,79 @@
       await removeGalleryItem(modalItemId);
     });
 
-    targetAngleInputEl.addEventListener("focus", () => targetAngleInputEl.select());
-    targetAngleInputEl.addEventListener("click", () => targetAngleInputEl.select());
+    function moveCaretToEnd(input) {
+      const value = input.value ?? "";
+      const end = value.length;
+      input.setSelectionRange(end, end);
+    }
+
+    function attachSmartFieldSelection(input) {
+      let pointerDownX = 0;
+      let pointerDownY = 0;
+      let pointerMoved = false;
+
+      input.addEventListener("pointerdown", event => {
+        pointerDownX = event.clientX;
+        pointerDownY = event.clientY;
+        pointerMoved = false;
+      });
+
+      input.addEventListener("pointermove", event => {
+        if (Math.abs(event.clientX - pointerDownX) > 6 || Math.abs(event.clientY - pointerDownY) > 6) {
+          pointerMoved = true;
+        }
+      });
+
+      input.addEventListener("focus", () => {
+        requestAnimationFrame(() => {
+          if (document.activeElement === input) {
+            input.select();
+          }
+        });
+      });
+
+      input.addEventListener("pointerup", event => {
+        if (pointerMoved) return;
+        if (document.activeElement !== input) return;
+
+        const rect = input.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const valueLength = (input.value ?? "").length;
+
+        if (!valueLength) {
+          input.select();
+          return;
+        }
+
+        const isNearEnd = x > rect.width * 0.82;
+
+        requestAnimationFrame(() => {
+          if (document.activeElement !== input) return;
+
+          if (isNearEnd) {
+            moveCaretToEnd(input);
+          } else {
+            input.select();
+          }
+        });
+      });
+    }
+
+    [
+      patientNameInputEl,
+      iolTypeInputEl,
+      sphInputEl,
+      cylInputEl,
+      axlInputEl,
+      targetAngleInputEl
+    ].forEach(attachSmartFieldSelection);
+
     targetAngleInputEl.addEventListener("input", () => {
       const value = syncAxisFieldsFrom("target");
       maybeHapticOnAngle(value);
       drawOverlay();
     });
 
-    axlInputEl.addEventListener("focus", () => axlInputEl.select());
-    axlInputEl.addEventListener("click", () => axlInputEl.select());
     axlInputEl.addEventListener("input", () => {
       const value = syncAxisFieldsFrom("axl");
       maybeHapticOnAngle(value);
@@ -2497,3 +2607,4 @@
   </script>
 </body>
 </html>
+                                                
