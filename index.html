@@ -1,2970 +1,5285 @@
 <!doctype html>
+
 <html lang="tr">
+
 <head>
+
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
-  <title>Torik IOL Marker</title>
-  <meta name="theme-color" content="#0b0f16" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <title>GoPro Capture Studio</title>
+
   <style>
+
     :root {
+
       color-scheme: dark;
-      --bg: #0b0f16;
-      --panel: #151b24;
-      --border: #2a3140;
-      --text: #edf2f7;
-      --muted: #a6b0c0;
-      --success: #58d38d;
-      --danger: #f87171;
-      --tab: #0f141b;
-      --tab-active: #1d2633;
-      --select: #60a5fa;
+
+      --bg: #0f1115;
+
+      --panel: #171a21;
+
+      --panel-2: #11151d;
+
+      --border: #2a2f3a;
+
+      --text: #e8ecf1;
+
+      --muted: #a8b0bd;
+
       --accent: #4da3ff;
-      --warm: #f0b429;
-      --cool: #7dd3fc;
+
+      --danger: #ff6b6b;
+
+      --success: #57d38c;
+
+      --warning: #f0b429;
+
+      --selected: #335a8e;
+
+      --overlay: rgba(0, 0, 0, 0.8);
+
+      --btn-top: #313847;
+
+      --btn-bottom: #1c222d;
+
+      --btn-border: #3b4352;
+
     }
 
-    html { -webkit-text-size-adjust: 100%; }
-
     * {
+
       box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+
       min-width: 0;
-      user-select: none;
+
     }
 
     html, body {
+
       margin: 0;
-      width: 100%;
+
       height: 100%;
+
       overflow: hidden;
+
+      font-family: Inter, Arial, sans-serif;
+
       background: var(--bg);
+
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+
     }
 
     body {
-      padding:
-        max(4px, env(safe-area-inset-top))
-        6px
-        max(10px, env(safe-area-inset-bottom))
-        6px;
+
+      padding: 10px;
+
     }
 
     .app {
-      height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 14px);
+
+      height: calc(100vh - 20px);
+
       display: grid;
-      grid-template-rows: auto minmax(0, 56dvh) minmax(0, 1fr);
-      gap: 4px;
-      overflow: hidden;
+
+      grid-template-rows: auto 1fr;
+
+      gap: 10px;
+
     }
 
     .card {
+
       background: var(--panel);
+
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 8px;
+
+      border-radius: 18px;
+
+      padding: 12px;
+
       min-height: 0;
+
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+
     }
 
-    .header-card {
-      padding: 6px 10px;
-      display: grid;
-      gap: 4px;
+    .topbar {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      gap: 12px;
+
+      flex-wrap: wrap;
+
+    }
+
+    .topbar-actions {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      flex-wrap: wrap;
+
+    }
+
+    .badge {
+
+      display: inline-block;
+
+      padding: 4px 10px;
+
+      border-radius: 999px;
+
+      border: 1px solid var(--border);
+
+      background: #111827;
+
+      color: var(--muted);
+
+      font-size: 12px;
+
+      margin-bottom: 6px;
+
     }
 
     h1 {
+
       margin: 0;
-      font-size: 15px;
-      line-height: 1.05;
+
+      font-size: 22px;
+
     }
 
-    .preview-card {
-      padding: 8px;
-      min-height: 0;
-      overflow: hidden;
-      display: grid;
+    h2 {
+
+      margin: 0;
+
+      font-size: 16px;
+
     }
 
-    .preview-shell {
-      position: relative;
-      min-height: 0;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      background: #000;
-      touch-action: none;
-    }
+    .muted {
 
-    video, canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    video {
-      object-fit: cover;
-      background: #000;
-      z-index: 1;
-    }
-
-    #overlayCanvas {
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    .preview-head {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      right: 8px;
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      pointer-events: none;
-      z-index: 3;
-    }
-
-    .pill {
-      border-radius: 999px;
-      padding: 5px 8px;
-      font-size: 11px;
-      background: rgba(10, 12, 16, 0.78);
-      border: 1px solid rgba(255,255,255,0.12);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      display: inline-flex;
-      gap: 6px;
-      align-items: center;
-      white-space: nowrap;
-    }
-
-    .pill.ok { border-color: rgba(88,211,141,0.35); }
-    .pill.warn { border-color: rgba(240,180,41,0.35); }
-    .pill.bad { border-color: rgba(248,113,113,0.35); }
-
-    .gesture-hint {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 6;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 11px;
-      background: rgba(0,0,0,0.58);
-      border: 1px solid rgba(255,255,255,0.14);
-      color: rgba(255,255,255,0.96);
-      opacity: 0;
-      transition: opacity 120ms ease, transform 120ms ease;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-
-    .gesture-hint.visible { opacity: 1; }
-    #previewGestureHint { top: 12px; }
-    #modalGestureHint { top: 14px; }
-
-    .overlay-corner-actions {
-      position: absolute;
-      right: 10px;
-      bottom: 10px;
-      z-index: 4;
-      pointer-events: auto;
-    }
-
-    .overlay-icon-btn {
-      width: 48px;
-      height: 48px;
-      min-height: 48px;
-      padding: 0;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(12, 16, 22, 0.34);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.08),
-        0 6px 14px rgba(0,0,0,0.18);
-    }
-
-    .overlay-icon-btn .btn-icon { font-size: 22px; }
-
-    .capture-flash {
-      position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,0.92);
-      opacity: 0;
-      pointer-events: none;
-      z-index: 6;
-    }
-
-    .capture-flash.active { animation: captureFlashAnim 120ms ease-out; }
-
-    @keyframes captureFlashAnim {
-      0% { opacity: 0; }
-      15% { opacity: 0.95; }
-      100% { opacity: 0; }
-    }
-
-    .controls {
-      display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
-      gap: 6px;
-      min-height: 0;
-      padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
-    }
-
-    .capture-row {
-      display: grid;
-      grid-template-columns: 54px 1fr;
-      gap: 6px;
-      align-items: stretch;
-      flex: 0 0 auto;
-    }
-
-    .mini-square-btn {
-      width: 54px;
-      height: 54px;
-      min-height: 54px;
-      padding: 0;
-      border-radius: 14px;
-    }
-
-    .mini-square-btn .btn-icon { font-size: 22px; }
-
-    input, select, button {
-      width: 100%;
-      min-height: 38px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #0f141b;
-      color: var(--text);
-      padding: 0 10px;
-      font-size: 14px;
-    }
-
-    button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
-        linear-gradient(180deg, #313847, #1c222d);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.08),
-        inset 0 -1px 0 rgba(0,0,0,0.25),
-        0 1px 1px rgba(0,0,0,0.35),
-        0 8px 18px rgba(0,0,0,0.12);
-    }
-
-    button:disabled, input:disabled, select:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    .btn-icon {
-      font-size: 18px;
-      line-height: 1;
-      flex: 0 0 auto;
-    }
-
-    .success { border-color: rgba(88, 211, 141, 0.45); }
-    .danger { border-color: rgba(248, 113, 113, 0.45); }
-
-    .capture-primary {
-      min-height: 54px;
-      font-size: 17px;
-      font-weight: 800;
-      border-radius: 14px;
-    }
-
-    .capture-primary .btn-icon { font-size: 24px; }
-
-    .bottom-panel {
-      min-height: 0;
-      display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
-      gap: 6px;
-    }
-
-    .tab-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto auto;
-      gap: 6px;
-      align-items: center;
-      flex: 0 0 auto;
-    }
-
-    .tab-btn {
-      min-height: 34px;
-      font-size: 12px;
-      border-radius: 10px;
-      background: var(--tab);
-      box-shadow: none;
-    }
-
-    .tab-btn.active {
-      background: var(--tab-active);
-      border-color: rgba(255,255,255,0.16);
-    }
-
-    .install-btn {
-      min-height: 34px;
-      width: auto;
-      padding: 0 10px;
-      font-size: 12px;
-      border-radius: 10px;
-      display: none;
-      box-shadow: none;
-    }
-
-    .install-btn.visible { display: inline-flex; }
-
-    .tab-body {
-      min-height: 0;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: rgba(10, 15, 23, 0.92);
-      overflow: hidden;
-    }
-
-    .tab-pane {
-      display: none;
-      height: 100%;
-      min-height: 0;
-    }
-
-    .tab-pane.active { display: grid; }
-
-    .data-pane {
-      grid-template-rows: auto auto auto auto;
-      gap: 6px;
-      padding: 8px;
-      overflow: auto;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 5px;
-    }
-
-    .span-3 { grid-column: span 3; }
-    .span-6 { grid-column: span 6; }
-    .span-12 { grid-column: span 12; }
-
-    label.field {
-      display: grid;
-      gap: 2px;
       color: var(--muted);
-      font-size: 10px;
-      min-width: 0;
+
+      font-size: 13px;
+
     }
 
-    .info-strip {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 6px;
-    }
+    .workspace {
 
-    .info-line {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-
-    .info-line::-webkit-scrollbar {
-      display: none;
-    }
-
-    .status {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: rgba(10, 15, 23, 0.92);
-      padding: 7px 9px;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.25;
-      white-space: pre-wrap;
-      min-height: 52px;
-      max-height: 96px;
-      overflow: auto;
-    }
-
-    .footer-meta {
-      color: var(--muted);
-      font-size: 10px;
-      line-height: 1.25;
-      text-align: center;
-      opacity: 0.9;
-      padding-top: 1px;
-    }
-
-    .gallery-pane {
-      grid-template-rows: auto minmax(0, 1fr);
       min-height: 0;
-      overflow: hidden;
-    }
 
-    .gallery-toolbar {
       display: grid;
-      grid-template-columns: 1fr repeat(3, 104px);
+
+      grid-template-columns: 1.12fr 1fr;
+
       gap: 10px;
-      padding: 8px;
-      border-bottom: 1px solid var(--border);
-      align-items: center;
+
     }
 
-    .gallery-counter {
-      color: var(--muted);
-      font-size: 11px;
-      white-space: nowrap;
-      text-align: left;
-    }
+    .left-pane,
 
-    .toolbar-btn {
-      width: 104px;
-      min-width: 104px;
-      max-width: 104px;
-      min-height: 34px;
-      height: 34px;
-      padding: 0 8px;
-      font-size: 11px;
-      border-radius: 10px;
-      box-shadow: none;
-    }
+    .right-pane {
 
-    .gallery-list {
       min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 8px;
+
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+
+      gap: 10px;
+
+    }
+
+    .left-pane {
+
+      grid-template-rows: auto auto auto auto 1fr;
+
+    }
+
+    .right-pane {
+
+      grid-template-rows: auto 1fr;
+
+    }
+
+    .section-head {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      gap: 10px;
+
+      flex-wrap: wrap;
+
+      margin-bottom: 8px;
+
+    }
+
+    .controls-grid {
+
+      display: grid;
+
+      grid-template-columns: minmax(210px, 270px) repeat(4, minmax(0, 1fr));
+
       gap: 8px;
-      align-content: start;
-      align-items: start;
-      grid-auto-rows: max-content;
-      -webkit-overflow-scrolling: touch;
+
+      align-items: end;
+
     }
 
-    .gallery-date-separator {
-      grid-column: 1 / -1;
-      font-size: 10px;
-      color: var(--muted);
-      padding: 4px 2px 2px 2px;
-      border-top: 1px dashed rgba(255,255,255,0.08);
-      margin-top: 2px;
-    }
+    .zoom-grid {
 
-    .gallery-empty {
-      color: var(--muted);
-      font-size: 12px;
-      text-align: center;
-      padding: 16px;
-      border: 1px dashed var(--border);
-      border-radius: 12px;
-      grid-column: 1 / -1;
-    }
-
-    .gallery-card {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      background: #0f141b;
       display: grid;
-      grid-template-rows: auto auto auto;
-      transition: border-color 120ms ease, box-shadow 120ms ease;
-      align-self: start;
-      height: auto;
+
+      grid-template-columns: 1fr 64px 64px 64px 110px;
+
+      gap: 8px;
+
+      align-items: end;
+
+      margin-top: 8px;
+
     }
 
-    .gallery-card.selected {
-      border-color: rgba(96,165,250,0.9);
-      box-shadow: 0 0 0 2px rgba(96,165,250,0.22);
-    }
+    .auto-grid {
 
-    .gallery-card.selected .gallery-name::before {
-      content: "✓ ";
-      color: var(--select);
-    }
-
-    .gallery-thumb-wrap {
-      aspect-ratio: 4 / 3;
-      background: #000;
-      overflow: hidden;
-      position: relative;
-      width: 100%;
-      height: auto;
-    }
-
-    .gallery-thumb {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      pointer-events: none;
-    }
-
-    .gallery-meta {
-      padding: 6px 8px 0 8px;
       display: grid;
-      gap: 2px;
-      font-size: 10px;
-      color: var(--muted);
-    }
 
-    .gallery-name {
-      color: var(--text);
-      font-size: 11px;
-      font-weight: 600;
-      word-break: break-word;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+
+      gap: 8px;
+
+      align-items: end;
+
     }
 
     .gallery-actions {
+
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      padding: 8px;
+
+      grid-template-rows: auto auto auto;
+
+      gap: 8px;
+
     }
 
-    .icon-mini-btn {
-      min-height: 32px;
-      height: 32px;
-      padding: 0;
-      font-size: 14px;
-      border-radius: 10px;
-      box-shadow: none;
+    .gallery-actions-row {
+
+      display: grid;
+
+      gap: 8px;
+
+      align-items: stretch;
+
     }
 
-    .capture-preview {
-      position: fixed;
-      right: max(14px, env(safe-area-inset-right) + 14px);
-      bottom: max(18px, env(safe-area-inset-bottom) + 18px);
-      width: min(36vw, 220px);
-      aspect-ratio: 4 / 3;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.26);
-      box-shadow:
-        0 18px 40px rgba(0,0,0,0.50),
-        0 0 0 1px rgba(255,255,255,0.10) inset;
-      background: #000;
-      z-index: 80;
-      opacity: 0;
-      transform: translateY(10px) scale(0.95);
-      pointer-events: none;
-      transition: opacity 260ms ease, transform 260ms ease;
-      touch-action: none;
+    .gallery-actions-row.primary {
+
+      grid-template-columns:
+
+        minmax(190px, 240px)
+
+        minmax(170px, 220px)
+
+        minmax(170px, 220px);
+
     }
 
-    .capture-preview.visible {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
+    .gallery-actions-row.secondary {
+
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+
     }
 
-    .capture-preview img {
+    label.field {
+
+      display: grid;
+
+      gap: 4px;
+
+      font-size: 12px;
+
+      color: var(--muted);
+
+    }
+
+    input,
+
+    select,
+
+    button {
+
+      min-height: 44px;
+
+      border-radius: 12px;
+
+      border: 1px solid var(--border);
+
+      background: #10131a;
+
+      color: var(--text);
+
+      padding: 0 12px;
+
+      font-size: 13px;
+
+      line-height: 1.2;
+
+    }
+
+    input,
+
+    select {
+
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
+
     }
 
-    .capture-preview-badge {
-      position: absolute;
-      left: 8px;
-      top: 8px;
-      z-index: 2;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 10px;
-      background: rgba(0,0,0,0.55);
-      border: 1px solid rgba(255,255,255,0.14);
-      color: rgba(255,255,255,0.92);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      pointer-events: none;
+    input[type="number"] {
+
+      appearance: textfield;
+
+      -moz-appearance: textfield;
+
     }
 
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.82);
-      z-index: 30;
-      display: none;
+    input[type="number"]::-webkit-outer-spin-button,
+
+    input[type="number"]::-webkit-inner-spin-button {
+
+      -webkit-appearance: none;
+
+      margin: 0;
+
+    }
+
+    button {
+
+      cursor: pointer;
+
+      white-space: nowrap;
+
+      display: inline-flex;
+
+      flex-direction: row;
+
       align-items: center;
+
       justify-content: center;
-      padding:
-        max(12px, env(safe-area-inset-top))
-        12px
-        max(12px, env(safe-area-inset-bottom))
-        12px;
-      transition: background 180ms ease;
-      touch-action: none;
+
+      gap: 10px;
+
+      text-align: center;
+
+      padding: 10px 14px;
+
+      background:
+
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+
+        linear-gradient(180deg, var(--btn-top), var(--btn-bottom));
+
+      border: 1px solid var(--btn-border);
+
+      box-shadow:
+
+        inset 0 1px 0 rgba(255,255,255,0.08),
+
+        inset 0 -1px 0 rgba(0,0,0,0.25),
+
+        0 1px 1px rgba(0,0,0,0.35),
+
+        0 8px 18px rgba(0,0,0,0.16);
+
+      transition: transform .08s ease, box-shadow .12s ease, border-color .12s ease;
+
+      overflow: hidden;
+
     }
 
-    .modal-backdrop.active { display: flex; }
+    button:hover:not(:disabled),
 
-    .modal-card {
-      width: min(100%, 720px);
-      max-height: 100%;
-      display: grid;
-      grid-template-rows: auto minmax(0, 1fr) auto;
-      gap: 8px;
-      background: #111827;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      padding: 10px;
-      transition: transform 180ms ease;
-      touch-action: none;
-      will-change: transform;
-      position: relative;
+    input:hover,
+
+    select:hover {
+
+      border-color: var(--accent);
+
     }
 
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
+    button:active:not(:disabled) {
+
+      transform: translateY(1px);
+
+      box-shadow:
+
+        inset 0 1px 0 rgba(255,255,255,0.04),
+
+        0 2px 6px rgba(0,0,0,0.25);
+
+    }
+
+    button:disabled,
+
+    input:disabled,
+
+    select:disabled {
+
+      opacity: 0.55;
+
+      cursor: not-allowed;
+
+    }
+
+    .lang-btn {
+
+      min-width: 62px;
+
+      padding: 8px 12px;
+
+    }
+
+    .zoom-btn {
+
+      min-width: 64px;
+
+      padding: 0;
+
+      font-weight: 800;
+
+      font-size: 18px;
+
+    }
+
+    .zoom-indicator {
+
+      min-height: 44px;
+
+      display: inline-flex;
+
       align-items: center;
+
+      justify-content: center;
+
+      border-radius: 12px;
+
+      border: 1px solid var(--border);
+
+      background: #10131a;
+
+      color: var(--text);
+
+      font-size: 13px;
+
+      padding: 0 12px;
+
+      white-space: nowrap;
+
+    }
+
+    .btn-icon {
+
+      font-size: 26px;
+
+      line-height: 1;
+
+      flex: 0 0 auto;
+
+    }
+
+    .btn-label {
+
+      min-width: 0;
+
+      white-space: nowrap;
+
+      font-weight: 600;
+
+    }
+
+    .success {
+
+      border-color: rgba(87, 211, 140, 0.45);
+
+    }
+
+    .danger {
+
+      border-color: rgba(255, 107, 107, 0.45);
+
+    }
+
+    .warning {
+
+      border-color: rgba(240, 180, 41, 0.45);
+
+    }
+
+    .recording {
+
+      animation: pulse 1.2s infinite;
+
+      border-color: rgba(255, 107, 107, 0.85) !important;
+
+    }
+
+    .auto-running {
+
+      border-color: rgba(240, 180, 41, 0.85) !important;
+
+      box-shadow:
+
+        inset 0 1px 0 rgba(255,255,255,0.08),
+
+        inset 0 -1px 0 rgba(0,0,0,0.25),
+
+        0 1px 1px rgba(0,0,0,0.35),
+
+        0 8px 18px rgba(240,180,41,0.12);
+
+    }
+
+    @keyframes pulse {
+
+      0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.28); }
+
+      70% { box-shadow: 0 0 0 10px rgba(255, 107, 107, 0); }
+
+      100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+
+    }
+
+    .preview-card {
+
+      display: grid;
+
+      grid-template-rows: auto 1fr;
+
+      gap: 8px;
+
+      min-height: 0;
+
+    }
+
+    .preview-box {
+
+      border: 1px solid var(--border);
+
+      border-radius: 14px;
+
+      overflow: hidden;
+
+      background: #0b0d12;
+
+      min-height: 0;
+
+    }
+
+    .live-box {
+
+      aspect-ratio: 16 / 9;
+
+      max-height: 42vh;
+
+      min-height: 320px;
+
+    }
+
+    .preview-stage {
+
+      position: relative;
+
+      width: 100%;
+
+      height: 100%;
+
+      background: #000;
+
+      overflow: hidden;
+
+    }
+
+    .preview-media {
+
+      position: absolute;
+
+      inset: 0;
+
+      transform-origin: center center;
+
+      will-change: transform;
+
+    }
+
+    video, img {
+
+      width: 100%;
+
+      height: 100%;
+
+      display: block;
+
+      object-fit: contain;
+
+      background: #000;
+
+    }
+
+    .live-overlay {
+
+      position: absolute;
+
+      inset: 0;
+
+      width: 100%;
+
+      height: 100%;
+
+      pointer-events: none;
+
+      z-index: 2;
+
+    }
+
+    .meta {
+
+      display: grid;
+
+      grid-template-columns: repeat(6, 1fr);
+
+      gap: 6px;
+
+    }
+
+    .meta-card {
+
+      border: 1px solid var(--border);
+
+      border-radius: 10px;
+
+      background: var(--panel-2);
+
+      padding: 7px 8px;
+
+    }
+
+    .meta-label {
+
+      color: var(--muted);
+
+      font-size: 10px;
+
+      margin-bottom: 3px;
+
+    }
+
+    .meta-value {
+
+      font-size: 11px;
+
+      word-break: break-word;
+
+      line-height: 1.2;
+
+    }
+
+    .status {
+
+      border: 1px solid var(--border);
+
+      border-radius: 12px;
+
+      background: var(--panel-2);
+
+      padding: 10px 12px;
+
+      color: var(--muted);
+
+      white-space: pre-wrap;
+
+      line-height: 1.35;
+
+      min-height: 72px;
+
+      font-size: 13px;
+
+    }
+
+    .hint {
+
+      font-size: 12px;
+
+      color: var(--muted);
+
+      min-height: 20px;
+
+      display: flex;
+
+      align-items: center;
+
+    }
+
+    .gallery-card {
+
+      min-height: 0;
+
+      display: grid;
+
+      grid-template-rows: 1fr;
+
+      overflow: hidden;
+
+    }
+
+    .gallery {
+
+      min-height: 0;
+
+      height: 100%;
+
+      overflow-y: auto;
+
+      overflow-x: hidden;
+
+      display: grid;
+
+      grid-template-columns: repeat(auto-fill, minmax(220px, 220px));
+
+      grid-auto-rows: 252px;
+
+      gap: 10px;
+
+      justify-content: start;
+
+      align-content: start;
+
+      padding-right: 4px;
+
+    }
+
+    .gallery-empty {
+
+      border: 1px dashed var(--border);
+
+      border-radius: 12px;
+
+      padding: 18px;
+
+      color: var(--muted);
+
+      background: #10131a;
+
+      font-size: 13px;
+
+      width: 220px;
+
+      height: fit-content;
+
+    }
+
+    .item-card {
+
+      width: 220px;
+
+      height: 252px;
+
+      border: 2px solid rgba(110, 168, 255, 0.16);
+
+      border-radius: 14px;
+
+      background: #11151d;
+
+      overflow: hidden;
+
+      display: grid;
+
+      grid-template-rows: 150px auto;
+
+      cursor: pointer;
+
+      transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+
+      user-select: none;
+
+    }
+
+    .item-card:hover {
+
+      border-color: rgba(110, 168, 255, 0.5);
+
+      transform: translateY(-1px);
+
+    }
+
+    .item-card.selected {
+
+      border-color: #7db5ff;
+
+      box-shadow:
+
+        0 0 0 2px rgba(125,181,255,0.22),
+
+        inset 0 0 0 1px rgba(255,255,255,0.05);
+
+      background: var(--selected);
+
+    }
+
+    .item-preview {
+
+      background: #000;
+
+      position: relative;
+
+    }
+
+    .item-preview img,
+
+    .item-preview video {
+
+      width: 100%;
+
+      height: 100%;
+
+      object-fit: cover;
+
+      background: #000;
+
+      pointer-events: none;
+
+    }
+
+    .item-top-badges {
+
+      position: absolute;
+
+      top: 8px;
+
+      left: 8px;
+
+      right: 8px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 8px;
+
+      pointer-events: none;
+
+    }
+
+    .pill {
+
+      font-size: 11px;
+
+      padding: 4px 8px;
+
+      border-radius: 999px;
+
+      border: 1px solid rgba(255,255,255,0.12);
+
+      background: rgba(15, 17, 21, 0.85);
+
+      color: var(--text);
+
+    }
+
+    .item-body {
+
+      padding: 10px;
+
+      display: grid;
+
+      gap: 6px;
+
+    }
+
+    .item-name {
+
+      font-size: 13px;
+
+      font-weight: 600;
+
+      line-height: 1.3;
+
+      word-break: break-word;
+
+    }
+
+    .item-date {
+
+      color: var(--muted);
+
+      font-size: 12px;
+
+      line-height: 1.3;
+
+    }
+
+    .item-actions {
+
+      display: flex;
+
+      gap: 8px;
+
+      margin-top: 4px;
+
+    }
+
+    .icon-action-btn {
+
+      width: 36px;
+
+      min-width: 36px;
+
+      height: 36px;
+
+      min-height: 36px;
+
+      padding: 0;
+
+      gap: 0;
+
+      border-radius: 10px;
+
+      justify-content: center;
+
+    }
+
+    .icon-action-btn .btn-icon {
+
+      font-size: 18px;
+
+    }
+
+    .modal {
+
+      position: fixed;
+
+      inset: 0;
+
+      background: var(--overlay);
+
+      display: none;
+
+      align-items: center;
+
+      justify-content: center;
+
+      padding: 20px;
+
+      z-index: 1000;
+
+    }
+
+    .modal.open {
+
+      display: flex;
+
+    }
+
+    .modal-content {
+
+      width: min(1200px, 96vw);
+
+      height: min(86vh, 900px);
+
+      border-radius: 16px;
+
+      border: 1px solid var(--border);
+
+      background: #0b0d12;
+
+      overflow: hidden;
+
+      display: grid;
+
+      grid-template-rows: auto 1fr;
+
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.45);
+
+    }
+
+    .modal-header {
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 10px;
+
+      padding: 10px 12px;
+
+      border-bottom: 1px solid var(--border);
+
+      background: #11151d;
+
     }
 
     .modal-title {
-      font-size: 13px;
-      color: var(--muted);
-      word-break: break-word;
+
+      font-size: 14px;
+
+      font-weight: 600;
+
     }
 
-    .modal-close {
-      width: 42px;
-      min-width: 42px;
-      min-height: 42px;
-      padding: 0;
-    }
+    .modal-body {
 
-    .modal-image-wrap {
-      min-height: 0;
-      display: grid;
-      place-items: center;
-      overflow: auto;
       background: #000;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.08);
-      position: relative;
+
+      min-height: 0;
+
     }
 
-    .modal-image {
-      max-width: 100%;
-      max-height: 100%;
-      display: block;
+    .modal-body img,
+
+    .modal-body video {
+
+      width: 100%;
+
+      height: 100%;
+
       object-fit: contain;
+
+      background: #000;
+
     }
 
-    .modal-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-    }
+    @media (max-width: 1360px) {
 
-    .hint-badge {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      padding: 4px 8px;
-      font-size: 10px;
-      border-radius: 999px;
-      background: rgba(0,0,0,0.48);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.92);
-      z-index: 7;
-    }
+      .controls-grid {
 
-    input.invalid {
-      border-color: rgba(248,113,113,0.72);
-      box-shadow: 0 0 0 1px rgba(248,113,113,0.20) inset;
-    }
+        grid-template-columns: repeat(3, minmax(0, 1fr));
 
-    @media (max-width: 980px) {
-      .gallery-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .capture-preview { width: min(42vw, 210px); }
-      .gallery-toolbar {
-        grid-template-columns: 1fr repeat(3, 96px);
-        gap: 8px;
       }
-      .toolbar-btn {
-        width: 96px;
-        min-width: 96px;
-        max-width: 96px;
+
+      .zoom-grid,
+
+      .auto-grid {
+
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+
       }
+
+      .gallery-actions-row.primary,
+
+      .gallery-actions-row.secondary {
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      }
+
+      .meta {
+
+        grid-template-columns: repeat(3, 1fr);
+
+      }
+
     }
+
+    @media (max-width: 920px) {
+
+      html, body {
+
+        overflow: auto;
+
+      }
+
+      .app {
+
+        height: auto;
+
+      }
+
+      .workspace {
+
+        grid-template-columns: 1fr;
+
+      }
+
+      .controls-grid,
+
+      .zoom-grid,
+
+      .auto-grid,
+
+      .gallery-actions-row.primary,
+
+      .gallery-actions-row.secondary,
+
+      .meta {
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      }
+
+      .live-box {
+
+        max-height: none;
+
+      }
+
+      .gallery {
+
+        grid-template-columns: repeat(auto-fill, minmax(200px, 200px));
+
+        grid-auto-rows: 240px;
+
+      }
+
+      .item-card {
+
+        width: 200px;
+
+        height: 240px;
+
+      }
+
+      button,
+
+      .btn-label {
+
+        white-space: normal;
+
+      }
+
+    }
+
   </style>
+
 </head>
+
 <body>
+
   <main class="app">
-    <section class="card header-card">
-      <h1>Torik IOL Marker</h1>
-    </section>
 
-    <section class="card preview-card">
-      <div id="previewShell" class="preview-shell">
-        <video id="video" autoplay playsinline muted></video>
-        <canvas id="overlayCanvas"></canvas>
-        <div id="captureFlash" class="capture-flash"></div>
+    <section class="card topbar">
 
-        <div class="preview-head">
-          <div class="pill">📸 Foto</div>
-          <div class="pill" id="streamPill">Hazır değil</div>
-        </div>
+      <div>
 
-        <div id="previewGestureHint" class="gesture-hint"></div>
+        <div class="badge" id="appBadge">GoPro Capture Studio</div>
 
-        <div class="overlay-corner-actions">
-          <button id="torchBtn" class="overlay-icon-btn" type="button" disabled aria-label="Torch">
-            <span class="btn-icon" id="torchIcon">💡</span>
-          </button>
-        </div>
-      </div>
-    </section>
+        <h1 id="appTitle">PNG + MP4 galeri, cache, klasöre kaydetme</h1>
 
-    <section class="card controls">
-      <div class="capture-row">
-        <button id="refreshBtn" class="mini-square-btn" type="button" disabled aria-label="Yenile">
-          <span class="btn-icon">🔄</span>
-        </button>
-
-        <button id="mainActionBtn" class="success capture-primary" type="button">
-          <span class="btn-icon" id="mainActionIcon">🔓</span>
-          <span id="mainActionLabel">İzin Ver ve Başlat</span>
-        </button>
       </div>
 
-      <div class="bottom-panel">
-        <div class="tab-row">
-          <button id="dataTabBtn" class="tab-btn active" type="button">Veri</button>
-          <button id="galleryTabBtn" class="tab-btn" type="button">Galeri</button>
-          <button id="installBtn" class="install-btn" type="button">📲 Yükle</button>
-          <span class="footer-meta" id="buildInfo">v1.70 • Güncelleme: 2026-04-06 18:10</span>
-        </div>
+      <div class="topbar-actions">
 
-        <div class="tab-body">
-          <div id="dataPane" class="tab-pane data-pane active">
-            <div class="form-grid">
-              <label class="field span-6">
-                İsim
-                <input id="patientNameInput" type="text" autocomplete="off" placeholder="Örn: Ahmet Yılmaz" />
-              </label>
+        <div class="muted" id="buildInfo">v1.19 • Yazılım güncelleme: 22.04.2026 12:50:00</div>
 
-              <label class="field span-6">
-                IOL Tipi
-                <input id="iolTypeInput" type="text" autocomplete="off" placeholder="Torik IOL" />
-              </label>
+        <button id="langToggleBtn" class="lang-btn" title="Deutsch / Türkçe">
 
-              <label class="field span-3">
-                Sph
-                <input id="sphInput" type="text" inputmode="decimal" autocomplete="off" placeholder="22.5" />
-              </label>
+          <span class="btn-icon" id="langToggleFlag">🇩🇪</span>
 
-              <label class="field span-3">
-                Cyl
-                <input id="cylInput" type="text" inputmode="decimal" autocomplete="off" placeholder="-1.25" />
-              </label>
+          <span class="btn-label" id="langToggleLabel">DE</span>
 
-              <label class="field span-3">
-                Axl
-                <input id="axlInput" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="63" />
-              </label>
+        </button>
 
-              <label class="field span-3">
-                Hedef Açı
-                <input id="targetAngleInput" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="63" />
-              </label>
-            </div>
+      </div>
 
-            <div class="form-grid">
-              <label class="field span-12">
-                Kamera
-                <select id="videoDevice"></select>
-              </label>
-            </div>
+    </section>
 
-            <div class="info-strip">
-              <div class="info-line">
-                <div id="cameraStatePill" class="pill warn">Kamera: Kapalı</div>
-                <div id="sensorStatePill" class="pill warn">Sensör: Bekliyor</div>
-                <div id="qualityPill" class="pill">Çözünürlük: -</div>
+    <section class="workspace">
+
+      <section class="left-pane">
+
+        <section class="card">
+
+          <div class="section-head">
+
+            <h2 id="captureSectionTitle">🎥 Çekim İşlemleri</h2>
+
+            <span class="muted" id="captureSectionHint">Canlı görüntü ve capture ayarları</span>
+
+          </div>
+
+          <div class="controls-grid">
+
+            <select id="videoDevice" disabled></select>
+
+            <button id="grantBtn">
+
+              <span class="btn-icon">🔓</span>
+
+              <span class="btn-label" id="grantBtnLabel">İzin Ver ve Başlat</span>
+
+            </button>
+
+            <button id="refreshBtn">
+
+              <span class="btn-icon">🔄</span>
+
+              <span class="btn-label" id="refreshBtnLabel">Yenile</span>
+
+            </button>
+
+            <button id="captureBtn" disabled>
+
+              <span class="btn-icon">📸</span>
+
+              <span class="btn-label" id="captureBtnLabel">PNG Capture</span>
+
+            </button>
+
+            <button id="recordToggleBtn" class="success" disabled>
+
+              <span class="btn-icon" id="recordToggleIcon">⏺️</span>
+
+              <span class="btn-label" id="recordToggleLabel">MP4 Başlat</span>
+
+            </button>
+
+          </div>
+
+          <div class="zoom-grid">
+
+            <div class="muted" id="zoomTitle" style="display:flex;align-items:center;">🔍 Dijital Zoom</div>
+
+            <button id="zoomOutBtn" class="zoom-btn" disabled>-</button>
+
+            <button id="zoomResetBtn" class="zoom-btn" disabled>1x</button>
+
+            <button id="zoomInBtn" class="zoom-btn" disabled>+</button>
+
+            <div id="zoomInfo" class="zoom-indicator">1.0x • Yok</div>
+
+          </div>
+
+        </section>
+
+        <section class="card">
+
+          <div class="section-head">
+
+            <h2 id="autoSectionTitle">⏱️ Oto Capture</h2>
+
+            <span class="muted" id="autoSectionHint">Varsayılan: 6 sn sonra, 3 sn ara, 6 adet</span>
+
+          </div>
+
+          <div class="auto-grid">
+
+            <button id="autoModeToggleBtn" type="button">
+
+              <span class="btn-icon" id="autoModeToggleIcon">📸</span>
+
+              <span class="btn-label" id="autoModeToggleLabel">Foto</span>
+
+            </button>
+
+            <label class="field">
+
+              <span id="autoDelayLabel">Başlangıç gecikmesi</span>
+
+              <input id="autoDelayInput" type="number" min="1" step="1" value="6" inputmode="numeric" />
+
+            </label>
+
+            <label class="field">
+
+              <span id="autoIntervalLabel">Aralık / Klip süresi</span>
+
+              <input id="autoIntervalInput" type="number" min="1" step="1" value="3" inputmode="numeric" />
+
+            </label>
+
+            <label class="field">
+
+              <span id="autoCountLabel">Adet</span>
+
+              <input id="autoCountInput" type="number" min="1" step="1" value="6" inputmode="numeric" />
+
+            </label>
+
+            <button id="autoToggleBtn" class="warning" disabled>
+
+              <span class="btn-icon" id="autoToggleIcon">📸</span>
+
+              <span class="btn-label" id="autoToggleLabel">Oto Foto Başlat</span>
+
+            </button>
+
+          </div>
+
+          <div class="hint" id="autoInfo" style="margin-top:8px;">Oto capture kapalı</div>
+
+        </section>
+
+        <section class="card preview-card">
+
+          <div class="section-head">
+
+            <h2 id="previewTitle">🖥️ Canlı Ön İzleme</h2>
+
+            <span class="muted" id="liveInfo">-</span>
+
+          </div>
+
+          <div class="preview-box live-box">
+
+            <div class="preview-stage" id="previewStage">
+
+              <div id="previewMedia" class="preview-media">
+
+                <video id="video" autoplay playsinline muted></video>
+
+                <canvas id="liveOverlayCanvas" class="live-overlay"></canvas>
+
               </div>
+
             </div>
 
-            <div class="status" id="status">Hazır. Mekanik deklanşör benzeri kısa çift fazlı ses kullanılıyor. PNG korunuyor. Aşağı çekerek kapat, yukarı çekerek paylaş.</div>
           </div>
 
-          <div id="galleryPane" class="tab-pane gallery-pane">
-            <div class="gallery-toolbar">
-              <div class="gallery-counter" id="galleryCounter">0 öğe • 0 seçili</div>
+        </section>
 
-              <button id="galleryToggleSelectBtn" class="toolbar-btn" type="button" disabled>
-                <span class="btn-icon">☑️</span>
-                <span id="galleryToggleSelectLabel">Tümü</span>
+        <section class="card">
+
+          <div class="meta">
+
+            <div class="meta-card"><div class="meta-label" id="metaDeviceLabel">Cihaz</div><div id="deviceInfo" class="meta-value">-</div></div>
+
+            <div class="meta-card"><div class="meta-label" id="metaResolutionLabel">Çözünürlük</div><div id="resolutionInfo" class="meta-value">-</div></div>
+
+            <div class="meta-card"><div class="meta-label" id="metaRecordLabel">Kayıt</div><div id="mimeInfo" class="meta-value">-</div></div>
+
+            <div class="meta-card"><div class="meta-label" id="metaDurationLabel">Süre</div><div id="durationInfo" class="meta-value">00:00</div></div>
+
+            <div class="meta-card"><div class="meta-label" id="metaCacheLabel">Cache</div><div id="cacheInfo" class="meta-value">Hazır</div></div>
+
+            <div class="meta-card"><div class="meta-label" id="metaAutoLabel">Oto</div><div id="autoStateInfo" class="meta-value">Kapalı</div></div>
+
+          </div>
+
+        </section>
+
+        <section class="card">
+
+          <div id="status" class="status">Hazır.</div>
+
+          <div class="hint" id="footerHint" style="margin-top:8px;">
+
+            Tek tık seçim yapar. Çift tık ön izleme açar. Her çekimde deklanşör sesi vardır.
+
+          </div>
+
+        </section>
+
+      </section>
+
+      <section class="right-pane">
+
+        <section class="card">
+
+          <div class="section-head">
+
+            <h2 id="gallerySectionTitle">🗂️ Galeri ve Dosya İşlemleri</h2>
+
+            <span class="muted" id="galleryStats">0 öğe</span>
+
+          </div>
+
+          <div class="gallery-actions">
+
+            <div class="gallery-actions-row primary">
+
+              <label class="field">
+
+                <span id="patientNameLabel">Hasta Adı</span>
+
+                <input id="patientNameInput" type="text" value="" placeholder="Hasta adı" />
+
+              </label>
+
+              <button id="pickFolderBtn" class="success">
+
+                <span class="btn-icon">📁</span>
+
+                <span class="btn-label" id="pickFolderBtnLabel">Klasör Seç</span>
+
               </button>
 
-              <button id="gallerySaveSelectedBtn" class="toolbar-btn" type="button" disabled>
-                <span class="btn-icon">💾</span>
-                <span>Seçiliyi Kaydet</span>
+              <button id="saveSelectedBtn" class="success" disabled>
+
+                <span class="btn-icon" id="saveSelectedIcon">💾</span>
+
+                <span class="btn-label" id="saveSelectedLabel">Seçilenleri Kaydet</span>
+
               </button>
 
-              <button id="galleryDeleteSelectedBtn" class="toolbar-btn danger" type="button" disabled>
+            </div>
+
+            <div class="gallery-actions-row secondary">
+
+              <button id="selectAllBtn" disabled>
+
+                <span class="btn-icon">✅</span>
+
+                <span class="btn-label" id="selectAllBtnLabel">Tümünü Seç</span>
+
+              </button>
+
+              <button id="clearSelectionBtn" class="warning" disabled>
+
+                <span class="btn-icon">↩️</span>
+
+                <span class="btn-label" id="clearSelectionBtnLabel">Seçimi Kaldır</span>
+
+              </button>
+
+              <button id="deleteSelectedBtn" class="danger" disabled>
+
                 <span class="btn-icon">🗑️</span>
-                <span>Sil</span>
+
+                <span class="btn-label" id="deleteSelectedBtnLabel">Seçilenleri Sil</span>
+
               </button>
+
+              <button id="clearCacheBtn" class="danger" disabled>
+
+                <span class="btn-icon">🔥</span>
+
+                <span class="btn-label" id="clearCacheBtnLabel">Cache Temizle</span>
+
+              </button>
+
             </div>
 
-            <div id="galleryList" class="gallery-list">
-              <div class="gallery-empty" id="galleryEmpty">Henüz foto yok.</div>
-            </div>
+            <div class="hint" id="folderInfo">Klasör seçilmedi</div>
+
           </div>
-        </div>
-      </div>
+
+        </section>
+
+        <section class="card gallery-card">
+
+          <div class="gallery" id="gallery"></div>
+
+        </section>
+
+      </section>
+
     </section>
+
   </main>
 
-  <button id="capturePreviewBtn" class="capture-preview" type="button" aria-label="Son foto önizleme">
-    <div class="capture-preview-badge">Son foto</div>
-    <img id="capturePreviewImg" alt="Son çekilen foto" />
-  </button>
+  <div id="previewModal" class="modal" aria-hidden="true">
 
-  <div id="previewModal" class="modal-backdrop">
-    <div id="modalCard" class="modal-card">
-      <div id="modalGestureHint" class="gesture-hint"></div>
+    <div class="modal-content">
 
-      <div class="modal-head">
-        <div id="modalTitle" class="modal-title">Önizleme</div>
-        <button id="modalCloseBtn" class="modal-close" type="button">✕</button>
+      <div class="modal-header">
+
+        <div class="modal-title" id="modalTitle">Ön izleme</div>
+
+        <button id="closeModalBtn" class="danger">
+
+          <span class="btn-icon">✖️</span>
+
+          <span class="btn-label" id="closeModalBtnLabel">Kapat</span>
+
+        </button>
+
       </div>
 
-      <div class="modal-image-wrap">
-        <div class="hint-badge">↓ Kapat • ↑ Paylaş</div>
-        <img id="modalImage" class="modal-image" alt="Büyük önizleme" />
-      </div>
+      <div class="modal-body" id="modalBody"></div>
 
-      <div class="modal-actions">
-        <button id="modalSaveBtn" type="button">
-          <span class="btn-icon">⬇️</span>
-          <span>Kaydet</span>
-        </button>
-        <button id="modalDeleteBtn" class="danger" type="button">
-          <span class="btn-icon">🗑️</span>
-          <span>Sil</span>
-        </button>
-        <button id="modalDismissBtn" type="button">
-          <span class="btn-icon">✕</span>
-          <span>Kapat</span>
-        </button>
-      </div>
     </div>
+
   </div>
 
   <script>
-    const DB_NAME = "torik_iol_marker_db";
-    const DB_VERSION = 1;
-    const STORE_NAME = "gallery_items";
 
-    const previewShellEl = document.getElementById("previewShell");
+    const APP_VERSION = "1.19";
+
+    const APP_UPDATED_AT = "22.04.2026 12:50:00";
+
+    const LOGO_SRC = "./Aplus_logo.png";
+
+    const translations = {
+
+      tr: {
+
+        appTitle: "PNG + MP4 galeri, cache, klasöre kaydetme",
+
+        captureSectionTitle: "🎥 Çekim İşlemleri",
+
+        captureSectionHint: "Canlı görüntü ve capture ayarları",
+
+        grantBtnLabel: "İzin Ver ve Başlat",
+
+        refreshBtnLabel: "Yenile",
+
+        captureBtnLabel: "PNG Capture",
+
+        recordStart: "MP4 Başlat",
+
+        recordStop: "MP4 Durdur",
+
+        autoSectionTitle: "⏱️ Oto Capture",
+
+        autoSectionHint: "Varsayılan: 6 sn sonra, 3 sn ara, 6 adet",
+
+        autoModePhoto: "Foto",
+
+        autoModeVideo: "Video",
+
+        autoDelayLabel: "Başlangıç gecikmesi",
+
+        autoIntervalLabel: "Aralık / Klip süresi",
+
+        autoCountLabel: "Adet",
+
+        autoStartPhoto: "Oto Foto Başlat",
+
+        autoStopPhoto: "Oto Foto Durdur",
+
+        autoStartVideo: "Oto Video Başlat",
+
+        autoStopVideo: "Oto Video Durdur",
+
+        previewTitle: "🖥️ Canlı Ön İzleme",
+
+        metaDeviceLabel: "Cihaz",
+
+        metaResolutionLabel: "Çözünürlük",
+
+        metaRecordLabel: "Kayıt",
+
+        metaDurationLabel: "Süre",
+
+        metaCacheLabel: "Cache",
+
+        metaAutoLabel: "Oto",
+
+        footerHint: "Tek tık seçim yapar. Çift tık ön izleme açar. Her çekimde deklanşör sesi vardır.",
+
+        gallerySectionTitle: "🗂️ Galeri ve Dosya İşlemleri",
+
+        patientNameLabel: "Hasta Adı",
+
+        patientNamePlaceholder: "Hasta adı",
+
+        pickFolderBtnLabel: "Klasör Seç",
+
+        saveSelectedLabel: "Seçilenleri Kaydet",
+
+        selectAllBtnLabel: "Tümünü Seç",
+
+        clearSelectionBtnLabel: "Seçimi Kaldır",
+
+        deleteSelectedBtnLabel: "Seçilenleri Sil",
+
+        clearCacheBtnLabel: "Cache Temizle",
+
+        closeModalBtnLabel: "Kapat",
+
+        buildInfo: `v${APP_VERSION} • Yazılım güncelleme: ${APP_UPDATED_AT}`,
+
+        folderNotSelected: "Klasör seçilmedi",
+
+        folderSelected: "Seçili klasör: {name}",
+
+        ready: "Hazır. 'İzin Ver ve Başlat' ile devam et.",
+
+        cacheReady: "Hazır",
+
+        autoOff: "Kapalı",
+
+        noGallery: "Henüz kayıt yok.",
+
+        noVideoDevice: "Video cihazı bulunamadı.",
+
+        chooseCameraFirst: "Önce bir kamera seç.",
+
+        openPageSecure: "Bu sayfayı HTTPS veya localhost üzerinden aç.",
+
+        noCameraApi: "Tarayıcı kamera API desteklemiyor.",
+
+        noRecorder: "Tarayıcı MediaRecorder desteklemiyor.",
+
+        noIndexedDb: "Tarayıcı IndexedDB desteklemiyor.",
+
+        mp4NotSupported: "Bu tarayıcıda MP4 kayıt desteklenmiyor.",
+
+        streamStarted: "Stream başladı.\nCihaz: {device}\nÇözünürlük: {resolution}\nKayıt formatı: {mime}",
+
+        cameraRequired: "Önce kamera açılmalı.",
+
+        videoNotReady: "Video hazır değil.",
+
+        canvasFailed: "Canvas context alınamadı.",
+
+        canvasBlobFailed: "Canvas blob üretilemedi.",
+
+        pngAdded: "PNG capture eklendi.\nBoyut: {width}x{height}\nTarih: {date}",
+
+        autoDisabled: "Oto capture kapalı",
+
+        autoWaiting: "{delay} sn sonra başlayacak • {interval} sn aralık • {count} {mode}",
+
+        autoRunning: "Çalışıyor • {remaining}/{total}",
+
+        autoStarted: "Başladı • 1/{total} {mode} çekiliyor...",
+
+        autoStepDone: "{step}/{total} tamamlandı • Sonraki {interval} sn sonra",
+
+        autoDone: "Oto capture tamamlandı.\nToplam {total} {mode} eklendi.\nSon boyut: {width}x{height}",
+
+        autoStopped: "Oto capture durduruldu.",
+
+        streamRequired: "Önce stream açılmalı.",
+
+        recordAlready: "Kayıt zaten sürüyor.",
+
+        recordStarted: "MP4 kayıt başladı.\nFormat: {mime}",
+
+        recordNoData: "Kayıt durdu ama veri oluşmadı.",
+
+        recordAdded: "MP4 kayıt galeriye eklendi.\nBoyut: {size}\nSüre: {duration}\nTarih: {date}",
+
+        mediaRecorderError: "MediaRecorder hatası",
+
+        selectedFirst: "Önce öğe seç.",
+
+        folderApiMissing: "Bu tarayıcı klasör yazmayı desteklemiyor. Chrome veya Edge dene.",
+
+        folderChosen: "Klasör seçildi.\nKlasör: {name}",
+
+        savedItems: "{count} öğe kaydedildi.\nKlasör: {folder}\nŞablon: {pattern}",
+
+        deletedItems: "{count} öğe silindi.",
+
+        selectedAll: "Tüm öğeler seçildi.",
+
+        selectionCleared: "Seçim temizlendi.",
+
+        allSelectionsRemoved: "Tüm seçimler kaldırıldı.",
+
+        cacheCleared: "Tüm cache temizlendi.",
+
+        loadedCache: "Yüklendi • {count} öğe",
+
+        cachedAt: "Yedeklendi • {time}",
+
+        deletedAt: "Silindi • {time}",
+
+        clearedAt: "Temizlendi • {time}",
+
+        errorPrefix: "Hata:\n{message}",
+
+        confirmDeleteSelected: "Seçili öğeleri silmek istiyor musun?",
+
+        confirmClearCache: "Tüm cache ve galeri öğelerini silmek istiyor musun?",
+
+        galleryOneItem: "öğe",
+
+        selectedSuffix: "seçili",
+
+        itemSelected: "Seçili",
+
+        kindImage: "PNG",
+
+        kindVideo: "MP4",
+
+        cardSave: "Kaydet",
+
+        cardDelete: "Sil",
+
+        streamEnded: "Kamera akışı sona erdi. GoPro bağlantısını kontrol et.",
+
+        autoUnitPhoto: "foto",
+
+        autoUnitVideo: "video",
+
+        logoCaption: "Sinsheim",
+
+        zoomTitle: "🔍 Dijital Zoom",
+
+        zoomNone: "Yok",
+
+        zoomHardware: "Optik/Destekli",
+
+        zoomDigital: "Dijital"
+
+      },
+
+      de: {
+
+        appTitle: "PNG + MP4 Galerie, Cache, im Ordner speichern",
+
+        captureSectionTitle: "🎥 Aufnahmefunktionen",
+
+        captureSectionHint: "Livebild und Aufnahmeoptionen",
+
+        grantBtnLabel: "Zugriff erlauben und starten",
+
+        refreshBtnLabel: "Aktualisieren",
+
+        captureBtnLabel: "PNG aufnehmen",
+
+        recordStart: "MP4 Start",
+
+        recordStop: "MP4 Stopp",
+
+        autoSectionTitle: "⏱️ Auto Capture",
+
+        autoSectionHint: "Standard: nach 6 Sek., alle 3 Sek., 6 Einträge",
+
+        autoModePhoto: "Foto",
+
+        autoModeVideo: "Video",
+
+        autoDelayLabel: "Startverzögerung",
+
+        autoIntervalLabel: "Intervall / Clipdauer",
+
+        autoCountLabel: "Anzahl",
+
+        autoStartPhoto: "Auto Foto Start",
+
+        autoStopPhoto: "Auto Foto Stopp",
+
+        autoStartVideo: "Auto Video Start",
+
+        autoStopVideo: "Auto Video Stopp",
+
+        previewTitle: "🖥️ Live-Vorschau",
+
+        metaDeviceLabel: "Gerät",
+
+        metaResolutionLabel: "Auflösung",
+
+        metaRecordLabel: "Aufnahme",
+
+        metaDurationLabel: "Dauer",
+
+        metaCacheLabel: "Cache",
+
+        metaAutoLabel: "Auto",
+
+        footerHint: "Ein Klick wählt aus. Doppelklick öffnet die Vorschau. Jeder Shot hat einen Auslöserton.",
+
+        gallerySectionTitle: "🗂️ Galerie und Dateiaktionen",
+
+        patientNameLabel: "Patient",
+
+        patientNamePlaceholder: "Patientenname",
+
+        pickFolderBtnLabel: "Ordner wählen",
+
+        saveSelectedLabel: "Auswahl speichern",
+
+        selectAllBtnLabel: "Alle wählen",
+
+        clearSelectionBtnLabel: "Auswahl aufheben",
+
+        deleteSelectedBtnLabel: "Auswahl löschen",
+
+        clearCacheBtnLabel: "Cache leeren",
+
+        closeModalBtnLabel: "Schließen",
+
+        buildInfo: `v${APP_VERSION} • Software-Update: ${APP_UPDATED_AT}`,
+
+        folderNotSelected: "Kein Ordner gewählt",
+
+        folderSelected: "Gewählter Ordner: {name}",
+
+        ready: "Bereit. Mit 'Zugriff erlauben und starten' fortfahren.",
+
+        cacheReady: "Bereit",
+
+        autoOff: "Aus",
+
+        noGallery: "Noch keine Aufnahmen vorhanden.",
+
+        noVideoDevice: "Kein Videogerät gefunden.",
+
+        chooseCameraFirst: "Bitte zuerst eine Kamera wählen.",
+
+        openPageSecure: "Diese Seite über HTTPS oder localhost öffnen.",
+
+        noCameraApi: "Browser unterstützt die Kamera-API nicht.",
+
+        noRecorder: "Browser unterstützt MediaRecorder nicht.",
+
+        noIndexedDb: "Browser unterstützt IndexedDB nicht.",
+
+        mp4NotSupported: "MP4-Aufnahme wird in diesem Browser nicht unterstützt.",
+
+        streamStarted: "Stream gestartet.\nGerät: {device}\nAuflösung: {resolution}\nFormat: {mime}",
+
+        cameraRequired: "Bitte zuerst die Kamera starten.",
+
+        videoNotReady: "Video ist noch nicht bereit.",
+
+        canvasFailed: "Canvas-Kontext konnte nicht erstellt werden.",
+
+        canvasBlobFailed: "Canvas-Blob konnte nicht erzeugt werden.",
+
+        pngAdded: "PNG hinzugefügt.\nGröße: {width}x{height}\nDatum: {date}",
+
+        autoDisabled: "Auto Capture ist aus",
+
+        autoWaiting: "Start in {delay} Sek. • Intervall {interval} Sek. • {count} {mode}",
+
+        autoRunning: "Läuft • {remaining}/{total}",
+
+        autoStarted: "Gestartet • 1/{total} {mode} wird aufgenommen...",
+
+        autoStepDone: "{step}/{total} fertig • Nächste in {interval} Sek.",
+
+        autoDone: "Auto Capture abgeschlossen.\nInsgesamt {total} {mode} hinzugefügt.\nLetzte Größe: {width}x{height}",
+
+        autoStopped: "Auto Capture gestoppt.",
+
+        streamRequired: "Bitte zuerst den Stream starten.",
+
+        recordAlready: "Aufnahme läuft bereits.",
+
+        recordStarted: "MP4-Aufnahme gestartet.\nFormat: {mime}",
+
+        recordNoData: "Aufnahme gestoppt, aber keine Daten erzeugt.",
+
+        recordAdded: "MP4 zur Galerie hinzugefügt.\nGröße: {size}\nDauer: {duration}\nDatum: {date}",
+
+        mediaRecorderError: "MediaRecorder-Fehler",
+
+        selectedFirst: "Bitte zuerst Elemente auswählen.",
+
+        folderApiMissing: "Ordnerzugriff wird in diesem Browser nicht unterstützt. Chrome oder Edge verwenden.",
+
+        folderChosen: "Ordner gewählt.\nOrdner: {name}",
+
+        savedItems: "{count} Elemente gespeichert.\nOrdner: {folder}\nSchema: {pattern}",
+
+        deletedItems: "{count} Elemente gelöscht.",
+
+        selectedAll: "Alle Elemente wurden ausgewählt.",
+
+        selectionCleared: "Auswahl aufgehoben.",
+
+        allSelectionsRemoved: "Alle Auswahlen wurden entfernt.",
+
+        cacheCleared: "Gesamter Cache wurde geleert.",
+
+        loadedCache: "Geladen • {count} Elemente",
+
+        cachedAt: "Gesichert • {time}",
+
+        deletedAt: "Gelöscht • {time}",
+
+        clearedAt: "Geleert • {time}",
+
+        errorPrefix: "Fehler:\n{message}",
+
+        confirmDeleteSelected: "Ausgewählte Elemente wirklich löschen?",
+
+        confirmClearCache: "Gesamten Cache und alle Galerieeinträge wirklich löschen?",
+
+        galleryOneItem: "Elemente",
+
+        selectedSuffix: "ausgewählt",
+
+        itemSelected: "Ausgewählt",
+
+        kindImage: "PNG",
+
+        kindVideo: "MP4",
+
+        cardSave: "Speichern",
+
+        cardDelete: "Löschen",
+
+        streamEnded: "Kamera-Stream wurde beendet. GoPro-Verbindung prüfen.",
+
+        autoUnitPhoto: "Fotos",
+
+        autoUnitVideo: "Videos",
+
+        logoCaption: "Sinsheim",
+
+        zoomTitle: "🔍 Digitalzoom",
+
+        zoomNone: "Nicht verfügbar",
+
+        zoomHardware: "Kamera-Zoom",
+
+        zoomDigital: "Digital"
+
+      }
+
+    };
+
+    let currentLang = "tr";
+
     const videoEl = document.getElementById("video");
-    const overlayCanvasEl = document.getElementById("overlayCanvas");
-    const overlayCtx = overlayCanvasEl.getContext("2d");
-    const captureFlashEl = document.getElementById("captureFlash");
+
+    const previewStageEl = document.getElementById("previewStage");
+
+    const previewMediaEl = document.getElementById("previewMedia");
+
+    const liveOverlayCanvasEl = document.getElementById("liveOverlayCanvas");
+
+    const liveOverlayCtx = liveOverlayCanvasEl.getContext("2d");
 
     const patientNameInputEl = document.getElementById("patientNameInput");
-    const iolTypeInputEl = document.getElementById("iolTypeInput");
-    const sphInputEl = document.getElementById("sphInput");
-    const cylInputEl = document.getElementById("cylInput");
-    const axlInputEl = document.getElementById("axlInput");
-    const targetAngleInputEl = document.getElementById("targetAngleInput");
-    const videoDeviceEl = document.getElementById("videoDevice");
 
-    const mainActionBtnEl = document.getElementById("mainActionBtn");
-    const mainActionIconEl = document.getElementById("mainActionIcon");
-    const mainActionLabelEl = document.getElementById("mainActionLabel");
+    const deviceSelectEl = document.getElementById("videoDevice");
+
+    const grantBtnEl = document.getElementById("grantBtn");
+
     const refreshBtnEl = document.getElementById("refreshBtn");
-    const torchBtnEl = document.getElementById("torchBtn");
-    const torchIconEl = document.getElementById("torchIcon");
+
+    const captureBtnEl = document.getElementById("captureBtn");
+
+    const recordToggleBtnEl = document.getElementById("recordToggleBtn");
+
+    const recordToggleIconEl = document.getElementById("recordToggleIcon");
+
+    const recordToggleLabelEl = document.getElementById("recordToggleLabel");
+
+    const zoomOutBtnEl = document.getElementById("zoomOutBtn");
+
+    const zoomResetBtnEl = document.getElementById("zoomResetBtn");
+
+    const zoomInBtnEl = document.getElementById("zoomInBtn");
+
+    const zoomInfoEl = document.getElementById("zoomInfo");
+
+    const zoomTitleEl = document.getElementById("zoomTitle");
+
+    const selectAllBtnEl = document.getElementById("selectAllBtn");
+
+    const clearSelectionBtnEl = document.getElementById("clearSelectionBtn");
+
+    const deleteSelectedBtnEl = document.getElementById("deleteSelectedBtn");
+
+    const clearCacheBtnEl = document.getElementById("clearCacheBtn");
+
+    const pickFolderBtnEl = document.getElementById("pickFolderBtn");
+
+    const saveSelectedBtnEl = document.getElementById("saveSelectedBtn");
+
+    const saveSelectedIconEl = document.getElementById("saveSelectedIcon");
+
+    const saveSelectedLabelEl = document.getElementById("saveSelectedLabel");
 
     const statusEl = document.getElementById("status");
-    const streamPillEl = document.getElementById("streamPill");
-    const cameraStatePillEl = document.getElementById("cameraStatePill");
-    const sensorStatePillEl = document.getElementById("sensorStatePill");
-    const qualityPillEl = document.getElementById("qualityPill");
 
-    const dataTabBtnEl = document.getElementById("dataTabBtn");
-    const galleryTabBtnEl = document.getElementById("galleryTabBtn");
-    const dataPaneEl = document.getElementById("dataPane");
-    const galleryPaneEl = document.getElementById("galleryPane");
+    const deviceInfoEl = document.getElementById("deviceInfo");
 
-    const galleryListEl = document.getElementById("galleryList");
-    const galleryEmptyEl = document.getElementById("galleryEmpty");
-    const galleryCounterEl = document.getElementById("galleryCounter");
-    const gallerySaveSelectedBtnEl = document.getElementById("gallerySaveSelectedBtn");
-    const galleryDeleteSelectedBtnEl = document.getElementById("galleryDeleteSelectedBtn");
-    const galleryToggleSelectBtnEl = document.getElementById("galleryToggleSelectBtn");
-    const galleryToggleSelectLabelEl = document.getElementById("galleryToggleSelectLabel");
+    const resolutionInfoEl = document.getElementById("resolutionInfo");
 
-    const capturePreviewBtnEl = document.getElementById("capturePreviewBtn");
-    const capturePreviewImgEl = document.getElementById("capturePreviewImg");
-    const previewGestureHintEl = document.getElementById("previewGestureHint");
+    const mimeInfoEl = document.getElementById("mimeInfo");
+
+    const durationInfoEl = document.getElementById("durationInfo");
+
+    const cacheInfoEl = document.getElementById("cacheInfo");
+
+    const galleryEl = document.getElementById("gallery");
+
+    const galleryStatsEl = document.getElementById("galleryStats");
+
+    const folderInfoEl = document.getElementById("folderInfo");
+
+    const liveInfoEl = document.getElementById("liveInfo");
+
+    const buildInfoEl = document.getElementById("buildInfo");
+
+    const langToggleBtnEl = document.getElementById("langToggleBtn");
+
+    const langToggleLabelEl = document.getElementById("langToggleLabel");
+
+    const langToggleFlagEl = document.getElementById("langToggleFlag");
 
     const previewModalEl = document.getElementById("previewModal");
-    const modalCardEl = document.getElementById("modalCard");
-    const modalImageEl = document.getElementById("modalImage");
+
     const modalTitleEl = document.getElementById("modalTitle");
-    const modalCloseBtnEl = document.getElementById("modalCloseBtn");
-    const modalSaveBtnEl = document.getElementById("modalSaveBtn");
-    const modalDeleteBtnEl = document.getElementById("modalDeleteBtn");
-    const modalDismissBtnEl = document.getElementById("modalDismissBtn");
-    const modalGestureHintEl = document.getElementById("modalGestureHint");
 
-    const installBtnEl = document.getElementById("installBtn");
+    const modalBodyEl = document.getElementById("modalBody");
 
-    const audioState = { ctx: null };
+    const closeModalBtnEl = document.getElementById("closeModalBtn");
 
-    let db = null;
-    let deferredInstallPrompt = null;
+    const autoModeToggleBtnEl = document.getElementById("autoModeToggleBtn");
+
+    const autoModeToggleIconEl = document.getElementById("autoModeToggleIcon");
+
+    const autoModeToggleLabelEl = document.getElementById("autoModeToggleLabel");
+
+    const autoDelayInputEl = document.getElementById("autoDelayInput");
+
+    const autoIntervalInputEl = document.getElementById("autoIntervalInput");
+
+    const autoCountInputEl = document.getElementById("autoCountInput");
+
+    const autoToggleBtnEl = document.getElementById("autoToggleBtn");
+
+    const autoToggleIconEl = document.getElementById("autoToggleIcon");
+
+    const autoToggleLabelEl = document.getElementById("autoToggleLabel");
+
+    const autoInfoEl = document.getElementById("autoInfo");
+
+    const autoStateInfoEl = document.getElementById("autoStateInfo");
 
     let currentStream = null;
-    let currentTrack = null;
+
+    let currentVideoTrack = null;
+
+    let mediaRecorder = null;
+
+    let recordedChunks = [];
+
+    let selectedRecordingMimeType = "";
+
+    let recordingStartedAt = null;
+
+    let recordingTimerId = null;
+
     let permissionGranted = false;
-    let torchSupported = false;
-    let torchEnabled = false;
 
-    let sensorPermissionGranted = false;
-    let motionListening = false;
-    let orientationListening = false;
-    let overlayAnimationId = null;
-    let sensorWatchdogId = null;
-    let isDraggingAxis = false;
+    let galleryDb = null;
 
-    let gravityX = 0;
-    let gravityY = 0;
-    let gravityZ = 0;
-    let rawRollDeg = 0;
-    let eventCount = 0;
+    let settingsDb = null;
 
-    let lastGX = 0;
-    let lastGY = 0;
-    let lastGZ = 0;
-    let lastBeta = null;
-    let lastGamma = null;
+    let isCacheReady = false;
 
-    let lastHapticStep = null;
-    let lastHapticAt = 0;
+    let folderHandle = null;
 
-    let sensorSource = "none";
-    let lastSensorAt = 0;
-    let lastOrientationAt = 0;
-    let lastMotionAt = 0;
-    let sensorFailureShown = false;
+    let folderName = "";
 
-    let captureResolutionText = "-";
+    let audioCtx = null;
 
-    const galleryItems = [];
-    let modalItemId = null;
-    let activeTab = "data";
-    let lastCapturedItemId = null;
-    let capturePreviewDismissed = false;
+    let autoCaptureTimeoutId = null;
 
-    const previewSwipeState = {
-      active: false,
-      pointerId: null,
-      startY: 0,
-      startX: 0,
-      currentY: 0,
-      currentX: 0,
-      dragging: false
+    let autoCaptureIntervalId = null;
+
+    let autoCountdownIntervalId = null;
+
+    let autoCaptureRunning = false;
+
+    let autoCaptureStarted = false;
+
+    let autoCaptureRemaining = 0;
+
+    let autoCaptureTotal = 6;
+
+    let autoCaptureDelaySeconds = 6;
+
+    let autoCaptureIntervalSeconds = 3;
+
+    let autoCaptureMode = "photo";
+
+    let liveOverlayFrameId = null;
+
+    let currentZoom = 1;
+
+    let minZoom = 1;
+
+    let maxZoom = 3;
+
+    let zoomStep = 0.1;
+
+    let zoomSupported = false;
+
+    const liveLogoImage = new Image();
+
+    let liveLogoLoaded = false;
+
+    liveLogoImage.onload = () => {
+
+      liveLogoLoaded = true;
+
     };
 
-    const modalSwipeState = {
-      active: false,
-      pointerId: null,
-      startY: 0,
-      startX: 0,
-      currentY: 0,
-      currentX: 0,
-      dragging: false
-    };
+    liveLogoImage.src = LOGO_SRC;
 
-    const LOW_PASS_ALPHA = 0.16;
-    const ANGLE_SMOOTH_ALPHA = 0.18;
-    const HAPTIC_STEP_DEG = 5;
-    const HAPTIC_MIN_INTERVAL_MS = 50;
-    const SENSOR_TIMEOUT_MS = 1800;
-    const SWIPE_CLOSE_THRESHOLD = 42;
-    const SWIPE_SHARE_THRESHOLD = 42;
+    const GALLERY_DB = "gopro-capture-studio-db";
 
-    function setStatus(message) {
-      statusEl.textContent = message;
-    }
+    const GALLERY_STORE = "captures";
 
-    function pad2(value) {
-      return String(value).padStart(2, "0");
-    }
+    const SETTINGS_DB = "gopro-capture-studio-settings-db";
 
-    function clamp(value, min, max) {
-      return Math.min(max, Math.max(min, value));
-    }
+    const SETTINGS_STORE = "settings";
 
-    function clampAxis180(value) {
-      return clamp(Math.round(Number(value) || 0), 0, 180);
-    }
+    let galleryItems = [];
 
-    function clampAngle360(value) {
-      let result = value % 360;
-      if (result < 0) result += 360;
-      return result;
-    }
+    function t(key, vars = {}) {
 
-    function normalizeSigned180(value) {
-      let result = clampAngle360(value);
-      if (result > 180) result -= 360;
-      return result;
-    }
+      const dict = translations[currentLang] || translations.tr;
 
-    function angleToCanvasRad(deg) {
-      return (-deg * Math.PI) / 180;
-    }
+      let value = dict[key] ?? key;
 
-    function formatSignedAngle(value) {
-      const rounded = Math.round(value * 10) / 10;
-      const sign = rounded > 0 ? "+" : "";
-      return `${sign}${rounded.toFixed(1)}°`;
-    }
+      for (const [k, v] of Object.entries(vars)) {
 
-    function smoothAngleDeg(previous, next, alpha) {
-      const delta = normalizeSigned180(next - previous);
-      return normalizeSigned180(previous + delta * alpha);
-    }
+        value = value.replaceAll(`{${k}}`, String(v));
 
-    function formatBytes(bytes) {
-      if (bytes < 1024) return `${bytes} B`;
-      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-      return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-    }
-
-    function sanitizeDecimalInput(raw, allowNegative = true) {
-      let value = String(raw ?? "").replace(",", ".").replace(/[^\d.\-]/g, "");
-      if (!allowNegative) value = value.replace(/-/g, "");
-      const negative = allowNegative && value.startsWith("-");
-      value = value.replace(/-/g, "");
-      const parts = value.split(".");
-      const intPart = parts.shift() ?? "";
-      const fracPart = parts.length ? parts.join("") : "";
-      return `${negative ? "-" : ""}${intPart}${fracPart ? `.${fracPart}` : ""}`;
-    }
-
-    function sanitizeIntegerInput(raw) {
-      return String(raw ?? "").replace(/[^\d]/g, "");
-    }
-
-    function normalizeAngleFieldInput(inputEl, fallback = 0) {
-      const cleaned = sanitizeIntegerInput(inputEl.value);
-      if (cleaned === "") {
-        inputEl.value = "";
-        inputEl.classList.remove("invalid");
-        return fallback;
-      }
-      const clamped = clampAxis180(cleaned);
-      inputEl.value = String(clamped);
-      inputEl.classList.remove("invalid");
-      return clamped;
-    }
-
-    function normalizeDecimalFieldInput(inputEl, { min = -999, max = 999, allowNegative = true } = {}) {
-      const cleaned = sanitizeDecimalInput(inputEl.value, allowNegative);
-      inputEl.value = cleaned;
-      if (cleaned === "" || cleaned === "-") {
-        inputEl.classList.remove("invalid");
-        return null;
-      }
-      const number = Number(cleaned);
-      if (!Number.isFinite(number) || number < min || number > max) {
-        inputEl.classList.add("invalid");
-        return null;
-      }
-      inputEl.classList.remove("invalid");
-      return number;
-    }
-
-    function setActiveTab(tab) {
-      activeTab = tab;
-      const isData = tab === "data";
-      dataTabBtnEl.classList.toggle("active", isData);
-      galleryTabBtnEl.classList.toggle("active", !isData);
-      dataPaneEl.classList.toggle("active", isData);
-      galleryPaneEl.classList.toggle("active", !isData);
-      updateCapturePreviewVisibility();
-    }
-
-    function vibratePattern(pattern) {
-      if (navigator.vibrate) navigator.vibrate(pattern);
-    }
-
-    function maybeHapticOnAngle(angle) {
-      const snapped = Math.round(angle / HAPTIC_STEP_DEG) * HAPTIC_STEP_DEG;
-      const now = Date.now();
-
-      if (snapped === lastHapticStep && now - lastHapticAt < HAPTIC_MIN_INTERVAL_MS) {
-        return;
       }
 
-      if (snapped !== lastHapticStep) {
-        if (snapped === 0 || snapped === 90 || snapped === 180) {
-          vibratePattern([18, 24, 18]);
-        } else {
-          vibratePattern(8);
-        }
-        lastHapticStep = snapped;
-        lastHapticAt = now;
-      }
-    }
-
-    function syncAxisFieldsFrom(source) {
-      if (source === "axl") {
-        const value = normalizeAngleFieldInput(axlInputEl, 0);
-        axlInputEl.value = String(value);
-        targetAngleInputEl.value = String(value);
-        return value;
-      }
-
-      const value = normalizeAngleFieldInput(targetAngleInputEl, 0);
-      targetAngleInputEl.value = String(value);
-      axlInputEl.value = String(value);
       return value;
+
     }
 
-    function setTargetAngle(angle) {
-      const normalized = clampAxis180(angle);
-      targetAngleInputEl.value = String(normalized);
-      axlInputEl.value = String(normalized);
-      maybeHapticOnAngle(normalized);
-      drawOverlay();
+    function getAutoStartLabel() {
+
+      return autoCaptureMode === "video" ? t("autoStartVideo") : t("autoStartPhoto");
+
     }
 
-    function getTargetAngle() {
-      return clampAxis180(targetAngleInputEl.value || 63);
+    function getAutoStopLabel() {
+
+      return autoCaptureMode === "video" ? t("autoStopVideo") : t("autoStopPhoto");
+
     }
 
-    function getCurrentRollDeg() {
-      return normalizeSigned180(rawRollDeg);
+    function updateAutoModeButtonUi() {
+
+      const isVideo = autoCaptureMode === "video";
+
+      autoModeToggleIconEl.textContent = isVideo ? "🎥" : "📸";
+
+      autoModeToggleLabelEl.textContent = isVideo ? t("autoModeVideo") : t("autoModePhoto");
+
     }
 
-    function getAxisDiffDeg(angleA, angleB) {
-      const delta = Math.abs(((angleA - angleB + 90) % 180) - 90);
-      return Math.abs(delta);
-    }
+    function updateLanguageToggleUi() {
 
-    function createTimeStampFilePart(timestamp) {
-      const d = new Date(timestamp);
-      return `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
-    }
+      if (currentLang === "tr") {
 
-    function formatDateTime(timestamp) {
-      const d = new Date(timestamp);
-      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
-    }
+        langToggleFlagEl.textContent = "🇩🇪";
 
-    function formatDateOnly(timestamp) {
-      const d = new Date(timestamp);
-      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-    }
+        langToggleLabelEl.textContent = "DE";
 
-    function sanitizePart(value, fallback = "x") {
-      const v = String(value || "").trim();
-      if (!v) return fallback;
-      return v
-        .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-")
-        .replace(/\s+/g, "_")
-        .replace(/_+/g, "_")
-        .replace(/^[_\-.]+|[_\-.]+$/g, "")
-        .slice(0, 60) || fallback;
-    }
+      } else {
 
-    function normalizeAngleValue(value) {
-      return String(clampAxis180(value)).padStart(3, "0");
-    }
+        langToggleFlagEl.textContent = "🇹🇷";
 
-    function getOutputBaseName() {
-      const name = sanitizePart(patientNameInputEl.value, "hasta");
-      const iol = sanitizePart(iolTypeInputEl.value, "Torik_IOL");
-      const sph = sanitizePart(sphInputEl.value, "xSph");
-      const cyl = sanitizePart(cylInputEl.value, "xCyl");
-      const axl = normalizeAngleValue(axlInputEl.value || 0);
-      const angle = normalizeAngleValue(targetAngleInputEl.value || 63);
-      return `${name}_${iol}_${sph}_${cyl}_${axl}axl_${angle}deg`;
-    }
+        langToggleLabelEl.textContent = "TR";
 
-    function getSelectedGalleryItems() {
-      return galleryItems.filter(item => item.selected);
-    }
-
-    function getGalleryItemById(id) {
-      return galleryItems.find(item => item.id === id) || null;
-    }
-
-    function updateTorchUi() {
-      if (!torchSupported) {
-        torchIconEl.textContent = "🚫";
-        torchBtnEl.disabled = true;
-        return;
       }
 
-      torchIconEl.textContent = torchEnabled ? "🔦" : "💡";
-      torchBtnEl.disabled = !currentTrack;
     }
 
-    function updateMainActionUi() {
-      if (!currentStream) {
-        mainActionIconEl.textContent = "🔓";
-        mainActionLabelEl.textContent = "İzin Ver ve Başlat";
-        return;
-      }
+    function applyTranslations() {
 
-      mainActionIconEl.textContent = "📸";
-      mainActionLabelEl.textContent = "Foto Çek";
-    }
+      document.documentElement.lang = currentLang;
 
-    function updateStatePills() {
-      cameraStatePillEl.textContent = `Kamera: ${currentStream ? "Canlı" : "Kapalı"}`;
-      cameraStatePillEl.className = `pill ${currentStream ? "ok" : "warn"}`;
+      document.getElementById("appTitle").textContent = t("appTitle");
 
-      const sensorOk = Date.now() - lastSensorAt < SENSOR_TIMEOUT_MS && sensorPermissionGranted;
-      const sensorLabel = sensorPermissionGranted
-        ? (sensorOk ? `Sensör: ${sensorSource}` : "Sensör: Veri yok")
-        : "Sensör: Bekliyor";
+      document.getElementById("captureSectionTitle").textContent = t("captureSectionTitle");
 
-      sensorStatePillEl.textContent = sensorLabel;
-      sensorStatePillEl.className = `pill ${sensorOk ? "ok" : sensorPermissionGranted ? "bad" : "warn"}`;
+      document.getElementById("captureSectionHint").textContent = t("captureSectionHint");
 
-      qualityPillEl.textContent = `Çözünürlük: ${captureResolutionText}`;
-    }
+      document.getElementById("grantBtnLabel").textContent = t("grantBtnLabel");
 
-    function updateGalleryUi() {
-      const selectedCount = getSelectedGalleryItems().length;
-      const totalCount = galleryItems.length;
-      const allSelected = totalCount > 0 && selectedCount === totalCount;
+      document.getElementById("refreshBtnLabel").textContent = t("refreshBtnLabel");
 
-      galleryCounterEl.textContent = `${totalCount} öğe • ${selectedCount} seçili`;
-      gallerySaveSelectedBtnEl.disabled = selectedCount === 0;
-      galleryDeleteSelectedBtnEl.disabled = selectedCount === 0;
-      galleryToggleSelectBtnEl.disabled = totalCount === 0;
-      galleryToggleSelectLabelEl.textContent = allSelected ? "Kaldır" : "Tümü";
-      galleryEmptyEl.style.display = totalCount === 0 ? "block" : "none";
-      galleryEmptyEl.textContent = "Henüz foto yok.";
-    }
+      document.getElementById("captureBtnLabel").textContent = t("captureBtnLabel");
 
-    function updateUiState() {
-      refreshBtnEl.disabled = !permissionGranted;
-      videoDeviceEl.disabled = !permissionGranted;
-      streamPillEl.textContent = currentStream ? "Canlı" : "Kapalı";
-      updateTorchUi();
-      updateMainActionUi();
-      updateGalleryUi();
-      updateCapturePreviewVisibility();
-      updateStatePills();
-    }
+      document.getElementById("autoSectionTitle").textContent = t("autoSectionTitle");
 
-    function updateDiagnosticStatus(prefix = "") {
-      const lines = [];
-      if (prefix) lines.push(prefix);
-      lines.push(`kaynak=${sensorSource}`);
-      lines.push(`roll=${formatSignedAngle(getCurrentRollDeg())}`);
-      lines.push(`events=${eventCount}`);
-      lines.push(`orientation=${lastOrientationAt ? "ok" : "yok"} • motion=${lastMotionAt ? "ok" : "yok"}`);
-      lines.push(`beta=${Number.isFinite(lastBeta) ? lastBeta.toFixed(1) : "-"} • gamma=${Number.isFinite(lastGamma) ? lastGamma.toFixed(1) : "-"}`);
-      lines.push(`gx=${lastGX.toFixed(2)} • gy=${lastGY.toFixed(2)} • gz=${lastGZ.toFixed(2)}`);
-      lines.push(`quality=${captureResolutionText}`);
-      setStatus(lines.join("\n"));
-      updateStatePills();
-    }
+      document.getElementById("autoSectionHint").textContent = t("autoSectionHint");
 
-    function cleanupStream() {
-      if (!currentStream) return;
-      currentStream.getTracks().forEach(track => track.stop());
-      currentStream = null;
-      currentTrack = null;
-      torchSupported = false;
-      torchEnabled = false;
-      captureResolutionText = "-";
-      videoEl.pause();
-      videoEl.srcObject = null;
-      streamPillEl.textContent = "Kapalı";
-    }
+      document.getElementById("autoDelayLabel").textContent = t("autoDelayLabel");
 
-    function downloadBlob(blob, fileName) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
-    }
+      document.getElementById("autoIntervalLabel").textContent = t("autoIntervalLabel");
 
-    async function shareBlobOrDownload(blob, fileName) {
-      const file = new File([blob], fileName, { type: blob.type || "image/png" });
+      document.getElementById("autoCountLabel").textContent = t("autoCountLabel");
 
-      if (navigator.share && navigator.canShare) {
-        try {
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: fileName });
-            return "shared";
-          }
-        } catch (error) {
-          if (error?.name === "AbortError") return "cancelled";
-        }
-      }
+      document.getElementById("previewTitle").textContent = t("previewTitle");
 
-      downloadBlob(blob, fileName);
-      return "downloaded";
-    }
+      document.getElementById("metaDeviceLabel").textContent = t("metaDeviceLabel");
 
-    async function shareGalleryItemById(id) {
-      const item = getGalleryItemById(id);
-      if (!item) return;
+      document.getElementById("metaResolutionLabel").textContent = t("metaResolutionLabel");
 
-      const result = await shareBlobOrDownload(item.blob, item.fileName);
+      document.getElementById("metaRecordLabel").textContent = t("metaRecordLabel");
 
-      if (result === "shared") {
-        updateDiagnosticStatus(`Paylaşım açıldı.\n${item.fileName}`);
-      } else if (result === "downloaded") {
-        updateDiagnosticStatus(`Paylaşım desteklenmedi. İndirme başlatıldı.\n${item.fileName}`);
-      }
-    }
+      document.getElementById("metaDurationLabel").textContent = t("metaDurationLabel");
 
-    function ensureAudioContext() {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return null;
-      if (!audioState.ctx) audioState.ctx = new AudioCtx();
-      return audioState.ctx;
-    }
+      document.getElementById("metaCacheLabel").textContent = t("metaCacheLabel");
 
-    async function primeAudio() {
-      const ctx = ensureAudioContext();
-      if (!ctx) return;
-      if (ctx.state === "suspended") {
-        try {
-          await ctx.resume();
-        } catch (_) {}
-      }
-    }
+      document.getElementById("metaAutoLabel").textContent = t("metaAutoLabel");
 
-    function makeNoiseBuffer(ctx, durationSec = 0.035) {
-      const length = Math.max(1, Math.floor(ctx.sampleRate * durationSec));
-      const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
+      document.getElementById("footerHint").textContent = t("footerHint");
 
-      for (let i = 0; i < length; i += 1) {
-        const env = 1 - i / length;
-        data[i] = (Math.random() * 2 - 1) * env;
-      }
+      document.getElementById("gallerySectionTitle").textContent = t("gallerySectionTitle");
 
-      return buffer;
-    }
+      document.getElementById("patientNameLabel").textContent = t("patientNameLabel");
 
-    
-      
+      patientNameInputEl.placeholder = t("patientNamePlaceholder");
 
-      async function playShutterSound() {
-  const ctx = ensureAudioContext();
-  if (!ctx) return;
+      document.getElementById("pickFolderBtnLabel").textContent = t("pickFolderBtnLabel");
 
-  if (ctx.state === "suspended") {
-    try {
-      await ctx.resume();
-    } catch (_) {
-      return;
-    }
-  }
+      document.getElementById("selectAllBtnLabel").textContent = t("selectAllBtnLabel");
 
-  const now = ctx.currentTime;
+      document.getElementById("clearSelectionBtnLabel").textContent = t("clearSelectionBtnLabel");
 
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
+      document.getElementById("deleteSelectedBtnLabel").textContent = t("deleteSelectedBtnLabel");
 
-  osc.type = "square";
-  osc.frequency.setValueAtTime(1200, now);
-  osc.frequency.exponentialRampToValueAtTime(700, now + 0.012);
+      document.getElementById("clearCacheBtnLabel").textContent = t("clearCacheBtnLabel");
 
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.12, now + 0.001);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.018);
+      document.getElementById("closeModalBtnLabel").textContent = t("closeModalBtnLabel");
 
-  osc.connect(gain);
-  gain.connect(ctx.destination);
+      zoomTitleEl.textContent = t("zoomTitle");
 
-  osc.start(now);
-  osc.stop(now + 0.02);
-}
+      buildInfoEl.textContent = t("buildInfo");
 
-    function flashCapture() {
-      captureFlashEl.classList.remove("active");
-      void captureFlashEl.offsetWidth;
-      captureFlashEl.classList.add("active");
-    }
+      updateLanguageToggleUi();
 
-    function showGestureHint(el, text) {
-      el.textContent = text;
-      el.classList.add("visible");
-    }
+      updateAutoModeButtonUi();
 
-    function hideGestureHint(el) {
-      el.classList.remove("visible");
-      el.textContent = "";
-    }
+      updateZoomUi();
 
-    function resetCapturePreviewTransform() {
-      capturePreviewBtnEl.style.transition = "";
-      capturePreviewBtnEl.style.transform = "";
-      capturePreviewBtnEl.style.opacity = "";
-      hideGestureHint(previewGestureHintEl);
-    }
-
-    function resetModalTransform() {
-      modalCardEl.style.transition = "";
-      modalCardEl.style.transform = "";
-      previewModalEl.style.transition = "";
-      previewModalEl.style.background = "";
-      hideGestureHint(modalGestureHintEl);
-    }
-
-    function updateCapturePreviewVisibility() {
-      const shouldShow = Boolean(lastCapturedItemId) && !capturePreviewDismissed && activeTab !== "gallery";
-      capturePreviewBtnEl.classList.toggle("visible", shouldShow);
-      if (!shouldShow) resetCapturePreviewTransform();
-    }
-
-    function showLastCapturePreview(item) {
-      lastCapturedItemId = item.id;
-      capturePreviewDismissed = false;
-      capturePreviewImgEl.src = item.objectUrl;
-      updateCapturePreviewVisibility();
-    }
-
-    function dismissCapturePreview() {
-      capturePreviewDismissed = true;
-      updateCapturePreviewVisibility();
-    }
-
-    function openLastCapturePreview() {
-      if (!lastCapturedItemId) return;
-      openPreviewModal(lastCapturedItemId);
-    }
-
-    function openDb() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-        request.onupgradeneeded = () => {
-          const database = request.result;
-          if (!database.objectStoreNames.contains(STORE_NAME)) {
-            database.createObjectStore(STORE_NAME, { keyPath: "id" });
-          }
-        };
-
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    function dbPut(item) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, "readwrite");
-        const store = tx.objectStore(STORE_NAME);
-        store.put(item);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-
-    function dbDelete(id) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, "readwrite");
-        const store = tx.objectStore(STORE_NAME);
-        store.delete(id);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-
-    function dbGetAll() {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, "readonly");
-        const store = tx.objectStore(STORE_NAME);
-        const request = store.getAll();
-        request.onsuccess = () => resolve(request.result || []);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    async function initDb() {
-      if (!("indexedDB" in window)) {
-        setStatus("IndexedDB desteklenmiyor. Kalıcı galeri çalışmayabilir.");
-        return;
-      }
-
-      db = await openDb();
-      const savedItems = await dbGetAll();
-      savedItems.sort((a, b) => b.createdAt - a.createdAt);
-
-      for (const saved of savedItems) {
-        const item = {
-          ...saved,
-          selected: false,
-          objectUrl: URL.createObjectURL(saved.blob)
-        };
-        galleryItems.push(item);
-      }
+      updateUiState();
 
       renderGallery();
 
-      if (galleryItems.length) {
-        showLastCapturePreview(galleryItems[0]);
+    }
+
+    function setLanguage(lang) {
+
+      currentLang = lang;
+
+      applyTranslations();
+
+    }
+
+    function setStatus(message, isUserMessage = true) {
+
+      statusEl.textContent = message;
+
+      statusEl.dataset.userMessage = isUserMessage ? "1" : "";
+
+    }
+
+    function clearUserStatus() {
+
+      delete statusEl.dataset.userMessage;
+
+    }
+
+    function setCacheInfo(message) {
+
+      cacheInfoEl.textContent = message;
+
+    }
+
+    function pad2(value) {
+
+      return String(value).padStart(2, "0");
+
+    }
+
+    function formatDateTimeLabel(timestamp) {
+
+      const d = new Date(timestamp);
+
+      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+
+    }
+
+    function formatCompactTime(timestamp) {
+
+      const d = new Date(timestamp);
+
+      return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+
+    }
+
+    function createTimeStampFilePart(timestamp) {
+
+      const d = new Date(timestamp);
+
+      return `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}_${String(d.getMilliseconds()).padStart(3, "0")}`;
+
+    }
+
+    function sanitizeBaseName(name) {
+
+      const raw = (name || "").trim() || "capture";
+
+      return raw
+
+        .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-")
+
+        .replace(/\s+/g, "_")
+
+        .replace(/_+/g, "_")
+
+        .replace(/^[_\-.]+|[_\-.]+$/g, "")
+
+        .slice(0, 80) || "capture";
+
+    }
+
+    function generateUniqueId(prefix) {
+
+      const now = Date.now();
+
+      const randomPart = Math.random().toString(36).slice(2, 8);
+
+      return `${prefix}_${createTimeStampFilePart(now)}_${randomPart}`;
+
+    }
+
+    function findGalleryItemByUid(uid) {
+
+      return galleryItems.find(item => item.uid === uid) || null;
+
+    }
+
+    function bytesToLabel(bytes) {
+
+      const mb = bytes / (1024 * 1024);
+
+      if (mb >= 1) return `${mb.toFixed(2)} MB`;
+
+      const kb = bytes / 1024;
+
+      return `${kb.toFixed(0)} KB`;
+
+    }
+
+    function msToLabel(ms) {
+
+      if (ms == null) return "-";
+
+      const seconds = Math.floor(ms / 1000);
+
+      return `${pad2(Math.floor(seconds / 60))}:${pad2(seconds % 60)}`;
+
+    }
+
+    function setRecordingDurationLabel(ms) {
+
+      durationInfoEl.textContent = msToLabel(ms) === "-" ? "00:00" : msToLabel(ms);
+
+    }
+
+    function resetRecordingDuration() {
+
+      setRecordingDurationLabel(0);
+
+    }
+
+    function readPositiveInt(inputEl, fallbackValue) {
+
+      const value = Number(inputEl.value);
+
+      if (!Number.isFinite(value) || value < 1) {
+
+        inputEl.value = String(fallbackValue);
+
+        return fallbackValue;
+
       }
 
-      updateGalleryUi();
-      if (savedItems.length) {
-        updateDiagnosticStatus(`${savedItems.length} kayıtlı foto yüklendi.`);
+      const normalized = Math.floor(value);
+
+      inputEl.value = String(normalized);
+
+      return normalized;
+
+    }
+
+    function sleep(ms) {
+
+      return new Promise(resolve => setTimeout(resolve, ms));
+
+    }
+
+    function clamp(value, min, max) {
+
+      return Math.min(max, Math.max(min, value));
+
+    }
+
+    function roundToStep(value, step) {
+
+      if (!step || step <= 0) return value;
+
+      return Math.round(value / step) * step;
+
+    }
+
+    function startRecordingTimer() {
+
+      stopRecordingTimer();
+
+      recordingStartedAt = Date.now();
+
+      recordingTimerId = window.setInterval(() => {
+
+        if (recordingStartedAt) {
+
+          setRecordingDurationLabel(Date.now() - recordingStartedAt);
+
+        }
+
+      }, 250);
+
+    }
+
+    function stopRecordingTimer() {
+
+      if (recordingTimerId !== null) {
+
+        window.clearInterval(recordingTimerId);
+
+        recordingTimerId = null;
+
       }
+
+    }
+
+    function ensureBrowserSupport() {
+
+      if (!window.isSecureContext) {
+
+        throw new Error(t("openPageSecure"));
+
+      }
+
+      if (!navigator.mediaDevices?.getUserMedia) {
+
+        throw new Error(t("noCameraApi"));
+
+      }
+
+      if (!window.MediaRecorder) {
+
+        throw new Error(t("noRecorder"));
+
+      }
+
+      if (!window.indexedDB) {
+
+        throw new Error(t("noIndexedDb"));
+
+      }
+
+    }
+
+    function ensureAudioContext() {
+
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioCtx) return null;
+
+      if (!audioCtx) {
+
+        audioCtx = new AudioCtx();
+
+      }
+
+      if (audioCtx.state === "suspended") {
+
+        audioCtx.resume().catch(() => {});
+
+      }
+
+      return audioCtx;
+
+    }
+
+    function playSimpleBeep() {
+
+      const ctx = ensureAudioContext();
+
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+
+      osc.frequency.setValueAtTime(880, now);
+
+      gain.gain.setValueAtTime(0.0001, now);
+
+      gain.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
+
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+      osc.connect(gain);
+
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+
+      osc.stop(now + 0.14);
+
+    }
+
+    function playShutterClick() {
+
+      const ctx = ensureAudioContext();
+
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+
+      const bufferSize = Math.floor(ctx.sampleRate * 0.08);
+
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+
+      const data = buffer.getChannelData(0);
+
+      for (let i = 0; i < bufferSize; i += 1) {
+
+        const decay = 1 - i / bufferSize;
+
+        data[i] = (Math.random() * 2 - 1) * decay * 0.45;
+
+      }
+
+      const source = ctx.createBufferSource();
+
+      const filter = ctx.createBiquadFilter();
+
+      const gain = ctx.createGain();
+
+      source.buffer = buffer;
+
+      filter.type = "highpass";
+
+      filter.frequency.setValueAtTime(1200, now);
+
+      gain.gain.setValueAtTime(0.0001, now);
+
+      gain.gain.exponentialRampToValueAtTime(0.7, now + 0.002);
+
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+
+      source.connect(filter);
+
+      filter.connect(gain);
+
+      gain.connect(ctx.destination);
+
+      source.start(now);
+
+      source.stop(now + 0.09);
+
+    }
+
+    function supportsDirectoryWriting() {
+
+      return typeof window.showDirectoryPicker === "function";
+
+    }
+
+    function updateRecordButtonUi() {
+
+      const isRecording = Boolean(mediaRecorder && mediaRecorder.state === "recording");
+
+      recordToggleIconEl.textContent = isRecording ? "⏹️" : "⏺️";
+
+      recordToggleLabelEl.textContent = isRecording ? t("recordStop") : t("recordStart");
+
+      recordToggleBtnEl.classList.toggle("recording", isRecording);
+
+      recordToggleBtnEl.classList.toggle("danger", isRecording);
+
+      recordToggleBtnEl.classList.toggle("success", !isRecording);
+
+    }
+
+    function updateAutoButtonUi() {
+
+      const isRunning = autoCaptureRunning;
+
+      autoToggleIconEl.textContent = isRunning ? "🛑" : (autoCaptureMode === "video" ? "🎥" : "📸");
+
+      autoToggleLabelEl.textContent = isRunning ? getAutoStopLabel() : getAutoStartLabel();
+
+      autoToggleBtnEl.classList.toggle("auto-running", isRunning);
+
+      autoToggleBtnEl.classList.toggle("danger", isRunning);
+
+      autoToggleBtnEl.classList.toggle("warning", !isRunning);
+
+    }
+
+    function updateFolderUi() {
+
+      folderInfoEl.textContent = folderHandle
+
+        ? t("folderSelected", { name: folderName })
+
+        : t("folderNotSelected");
+
+      saveSelectedIconEl.textContent = "💾";
+
+      saveSelectedLabelEl.textContent = t("saveSelectedLabel");
+
+    }
+
+    function getZoomModeLabel() {
+
+      if (!currentStream) return t("zoomNone");
+
+      return zoomSupported ? t("zoomHardware") : t("zoomDigital");
+
+    }
+
+    function updateZoomUi() {
+
+      const hasStream = Boolean(currentStream);
+
+      zoomOutBtnEl.disabled = !hasStream || currentZoom <= minZoom + 0.001;
+
+      zoomInBtnEl.disabled = !hasStream || currentZoom >= maxZoom - 0.001;
+
+      zoomResetBtnEl.disabled = !hasStream || Math.abs(currentZoom - 1) < 0.001;
+
+      zoomInfoEl.textContent = `${currentZoom.toFixed(1)}x • ${getZoomModeLabel()}`;
+
+    }
+
+    function updateAutoCaptureUi() {
+
+      const hasStream = Boolean(currentStream);
+
+      const isRecording = Boolean(mediaRecorder && mediaRecorder.state === "recording");
+
+      autoToggleBtnEl.disabled = !hasStream || isRecording;
+
+      autoModeToggleBtnEl.disabled = autoCaptureRunning || isRecording;
+
+      autoDelayInputEl.disabled = autoCaptureRunning;
+
+      autoIntervalInputEl.disabled = autoCaptureRunning;
+
+      autoCountInputEl.disabled = autoCaptureRunning;
+
+      autoStateInfoEl.textContent = autoCaptureRunning
+
+        ? (
+
+            autoCaptureStarted
+
+              ? t("autoRunning", { remaining: autoCaptureRemaining, total: autoCaptureTotal })
+
+              : t("autoWaiting", {
+
+                  delay: autoCaptureDelaySeconds,
+
+                  interval: autoCaptureIntervalSeconds,
+
+                  count: autoCaptureTotal,
+
+                  mode: autoCaptureMode === "video" ? t("autoUnitVideo") : t("autoUnitPhoto")
+
+                })
+
+          )
+
+        : t("autoOff");
+
+      updateAutoModeButtonUi();
+
+      updateAutoButtonUi();
+
+    }
+
+    function updateGalleryStats() {
+
+      const selectedCount = galleryItems.filter(item => item.selected).length;
+
+      galleryStatsEl.textContent = `${galleryItems.length} ${t("galleryOneItem")}${selectedCount ? ` • ${selectedCount} ${t("selectedSuffix")}` : ""}`;
+
+    }
+
+    function updateUiState() {
+
+      const hasStream = Boolean(currentStream);
+
+      const isRecording = Boolean(mediaRecorder && mediaRecorder.state === "recording");
+
+      const selectedCount = galleryItems.filter(item => item.selected).length;
+
+      const hasItems = galleryItems.length > 0;
+
+      const hasDevices = deviceSelectEl.options.length > 0 && deviceSelectEl.value;
+
+      deviceSelectEl.disabled = !permissionGranted || isRecording || !hasDevices || autoCaptureRunning;
+
+      captureBtnEl.disabled = !hasStream || isRecording || !isCacheReady || autoCaptureRunning;
+
+      recordToggleBtnEl.disabled = !hasStream || !selectedRecordingMimeType || !isCacheReady || autoCaptureRunning;
+
+      refreshBtnEl.disabled = !permissionGranted || autoCaptureRunning;
+
+      grantBtnEl.disabled = permissionGranted && hasStream;
+
+      pickFolderBtnEl.disabled = !supportsDirectoryWriting();
+
+      selectAllBtnEl.disabled = !hasItems;
+
+      clearSelectionBtnEl.disabled = selectedCount === 0;
+
+      deleteSelectedBtnEl.disabled = selectedCount === 0;
+
+      clearCacheBtnEl.disabled = !hasItems;
+
+      saveSelectedBtnEl.disabled = !supportsDirectoryWriting() || selectedCount === 0;
+
+      updateFolderUi();
+
+      updateGalleryStats();
+
+      updateAutoCaptureUi();
+
+      updateRecordButtonUi();
+
+      updateZoomUi();
+
+    }
+
+    function setMetaInfo({ device = "-", resolution = "-", mime = "-" } = {}) {
+
+      deviceInfoEl.textContent = device;
+
+      resolutionInfoEl.textContent = resolution;
+
+      mimeInfoEl.textContent = mime;
+
+    }
+
+    function getSelectedDeviceLabel() {
+
+      return deviceSelectEl.options[deviceSelectEl.selectedIndex]?.textContent ?? "-";
+
+    }
+
+    function createObjectUrl(blob) {
+
+      return URL.createObjectURL(blob);
+
+    }
+
+    function revokeGalleryObjectUrls() {
+
+      for (const item of galleryItems) {
+
+        if (item.objectUrl) URL.revokeObjectURL(item.objectUrl);
+
+      }
+
+    }
+
+    function pickSupportedMp4MimeType() {
+
+      const mp4Types = [
+
+        "video/mp4;codecs=hvc1,mp4a.40.2",
+
+        "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+
+        "video/mp4;codecs=avc1.4D401E,mp4a.40.2",
+
+        "video/mp4;codecs=avc1,mp4a.40.2",
+
+        "video/mp4"
+
+      ];
+
+      for (const type of mp4Types) {
+
+        if (MediaRecorder.isTypeSupported(type)) return type;
+
+      }
+
+      return "";
+
+    }
+
+    function openDb(name, storeName, keyPath = "id") {
+
+      return new Promise((resolve, reject) => {
+
+        const req = indexedDB.open(name, 1);
+
+        req.onupgradeneeded = () => {
+
+          const dbx = req.result;
+
+          if (!dbx.objectStoreNames.contains(storeName)) {
+
+            dbx.createObjectStore(storeName, { keyPath });
+
+          }
+
+        };
+
+        req.onsuccess = () => resolve(req.result);
+
+        req.onerror = () => reject(req.error || new Error(`${name} açılamadı.`));
+
+      });
+
+    }
+
+    function tx(dbx, storeName, mode, runner) {
+
+      return new Promise((resolve, reject) => {
+
+        const tr = dbx.transaction(storeName, mode);
+
+        const store = tr.objectStore(storeName);
+
+        runner(store);
+
+        tr.oncomplete = () => resolve();
+
+        tr.onerror = () => reject(tr.error || new Error("DB işlem hatası."));
+
+        tr.onabort = () => reject(tr.error || new Error("DB işlem iptal edildi."));
+
+      });
+
+    }
+
+    async function initDatabases() {
+
+      galleryDb = await openDb(GALLERY_DB, GALLERY_STORE);
+
+      settingsDb = await openDb(SETTINGS_DB, SETTINGS_STORE, "key");
+
+      isCacheReady = true;
+
+      setCacheInfo(t("cacheReady"));
+
+    }
+
+    async function saveFolderHandleToSettings() {
+
+      if (!settingsDb || !folderHandle) return;
+
+      await tx(settingsDb, SETTINGS_STORE, "readwrite", store => {
+
+        store.put({ key: "output-folder", handle: folderHandle, name: folderName });
+
+      });
+
+    }
+
+    async function restoreFolderHandleFromSettings() {
+
+      if (!settingsDb) return;
+
+      return new Promise((resolve, reject) => {
+
+        const tr = settingsDb.transaction(SETTINGS_STORE, "readonly");
+
+        const store = tr.objectStore(SETTINGS_STORE);
+
+        const req = store.get("output-folder");
+
+        req.onsuccess = async () => {
+
+          const result = req.result;
+
+          if (!result?.handle) {
+
+            resolve();
+
+            return;
+
+          }
+
+          folderHandle = result.handle;
+
+          folderName = result.name || result.handle.name || "selected_folder";
+
+          if (folderHandle.queryPermission) {
+
+            try {
+
+              const permission = await folderHandle.queryPermission({ mode: "readwrite" });
+
+              if (permission === "denied") {
+
+                folderHandle = null;
+
+                folderName = "";
+
+              }
+
+            } catch (_) {}
+
+          }
+
+          resolve();
+
+        };
+
+        req.onerror = () => reject(req.error || new Error("Klasör ayarı okunamadı."));
+
+      });
+
+    }
+
+    async function pickFolder() {
+
+      if (!supportsDirectoryWriting()) {
+
+        throw new Error(t("folderApiMissing"));
+
+      }
+
+      folderHandle = await window.showDirectoryPicker({ mode: "readwrite" });
+
+      folderName = folderHandle.name || "selected_folder";
+
+      await saveFolderHandleToSettings();
+
+      updateUiState();
+
+      setStatus(t("folderChosen", { name: folderName }));
+
+    }
+
+    async function ensureWritableFolderHandle() {
+
+      if (!supportsDirectoryWriting()) {
+
+        throw new Error(t("folderApiMissing"));
+
+      }
+
+      if (!folderHandle) {
+
+        await pickFolder();
+
+        return;
+
+      }
+
+      try {
+
+        if (folderHandle.queryPermission) {
+
+          const currentPermission = await folderHandle.queryPermission({ mode: "readwrite" });
+
+          if (currentPermission === "granted") return;
+
+        }
+
+        if (folderHandle.requestPermission) {
+
+          const requested = await folderHandle.requestPermission({ mode: "readwrite" });
+
+          if (requested === "granted") return;
+
+        }
+
+      } catch (_) {}
+
+      await pickFolder();
+
+    }
+
+    async function saveItemToCache(item) {
+
+      await tx(galleryDb, GALLERY_STORE, "readwrite", store => {
+
+        store.put({
+
+          id: item.uid,
+
+          uid: item.uid,
+
+          displayId: item.displayId || item.id || item.uid,
+
+          kind: item.kind,
+
+          blob: item.blob,
+
+          createdAt: item.createdAt,
+
+          createdAtLabel: item.createdAtLabel,
+
+          size: item.size,
+
+          mimeType: item.mimeType,
+
+          width: item.width,
+
+          height: item.height,
+
+          durationMs: item.durationMs,
+
+          deviceLabel: item.deviceLabel,
+
+          patientName: item.patientName || ""
+
+        });
+
+      });
+
+      setCacheInfo(t("cachedAt", { time: formatCompactTime(Date.now()) }));
+
+    }
+
+    async function loadItemsFromCache() {
+
+      return new Promise((resolve, reject) => {
+
+        const tr = galleryDb.transaction(GALLERY_STORE, "readonly");
+
+        const store = tr.objectStore(GALLERY_STORE);
+
+        const req = store.getAll();
+
+        req.onsuccess = () => resolve(req.result || []);
+
+        req.onerror = () => reject(req.error || new Error("Cache okunamadı."));
+
+      });
+
+    }
+
+    async function deleteItemsFromCache(ids) {
+
+      await tx(galleryDb, GALLERY_STORE, "readwrite", store => {
+
+        ids.forEach(id => store.delete(id));
+
+      });
+
+      setCacheInfo(t("deletedAt", { time: formatCompactTime(Date.now()) }));
+
+    }
+
+    async function clearGalleryAndCache() {
+
+      revokeGalleryObjectUrls();
+
+      galleryItems = [];
+
+      await tx(galleryDb, GALLERY_STORE, "readwrite", store => {
+
+        store.clear();
+
+      });
+
+      setCacheInfo(t("clearedAt", { time: formatCompactTime(Date.now()) }));
+
+      renderGallery();
+
+      setStatus(t("cacheCleared"));
+
+    }
+
+    async function addGalleryItem(itemData) {
+
+      const item = {
+
+        ...itemData,
+
+        uid: itemData.uid || generateUniqueId(itemData.kind === "video" ? "video" : "image"),
+
+        selected: false,
+
+        objectUrl: createObjectUrl(itemData.blob)
+
+      };
+
+      galleryItems.push(item);
+
+      await saveItemToCache(item);
+
+      renderGallery();
+
+    }
+
+    async function restoreGalleryFromCache() {
+
+      const records = await loadItemsFromCache();
+
+      revokeGalleryObjectUrls();
+
+      galleryItems = records
+
+        .sort((a, b) => a.createdAt - b.createdAt)
+
+        .map(record => ({
+
+          ...record,
+
+          uid: record.uid || record.id,
+
+          id: record.displayId || record.id,
+
+          displayId: record.displayId || record.id,
+
+          selected: false,
+
+          objectUrl: createObjectUrl(record.blob)
+
+        }));
+
+      renderGallery();
+
+      setCacheInfo(t("loadedCache", { count: galleryItems.length }));
+
+    }
+
+    function openPreviewModal(item) {
+
+      modalTitleEl.textContent = `${item.displayId || item.id} • ${item.createdAtLabel}`;
+
+      modalBodyEl.innerHTML = "";
+
+      if (item.kind === "image") {
+
+        const img = document.createElement("img");
+
+        img.src = item.objectUrl;
+
+        img.alt = item.displayId || item.id;
+
+        modalBodyEl.appendChild(img);
+
+      } else {
+
+        const video = document.createElement("video");
+
+        video.src = item.objectUrl;
+
+        video.controls = true;
+
+        video.autoplay = true;
+
+        modalBodyEl.appendChild(video);
+
+      }
+
+      previewModalEl.classList.add("open");
+
+      previewModalEl.setAttribute("aria-hidden", "false");
+
+    }
+
+    function closePreviewModal() {
+
+      previewModalEl.classList.remove("open");
+
+      previewModalEl.setAttribute("aria-hidden", "true");
+
+      modalBodyEl.innerHTML = "";
+
+    }
+
+    async function saveSingleItem(item) {
+
+      const previousSelections = galleryItems.map(entry => entry.selected);
+
+      galleryItems.forEach(entry => {
+
+        entry.selected = entry.uid === item.uid;
+
+      });
+
+      renderGallery();
+
+      try {
+
+        await saveSelectedToFolder();
+
+      } finally {
+
+        galleryItems.forEach((entry, index) => {
+
+          entry.selected = previousSelections[index];
+
+        });
+
+        renderGallery();
+
+      }
+
+    }
+
+    function renderGallery() {
+
+      galleryEl.innerHTML = "";
+
+      if (galleryItems.length === 0) {
+
+        const empty = document.createElement("div");
+
+        empty.className = "gallery-empty";
+
+        empty.textContent = t("noGallery");
+
+        galleryEl.appendChild(empty);
+
+        updateUiState();
+
+        return;
+
+      }
+
+      const items = [...galleryItems].sort((a, b) => b.createdAt - a.createdAt);
+
+      for (const item of items) {
+
+        const itemUid = item.uid;
+
+        const card = document.createElement("div");
+
+        card.className = `item-card${item.selected ? " selected" : ""}`;
+
+        card.addEventListener("click", event => {
+
+          if (event.target.closest("button")) return;
+
+          const targetItem = findGalleryItemByUid(itemUid);
+
+          if (!targetItem) return;
+
+          targetItem.selected = !targetItem.selected;
+
+          renderGallery();
+
+        });
+
+        card.addEventListener("dblclick", event => {
+
+          if (event.target.closest("button")) return;
+
+          const targetItem = findGalleryItemByUid(itemUid);
+
+          if (!targetItem) return;
+
+          openPreviewModal(targetItem);
+
+        });
+
+        const preview = document.createElement("div");
+
+        preview.className = "item-preview";
+
+        if (item.kind === "image") {
+
+          const img = document.createElement("img");
+
+          img.src = item.objectUrl;
+
+          img.alt = item.displayId || item.id;
+
+          preview.appendChild(img);
+
+        } else {
+
+          const vid = document.createElement("video");
+
+          vid.src = item.objectUrl;
+
+          vid.muted = true;
+
+          vid.preload = "metadata";
+
+          preview.appendChild(vid);
+
+        }
+
+        const badges = document.createElement("div");
+
+        badges.className = "item-top-badges";
+
+        const kindPill = document.createElement("span");
+
+        kindPill.className = "pill";
+
+        kindPill.textContent = item.kind === "image" ? t("kindImage") : t("kindVideo");
+
+        const selectedPill = document.createElement("span");
+
+        selectedPill.className = "pill";
+
+        selectedPill.textContent = item.selected ? t("itemSelected") : bytesToLabel(item.size);
+
+        badges.append(kindPill, selectedPill);
+
+        preview.appendChild(badges);
+
+        const body = document.createElement("div");
+
+        body.className = "item-body";
+
+        const itemName = document.createElement("div");
+
+        itemName.className = "item-name";
+
+        itemName.textContent = item.displayId || item.id;
+
+        const itemDate = document.createElement("div");
+
+        itemDate.className = "item-date";
+
+        itemDate.textContent = item.createdAtLabel;
+
+        const actions = document.createElement("div");
+
+        actions.className = "item-actions";
+
+        const saveBtn = document.createElement("button");
+
+        saveBtn.className = "icon-action-btn success";
+
+        saveBtn.title = t("cardSave");
+
+        saveBtn.setAttribute("aria-label", t("cardSave"));
+
+        saveBtn.innerHTML = `<span class="btn-icon">💾</span>`;
+
+        saveBtn.addEventListener("click", async event => {
+
+          event.stopPropagation();
+
+          const targetItem = findGalleryItemByUid(itemUid);
+
+          if (!targetItem) return;
+
+          try {
+
+            await saveSingleItem(targetItem);
+
+          } catch (error) {
+
+            handleError(error);
+
+          }
+
+        });
+
+        const del = document.createElement("button");
+
+        del.className = "icon-action-btn danger";
+
+        del.title = t("cardDelete");
+
+        del.setAttribute("aria-label", t("cardDelete"));
+
+        del.innerHTML = `<span class="btn-icon">🗑️</span>`;
+
+        del.addEventListener("click", async event => {
+
+          event.stopPropagation();
+
+          await deleteSingleGalleryItem(itemUid);
+
+        });
+
+        actions.append(saveBtn, del);
+
+        body.append(itemName, itemDate, actions);
+
+        card.append(preview, body);
+
+        galleryEl.appendChild(card);
+
+      }
+
+      updateUiState();
+
+    }
+
+    async function getCanvasBlob(canvas, mimeType) {
+
+      return new Promise((resolve, reject) => {
+
+        canvas.toBlob(blob => {
+
+          if (!blob) {
+
+            reject(new Error(t("canvasBlobFailed")));
+
+            return;
+
+          }
+
+          resolve(blob);
+
+        }, mimeType);
+
+      });
+
+    }
+
+    function resizeLiveOverlayCanvas() {
+
+      const rect = previewStageEl.getBoundingClientRect();
+
+      const ratio = window.devicePixelRatio || 1;
+
+      const width = Math.max(1, Math.round(rect.width * ratio));
+
+      const height = Math.max(1, Math.round(rect.height * ratio));
+
+      if (liveOverlayCanvasEl.width !== width || liveOverlayCanvasEl.height !== height) {
+
+        liveOverlayCanvasEl.width = width;
+
+        liveOverlayCanvasEl.height = height;
+
+      }
+
+    }
+
+    function drawOverlayText(ctx, text, x, y, options = {}) {
+
+      const {
+
+        font = "600 14px Inter, Arial, sans-serif",
+
+        fillStyle = "#ffffff",
+
+        textAlign = "left",
+
+        textBaseline = "middle",
+
+        shadow = true
+
+      } = options;
+
+      ctx.save();
+
+      ctx.font = font;
+
+      ctx.fillStyle = fillStyle;
+
+      ctx.textAlign = textAlign;
+
+      ctx.textBaseline = textBaseline;
+
+      if (shadow) {
+
+        ctx.shadowColor = "rgba(0,0,0,0.65)";
+
+        ctx.shadowBlur = 10;
+
+      }
+
+      ctx.fillText(text, x, y);
+
+      ctx.restore();
+
+    }
+
+    function getOverlayPatientName() {
+
+      return (patientNameInputEl.value || "").trim() || "-";
+
+    }
+
+    function drawTopRightLogoOverlay(ctx, width, height, logoImage) {
+
+      if (!logoImage || !logoImage.complete || !logoImage.naturalWidth) return;
+
+      const margin = Math.round(width * 0.03);
+
+      const logoWidth = Math.max(150, Math.round(width * 0.19));
+
+      const logoHeight = Math.round(logoWidth * (logoImage.naturalHeight / logoImage.naturalWidth));
+
+      const x = width - margin - logoWidth;
+
+      const y = margin;
+
+      ctx.save();
+
+      ctx.globalAlpha = 0.78;
+
+      ctx.drawImage(logoImage, x, y, logoWidth, logoHeight);
+
+      ctx.restore();
+
+      drawOverlayText(
+
+        ctx,
+
+        t("logoCaption"),
+
+        x + logoWidth / 2,
+
+        y + logoHeight + Math.max(16, Math.round(height * 0.022)),
+
+        {
+
+          font: `700 ${Math.max(14, Math.round(width * 0.016))}px Inter, Arial, sans-serif`,
+
+          fillStyle: "rgba(255,255,255,0.92)",
+
+          textAlign: "center"
+
+        }
+
+      );
+
+    }
+
+    function drawBottomLeftInfoOverlay(ctx, width, height, patientName, timestampLabel) {
+
+      const padding = Math.round(width * 0.02);
+
+      const lineGap = Math.max(22, Math.round(height * 0.034));
+
+      const boxHeight = Math.max(50, Math.round(height * 0.105));
+
+      const boxWidth = Math.min(Math.round(width * 0.36), width - padding * 2);
+
+      const boxX = padding;
+
+      const boxY = height - padding - boxHeight;
+
+      ctx.save();
+
+      ctx.fillStyle = "rgba(0,0,0,0.74)";
+
+      ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+      ctx.restore();
+
+      drawOverlayText(
+
+        ctx,
+
+        patientName,
+
+        boxX + 12,
+
+        boxY + lineGap * 0.8,
+
+        {
+
+          font: `800 ${Math.max(16, Math.round(width * 0.0185))}px Inter, Arial, sans-serif`,
+
+          fillStyle: "rgba(255,255,255,0.98)"
+
+        }
+
+      );
+
+      drawOverlayText(
+
+        ctx,
+
+        timestampLabel,
+
+        boxX + 12,
+
+        boxY + lineGap * 1.7,
+
+        {
+
+          font: `700 ${Math.max(12, Math.round(width * 0.013))}px Inter, Arial, sans-serif`,
+
+          fillStyle: "rgba(255,255,255,0.94)"
+
+        }
+
+      );
+
+    }
+
+    function drawOverlayComposite(ctx, width, height, options = {}) {
+
+      const {
+
+        patientName = getOverlayPatientName(),
+
+        timestampLabel = formatDateTimeLabel(Date.now()),
+
+        logoImage = liveLogoLoaded ? liveLogoImage : null
+
+      } = options;
+
+      drawTopRightLogoOverlay(ctx, width, height, logoImage);
+
+      drawBottomLeftInfoOverlay(ctx, width, height, patientName, timestampLabel);
+
+    }
+
+    function drawLivePreviewOverlay() {
+
+      if (!liveOverlayCtx) return;
+
+      resizeLiveOverlayCanvas();
+
+      const width = liveOverlayCanvasEl.width;
+
+      const height = liveOverlayCanvasEl.height;
+
+      liveOverlayCtx.clearRect(0, 0, width, height);
+
+      if (!currentStream || videoEl.readyState < 2) return;
+
+      drawOverlayComposite(liveOverlayCtx, width, height, {
+
+        patientName: getOverlayPatientName(),
+
+        timestampLabel: formatDateTimeLabel(Date.now()),
+
+        logoImage: liveLogoLoaded ? liveLogoImage : null
+
+      });
+
+    }
+
+    function startLiveOverlayLoop() {
+
+      stopLiveOverlayLoop();
+
+      const loop = () => {
+
+        drawLivePreviewOverlay();
+
+        liveOverlayFrameId = requestAnimationFrame(loop);
+
+      };
+
+      loop();
+
+    }
+
+    function stopLiveOverlayLoop() {
+
+      if (liveOverlayFrameId !== null) {
+
+        cancelAnimationFrame(liveOverlayFrameId);
+
+        liveOverlayFrameId = null;
+
+      }
+
+      if (liveOverlayCtx) {
+
+        liveOverlayCtx.clearRect(0, 0, liveOverlayCanvasEl.width, liveOverlayCanvasEl.height);
+
+      }
+
+    }
+
+    function resetZoomState() {
+
+      currentZoom = 1;
+
+      minZoom = 1;
+
+      maxZoom = 3;
+
+      zoomStep = 0.1;
+
+      zoomSupported = false;
+
+      previewMediaEl.style.transform = "scale(1)";
+
+      updateZoomUi();
+
+    }
+
+    async function detectZoomSupport(track) {
+
+      resetZoomState();
+
+      currentVideoTrack = track || null;
+
+      if (!track?.getCapabilities) return;
+
+      const caps = track.getCapabilities();
+
+      if (caps?.zoom && Number.isFinite(caps.zoom.max) && caps.zoom.max > 1) {
+
+        zoomSupported = true;
+
+        minZoom = Number.isFinite(caps.zoom.min) ? caps.zoom.min : 1;
+
+        maxZoom = Number.isFinite(caps.zoom.max) ? caps.zoom.max : 1;
+
+        zoomStep = Number.isFinite(caps.zoom.step) && caps.zoom.step > 0 ? caps.zoom.step : 0.1;
+
+        currentZoom = Math.max(1, minZoom);
+
+        await applyZoom(currentZoom);
+
+      } else {
+
+        zoomSupported = false;
+
+        minZoom = 1;
+
+        maxZoom = 4;
+
+        zoomStep = 0.1;
+
+        currentZoom = 1;
+
+        previewMediaEl.style.transform = "scale(1)";
+
+      }
+
+      updateZoomUi();
+
+    }
+
+    async function applyZoom(nextZoom) {
+
+      if (!currentStream) return;
+
+      const normalized = clamp(roundToStep(nextZoom, zoomStep), minZoom, maxZoom);
+
+      currentZoom = Number(normalized.toFixed(2));
+
+      if (zoomSupported && currentVideoTrack) {
+
+        await currentVideoTrack.applyConstraints({
+
+          advanced: [{ zoom: currentZoom }]
+
+        });
+
+        previewMediaEl.style.transform = "scale(1)";
+
+      } else {
+
+        previewMediaEl.style.transform = `scale(${currentZoom})`;
+
+      }
+
+      updateZoomUi();
+
+    }
+
+    async function stepZoom(delta) {
+
+      try {
+
+        await applyZoom(currentZoom + delta);
+
+      } catch (error) {
+
+        handleError(error);
+
+      }
+
+    }
+
+    function drawVideoToCanvasWithZoom(ctx, canvasWidth, canvasHeight) {
+
+      const sourceWidth = videoEl.videoWidth;
+
+      const sourceHeight = videoEl.videoHeight;
+
+      if (!sourceWidth || !sourceHeight) {
+
+        throw new Error(t("videoNotReady"));
+
+      }
+
+      if (zoomSupported || currentZoom <= 1.001) {
+
+        ctx.drawImage(videoEl, 0, 0, canvasWidth, canvasHeight);
+
+        return;
+
+      }
+
+      const cropWidth = sourceWidth / currentZoom;
+
+      const cropHeight = sourceHeight / currentZoom;
+
+      const sx = (sourceWidth - cropWidth) / 2;
+
+      const sy = (sourceHeight - cropHeight) / 2;
+
+      ctx.drawImage(
+
+        videoEl,
+
+        sx,
+
+        sy,
+
+        cropWidth,
+
+        cropHeight,
+
+        0,
+
+        0,
+
+        canvasWidth,
+
+        canvasHeight
+
+      );
+
     }
 
     async function requestCameraPermission() {
-      if (permissionGranted) return;
 
-      if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error("Tarayıcı kamera erişimini desteklemiyor.");
-      }
+      ensureBrowserSupport();
 
-      const tempStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
+      const temp = await navigator.mediaDevices.getUserMedia({
+
+        video: true,
+
         audio: false
+
       });
 
-      tempStream.getTracks().forEach(track => track.stop());
+      temp.getTracks().forEach(track => track.stop());
+
       permissionGranted = true;
+
+      selectedRecordingMimeType = pickSupportedMp4MimeType();
+
+      if (!selectedRecordingMimeType) {
+
+        throw new Error(t("mp4NotSupported"));
+
+      }
+
+      setMetaInfo({ mime: selectedRecordingMimeType });
+
+      updateUiState();
+
     }
 
-    async function requestSensorPermissionFromGesture() {
-      if (sensorPermissionGranted) return;
+    async function populateVideoDevices() {
 
-      if (!window.isSecureContext) {
-        throw new Error("Sensör için HTTPS gerekli.");
-      }
-
-      const hasOrientationApi = typeof DeviceOrientationEvent !== "undefined";
-      const hasMotionApi = typeof DeviceMotionEvent !== "undefined";
-
-      if (!hasOrientationApi && !hasMotionApi) {
-        throw new Error("Bu cihaz/tarayıcı sensör API desteklemiyor.");
-      }
-
-      if (hasOrientationApi && typeof DeviceOrientationEvent.requestPermission === "function") {
-        const orientationResult = await DeviceOrientationEvent.requestPermission();
-        if (orientationResult !== "granted") {
-          throw new Error("Orientation izni verilmedi.");
-        }
-      }
-
-      if (hasMotionApi && typeof DeviceMotionEvent.requestPermission === "function") {
-        const motionResult = await DeviceMotionEvent.requestPermission();
-        if (motionResult !== "granted") {
-          throw new Error("Motion izni verilmedi.");
-        }
-      }
-
-      if (!orientationListening && hasOrientationApi) {
-        window.addEventListener("deviceorientation", handleDeviceOrientation, true);
-        orientationListening = true;
-      }
-
-      if (!motionListening && hasMotionApi) {
-        window.addEventListener("devicemotion", handleDeviceMotion, true);
-        motionListening = true;
-      }
-
-      sensorPermissionGranted = true;
-      sensorFailureShown = false;
-    }
-
-    async function populateDevices() {
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoInputs = devices.filter(device => device.kind === "videoinput");
-      const previous = videoDeviceEl.value;
 
-      videoDeviceEl.innerHTML = "";
+      const inputs = devices.filter(device => device.kind === "videoinput");
 
-      if (!videoInputs.length) {
-        throw new Error("Kamera bulunamadı.");
+      const previous = deviceSelectEl.value;
+
+      deviceSelectEl.innerHTML = "";
+
+      if (inputs.length === 0) {
+
+        setStatus(t("noVideoDevice"));
+
+        updateUiState();
+
+        return false;
+
       }
 
-      for (const device of videoInputs) {
+      for (const device of inputs) {
+
         const option = document.createElement("option");
+
         option.value = device.deviceId;
-        option.textContent = device.label?.trim() || `Kamera ${videoDeviceEl.options.length + 1}`;
-        videoDeviceEl.appendChild(option);
+
+        option.textContent = device.label?.trim() || `Kamera ${deviceSelectEl.options.length + 1}`;
+
+        deviceSelectEl.appendChild(option);
+
       }
 
-      const ultraWideIndex = videoInputs.findIndex(item => /ultra|0\.5|0,5|wide/i.test(item.label || ""));
-      const backIndex = videoInputs.findIndex(item => /triple|arka|back|rear/i.test(item.label || ""));
-      const previousIndex = videoInputs.findIndex(item => item.deviceId === previous);
+      const previousIndex = inputs.findIndex(item => item.deviceId === previous);
 
-      videoDeviceEl.selectedIndex =
-        previousIndex >= 0 ? previousIndex :
-        ultraWideIndex >= 0 ? ultraWideIndex :
-        backIndex >= 0 ? backIndex :
-        0;
+      const preferredIndex = inputs.findIndex(item => /gopro|hero|usb/i.test(item.label || ""));
+
+      deviceSelectEl.selectedIndex = previousIndex >= 0 ? previousIndex : preferredIndex >= 0 ? preferredIndex : 0;
+
+      setMetaInfo({
+
+        device: getSelectedDeviceLabel(),
+
+        resolution: currentStream ? resolutionInfoEl.textContent : "-",
+
+        mime: selectedRecordingMimeType || "-"
+
+      });
+
+      updateUiState();
+
+      return true;
+
     }
 
     function waitForVideoReady(video) {
+
       return new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error("Video hazır olmadı.")), 5000);
+
+        const timeout = setTimeout(() => reject(new Error(t("videoNotReady"))), 5000);
+
         video.addEventListener("loadedmetadata", () => {
+
           clearTimeout(timeout);
+
           resolve();
+
         }, { once: true });
+
       });
+
     }
 
-    async function detectTorchSupport(track) {
-      torchSupported = false;
-      torchEnabled = false;
+    async function stopRecordingIfNeeded(silent = false) {
 
-      if (!track?.getCapabilities) {
-        updateTorchUi();
+      if (!mediaRecorder) {
+
+        stopRecordingTimer();
+
+        if (silent) resetRecordingDuration();
+
+        updateUiState();
+
         return;
+
       }
 
-      const caps = track.getCapabilities();
-      torchSupported = Boolean(caps?.torch);
-      updateTorchUi();
+      if (mediaRecorder.state === "recording") {
+
+        await new Promise(resolve => {
+
+          const recorder = mediaRecorder;
+
+          const onStop = () => {
+
+            recorder.removeEventListener("stop", onStop);
+
+            resolve();
+
+          };
+
+          recorder.addEventListener("stop", onStop);
+
+          recorder.stop();
+
+        });
+
+      }
+
+      mediaRecorder = null;
+
+      stopRecordingTimer();
+
+      if (silent) resetRecordingDuration();
+
+      updateUiState();
+
+    }
+
+    function stopAutoCountdownTimer() {
+
+      if (autoCountdownIntervalId !== null) {
+
+        clearInterval(autoCountdownIntervalId);
+
+        autoCountdownIntervalId = null;
+
+      }
+
+    }
+
+    function stopAutoCaptureTimers() {
+
+      if (autoCaptureTimeoutId !== null) {
+
+        clearTimeout(autoCaptureTimeoutId);
+
+        autoCaptureTimeoutId = null;
+
+      }
+
+      if (autoCaptureIntervalId !== null) {
+
+        clearInterval(autoCaptureIntervalId);
+
+        autoCaptureIntervalId = null;
+
+      }
+
+      stopAutoCountdownTimer();
+
+    }
+
+    function finishAutoCapture(message = t("autoStopped")) {
+
+      stopAutoCaptureTimers();
+
+      autoCaptureRunning = false;
+
+      autoCaptureStarted = false;
+
+      autoCaptureRemaining = 0;
+
+      autoInfoEl.textContent = t("autoDisabled");
+
+      updateUiState();
+
+      if (message) setStatus(message);
+
+    }
+
+    function cleanupStream() {
+
+      if (!currentStream) return;
+
+      currentStream.getTracks().forEach(track => track.stop());
+
+      currentStream = null;
+
+      currentVideoTrack = null;
+
+      videoEl.pause();
+
+      videoEl.srcObject = null;
+
+      videoEl.load();
+
+      liveInfoEl.textContent = "-";
+
+      stopLiveOverlayLoop();
+
+      resetZoomState();
+
     }
 
     async function startSelectedCamera() {
-      const deviceId = videoDeviceEl.value;
-      if (!deviceId) throw new Error("Önce kamera seç.");
+
+      const deviceId = deviceSelectEl.value;
+
+      if (!deviceId) throw new Error(t("chooseCameraFirst"));
+
+      finishAutoCapture("");
+
+      await stopRecordingIfNeeded(true);
 
       cleanupStream();
 
       const stream = await navigator.mediaDevices.getUserMedia({
+
         audio: false,
+
         video: {
+
           deviceId: { exact: deviceId },
-          width: { ideal: 3840, max: 4096 },
-          height: { ideal: 2160, max: 2160 },
-          frameRate: { ideal: 30, max: 60 }
+
+          width: { ideal: 1920 },
+
+          height: { ideal: 1080 },
+
+          frameRate: { ideal: 30 }
+
         }
+
       });
 
       currentStream = stream;
-      currentTrack = stream.getVideoTracks()[0];
+
+      videoEl.srcObject = null;
+
+      videoEl.load();
+
       videoEl.srcObject = stream;
 
-      currentTrack.addEventListener("ended", () => {
+      const track = stream.getVideoTracks()[0];
+
+      currentVideoTrack = track;
+
+      track.addEventListener("ended", () => {
+
         cleanupStream();
+
         updateUiState();
-        setStatus("Kamera akışı sona erdi.");
+
+        setStatus(t("streamEnded"));
+
+      });
+
+      track.addEventListener("mute", () => {
+
+        setStatus(t("streamEnded"));
+
       });
 
       await waitForVideoReady(videoEl);
-      await videoEl.play();
-      await detectTorchSupport(currentTrack);
 
-      const settings = currentTrack.getSettings?.() || {};
-      captureResolutionText = `${settings.width || videoEl.videoWidth || "-"}x${settings.height || videoEl.videoHeight || "-"}${settings.frameRate ? ` • ${Math.round(settings.frameRate)}fps` : ""}`;
+      await videoEl.play();
+
+      await detectZoomSupport(track);
+
+      const settings = track.getSettings();
+
+      const resolution = `${settings.width ?? "?"}x${settings.height ?? "?"} @ ${settings.frameRate ?? "?"}fps`;
+
+      setMetaInfo({
+
+        device: getSelectedDeviceLabel(),
+
+        resolution,
+
+        mime: selectedRecordingMimeType
+
+      });
+
+      liveInfoEl.textContent = `${settings.width ?? "?"}x${settings.height ?? "?"}`;
+
+      setStatus(t("streamStarted", {
+
+        device: getSelectedDeviceLabel(),
+
+        resolution,
+
+        mime: selectedRecordingMimeType
+
+      }));
+
+      startLiveOverlayLoop();
 
       updateUiState();
-      resizeOverlayCanvas();
-      drawOverlay();
-      updateDiagnosticStatus("Kamera açıldı.");
+
     }
 
-    async function toggleTorch() {
-      if (!currentTrack || !torchSupported) return;
+    async function initializeAndAutoStart() {
 
-      const nextState = !torchEnabled;
-      await currentTrack.applyConstraints({ advanced: [{ torch: nextState }] });
+      await requestCameraPermission();
 
-      torchEnabled = nextState;
-      updateTorchUi();
-      updateDiagnosticStatus(torchEnabled ? "Torch açıldı." : "Torch kapatıldı.");
+      const hasDevices = await populateVideoDevices();
+
+      if (!hasDevices) throw new Error(t("noVideoDevice"));
+
+      await startSelectedCamera();
+
     }
 
-    function getScreenAngle() {
-      if (screen.orientation && typeof screen.orientation.angle === "number") return screen.orientation.angle;
-      if (typeof window.orientation === "number") return window.orientation;
-      return 0;
-    }
+    async function createPngCapture(sourceLabel = "manual") {
 
-    function computeRollFromGravity(x, y) {
-      const screenAngle = getScreenAngle();
-      let gx = x;
-      let gy = y;
-
-      if (screenAngle === 90) {
-        gx = -y;
-        gy = x;
-      } else if (screenAngle === -90 || screenAngle === 270) {
-        gx = y;
-        gy = -x;
-      } else if (screenAngle === 180) {
-        gx = -x;
-        gy = -y;
-      }
-
-      return Math.atan2(gx, -gy) * 180 / Math.PI;
-    }
-
-    function computeRollFromOrientation(beta, gamma) {
-      const screenAngle = getScreenAngle();
-      if (screenAngle === 90) return beta;
-      if (screenAngle === -90 || screenAngle === 270) return -beta;
-      if (screenAngle === 180) return -gamma;
-      return gamma;
-    }
-
-    function recordSensorHit(source) {
-      sensorSource = source;
-      lastSensorAt = Date.now();
-      eventCount += 1;
-      sensorFailureShown = false;
-      updateStatePills();
-    }
-
-    function handleDeviceOrientation(event) {
-      if (!Number.isFinite(event.beta) || !Number.isFinite(event.gamma)) return;
-
-      lastBeta = event.beta;
-      lastGamma = event.gamma;
-
-      const nextRoll = computeRollFromOrientation(event.beta, event.gamma);
-      rawRollDeg = smoothAngleDeg(rawRollDeg, nextRoll, ANGLE_SMOOTH_ALPHA);
-
-      lastOrientationAt = Date.now();
-      recordSensorHit("orientation");
-
-      if (eventCount % 5 === 0) updateDiagnosticStatus();
-    }
-
-    function handleDeviceMotion(event) {
-      const g = event.accelerationIncludingGravity;
-      if (!g) return;
-
-      lastGX = Number.isFinite(g.x) ? g.x : 0;
-      lastGY = Number.isFinite(g.y) ? g.y : 0;
-      lastGZ = Number.isFinite(g.z) ? g.z : 0;
-
-      gravityX += LOW_PASS_ALPHA * (lastGX - gravityX);
-      gravityY += LOW_PASS_ALPHA * (lastGY - gravityY);
-      gravityZ += LOW_PASS_ALPHA * (lastGZ - gravityZ);
-
-      const magnitude = Math.abs(gravityX) + Math.abs(gravityY) + Math.abs(gravityZ);
-      if (magnitude < 0.2) return;
-
-      const orientationFresh = Date.now() - lastOrientationAt < SENSOR_TIMEOUT_MS;
-      if (!orientationFresh) {
-        const nextRoll = computeRollFromGravity(gravityX, gravityY);
-        rawRollDeg = smoothAngleDeg(rawRollDeg, nextRoll, ANGLE_SMOOTH_ALPHA);
-        recordSensorHit("motion");
-      }
-
-      lastMotionAt = Date.now();
-
-      if (eventCount % 5 === 0) updateDiagnosticStatus();
-    }
-
-    function startSensorWatchdog() {
-      if (sensorWatchdogId !== null) {
-        clearInterval(sensorWatchdogId);
-      }
-
-      sensorWatchdogId = window.setInterval(() => {
-        if (!sensorPermissionGranted) return;
-
-        const now = Date.now();
-        const hasRecentSensor = now - lastSensorAt < SENSOR_TIMEOUT_MS;
-
-        if (hasRecentSensor || sensorFailureShown) return;
-
-        sensorFailureShown = true;
-        sensorSource = "none";
-        updateStatePills();
-
-        setStatus(
-          [
-            "Sensör verisi gelmiyor.",
-            "1) HTTPS gerekli",
-            "2) iPhone/Safari ise Motion & Orientation Access aç",
-            "3) WebView/iframe sensör engelliyor olabilir",
-            "4) Masaüstünde sensör olmayabilir"
-          ].join("\n")
-        );
-      }, 1000);
-    }
-
-    function resizeOverlayCanvas() {
-      const rect = overlayCanvasEl.getBoundingClientRect();
-      const ratio = window.devicePixelRatio || 1;
-      const width = Math.max(1, Math.round(rect.width * ratio));
-      const height = Math.max(1, Math.round(rect.height * ratio));
-
-      if (overlayCanvasEl.width !== width || overlayCanvasEl.height !== height) {
-        overlayCanvasEl.width = width;
-        overlayCanvasEl.height = height;
-      }
-    }
-
-    function drawText(ctx, text, x, y, options = {}) {
-      const {
-        font = "600 14px -apple-system, BlinkMacSystemFont, Segoe UI, Arial",
-        fillStyle = "rgba(255,255,255,0.92)",
-        align = "center",
-        baseline = "middle",
-        shadow = true
-      } = options;
-
-      ctx.save();
-      ctx.font = font;
-      ctx.fillStyle = fillStyle;
-      ctx.textAlign = align;
-      ctx.textBaseline = baseline;
-
-      if (shadow) {
-        ctx.shadowColor = "rgba(0,0,0,0.75)";
-        ctx.shadowBlur = 8;
-      }
-
-      ctx.fillText(text, x, y);
-      ctx.restore();
-    }
-
-    function drawMetadataOnContext(ctx, width, height) {
-      const target = getTargetAngle();
-      const now = Date.now();
-      const compactRefractive = `${sphInputEl.value.trim() || "-"} / ${cylInputEl.value.trim() || "-"} / ${String(clampAxis180(axlInputEl.value || 0)).padStart(3, "0")}°`;
-
-      const lines = [
-        `İsim: ${patientNameInputEl.value.trim() || "-"}`,
-        `IOL: ${iolTypeInputEl.value.trim() || "-"}`,
-        `Sph/Cyl/Axl: ${compactRefractive}`,
-        `Hedef: ${String(target).padStart(3, "0")}°`,
-        `Tilt: ${formatSignedAngle(getCurrentRollDeg())}`,
-        `Tarih: ${formatDateTime(now)}`
-      ];
-
-      const padding = Math.round(width * 0.020);
-      const boxWidth = Math.round(width * 0.54);
-      const lineHeight = Math.max(22, Math.round(height * 0.025));
-      const boxHeight = padding * 2 + lines.length * lineHeight;
-
-      ctx.save();
-      ctx.fillStyle = "rgba(0,0,0,0.34)";
-      ctx.fillRect(padding, height - boxHeight - padding, boxWidth, boxHeight);
-      ctx.strokeStyle = "rgba(255,255,255,0.18)";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(padding, height - boxHeight - padding, boxWidth, boxHeight);
-
-      lines.forEach((line, index) => {
-        drawText(
-          ctx,
-          line,
-          padding + 14,
-          height - boxHeight - padding + padding + index * lineHeight + lineHeight / 2,
-          {
-            font: `700 ${Math.max(14, Math.round(height * 0.016))}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
-            fillStyle: "rgba(255,255,255,0.96)",
-            align: "left",
-            baseline: "middle"
-          }
-        );
-      });
-
-      ctx.restore();
-    }
-
-    function drawOverlayOnContext(ctx, width, height, rollDeg, targetDeg) {
-      if (!ctx) return null;
-
-      ctx.clearRect(0, 0, width, height);
-
-      const cx = width / 2;
-      const cy = height / 2;
-      const radius = Math.min(width, height) * 0.33;
-
-      const outerRingRadius = radius;
-      const innerNumberRingRadius = radius * 0.74;
-      const reciprocalLabelRadius = (outerRingRadius + innerNumberRingRadius) * 0.5;
-
-      const innerActiveRadius = outerRingRadius * 0.72;
-      const outerActiveRadius = outerRingRadius * 1.03;
-      const halfLineWidth = radius * 1.14;
-
-      const normalizedRollAxis = ((rollDeg % 180) + 180) % 180;
-      const diffToTarget = getAxisDiffDeg(normalizedRollAxis, targetDeg);
-      const isNearTarget = diffToTarget <= 3;
-
-      const horizontalError = Math.min(
-        Math.abs(normalizedRollAxis - 0),
-        Math.abs(normalizedRollAxis - 180)
-      );
-      const verticalError = Math.abs(normalizedRollAxis - 90);
-
-      const isHorizontalLocked = horizontalError <= 0.5;
-      const isVerticalLocked = verticalError <= 0.5;
-
-      const targetStroke = isNearTarget ? "rgba(88,211,141,0.98)" : "rgba(77,163,255,0.98)";
-      const targetGlow = isNearTarget ? "rgba(88,211,141,0.18)" : "rgba(77,163,255,0.18)";
-
-      ctx.save();
-      ctx.translate(cx, cy);
-
-      ctx.beginPath();
-      ctx.arc(0, 0, outerRingRadius, 0, Math.PI * 2);
-      ctx.lineWidth = Math.max(2.6, outerRingRadius * 0.0118);
-      ctx.strokeStyle = "rgba(255,255,255,0.52)";
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(0, 0, innerNumberRingRadius, 0, Math.PI * 2);
-      ctx.lineWidth = Math.max(1.9, outerRingRadius * 0.0075);
-      ctx.strokeStyle = "rgba(190,210,235,0.38)";
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(0, 0, outerRingRadius * 0.22, 0, Math.PI * 2);
-      ctx.lineWidth = Math.max(1.5, outerRingRadius * 0.006);
-      ctx.strokeStyle = "rgba(255,255,255,0.16)";
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(0, 0, outerRingRadius * 0.39, 0, Math.PI * 2);
-      ctx.lineWidth = Math.max(1.7, outerRingRadius * 0.007);
-      ctx.strokeStyle = "rgba(125,211,252,0.34)";
-      ctx.stroke();
-
-      for (let deg = 0; deg < 180; deg += 5) {
-        const rad = angleToCanvasRad(deg);
-        const oppositeRad = angleToCanvasRad(deg + 180);
-
-        const isMajor = deg % 30 === 0;
-        const isMid = deg % 10 === 0;
-        const isPrimary = deg === 0 || deg === 90;
-
-        const outerTickOuter = outerRingRadius + (isPrimary ? outerRingRadius * 0.085 : isMajor ? outerRingRadius * 0.075 : isMid ? outerRingRadius * 0.055 : outerRingRadius * 0.034);
-        const outerTickInner = outerRingRadius - (isPrimary ? outerRingRadius * 0.20 : isMajor ? outerRingRadius * 0.17 : isMid ? outerRingRadius * 0.12 : outerRingRadius * 0.075);
-
-        const tickDiff = getAxisDiffDeg(normalizedRollAxis, deg);
-        const isTickHot = tickDiff <= 6;
-        const tickIntensity = Math.max(0, 1 - tickDiff / 6);
-
-        let outerTickColor = isPrimary
-          ? "rgba(255,255,255,1)"
-          : isMajor
-            ? "rgba(245,248,252,0.98)"
-            : isMid
-              ? "rgba(170,195,225,0.70)"
-              : "rgba(205,185,140,0.42)";
-
-        if (isTickHot) {
-          outerTickColor = `rgba(240,180,41,${0.45 + tickIntensity * 0.5})`;
-        }
-
-        ctx.beginPath();
-        ctx.moveTo(Math.cos(rad) * outerTickInner, Math.sin(rad) * outerTickInner);
-        ctx.lineTo(Math.cos(rad) * outerTickOuter, Math.sin(rad) * outerTickOuter);
-        ctx.moveTo(Math.cos(oppositeRad) * outerTickInner, Math.sin(oppositeRad) * outerTickInner);
-        ctx.lineTo(Math.cos(oppositeRad) * outerTickOuter, Math.sin(oppositeRad) * outerTickOuter);
-        ctx.lineWidth = isTickHot
-          ? (isPrimary ? 3.6 : isMajor ? 3.0 : isMid ? 2.1 : 1.4)
-          : (isPrimary ? 3.2 : isMajor ? 2.8 : isMid ? 1.9 : 1.1);
-        ctx.strokeStyle = outerTickColor;
-        ctx.stroke();
-
-        const innerTickOuter = innerNumberRingRadius + (isMajor ? innerNumberRingRadius * 0.04 : isMid ? innerNumberRingRadius * 0.03 : innerNumberRingRadius * 0.018);
-        const innerTickInner = innerNumberRingRadius - (isMajor ? innerNumberRingRadius * 0.10 : isMid ? innerNumberRingRadius * 0.072 : innerNumberRingRadius * 0.046);
-
-        const innerTickColor = isPrimary
-          ? "rgba(235,244,255,0.90)"
-          : isMajor
-            ? "rgba(220,232,246,0.78)"
-            : isMid
-              ? "rgba(170,195,225,0.50)"
-              : "rgba(210,190,150,0.26)";
-
-        ctx.beginPath();
-        ctx.moveTo(Math.cos(rad) * innerTickInner, Math.sin(rad) * innerTickInner);
-        ctx.lineTo(Math.cos(rad) * innerTickOuter, Math.sin(rad) * innerTickOuter);
-        ctx.moveTo(Math.cos(oppositeRad) * innerTickInner, Math.sin(oppositeRad) * innerTickInner);
-        ctx.lineTo(Math.cos(oppositeRad) * innerTickOuter, Math.sin(oppositeRad) * innerTickOuter);
-        ctx.lineWidth = isPrimary ? 2.0 : isMajor ? 1.7 : isMid ? 1.15 : 0.82;
-        ctx.strokeStyle = innerTickColor;
-        ctx.stroke();
-
-        if (isMajor) {
-          const topLabelRadius = outerRingRadius - outerRingRadius * 0.18;
-
-          drawText(ctx, String(deg), Math.cos(rad) * topLabelRadius, Math.sin(rad) * topLabelRadius, {
-            font: `800 ${Math.max(11, outerRingRadius * 0.078)}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
-            fillStyle: isPrimary ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.97)"
-          });
-
-          drawText(
-            ctx,
-            String(deg),
-            Math.cos(oppositeRad) * reciprocalLabelRadius,
-            Math.sin(oppositeRad) * reciprocalLabelRadius,
-            {
-              font: `760 ${Math.max(10, outerRingRadius * 0.063)}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
-              fillStyle: isPrimary ? "rgba(195,230,255,1)" : "rgba(175,215,245,0.95)"
-            }
-          );
-        }
-      }
-
-      const dynamicNotchAngle = normalizedRollAxis;
-      const dynamicRad = angleToCanvasRad(dynamicNotchAngle);
-      const dynamicOppRad = angleToCanvasRad(dynamicNotchAngle + 180);
-      const dynamicOuter = outerRingRadius + outerRingRadius * 0.09;
-      const dynamicInner = outerRingRadius - outerRingRadius * 0.21;
-      const dynamicColor = isHorizontalLocked ? "rgba(88,211,141,0.98)" : "rgba(240,180,41,0.98)";
-
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(dynamicRad) * dynamicInner, Math.sin(dynamicRad) * dynamicInner);
-      ctx.lineTo(Math.cos(dynamicRad) * dynamicOuter, Math.sin(dynamicRad) * dynamicOuter);
-      ctx.moveTo(Math.cos(dynamicOppRad) * dynamicInner, Math.sin(dynamicOppRad) * dynamicInner);
-      ctx.lineTo(Math.cos(dynamicOppRad) * dynamicOuter, Math.sin(dynamicOppRad) * dynamicOuter);
-      ctx.lineWidth = Math.max(4.0, outerRingRadius * 0.016);
-      ctx.strokeStyle = dynamicColor;
-      ctx.stroke();
-
-      const targetRad = angleToCanvasRad(targetDeg);
-      const oppositeTargetRad = angleToCanvasRad(targetDeg + 180);
-
-      ctx.save();
-      ctx.shadowColor = targetGlow;
-      ctx.shadowBlur = Math.max(8, outerRingRadius * 0.06);
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(targetRad) * outerRingRadius, Math.sin(targetRad) * outerRingRadius);
-      ctx.lineTo(Math.cos(oppositeTargetRad) * outerRingRadius, Math.sin(oppositeTargetRad) * outerRingRadius);
-      ctx.lineWidth = Math.max(3.6, outerRingRadius * 0.0155);
-      ctx.strokeStyle = targetStroke;
-      ctx.stroke();
-      ctx.restore();
-
-      ctx.save();
-      ctx.rotate((rollDeg * Math.PI) / 180);
-
-      const horizontalGuideColor = isHorizontalLocked
-        ? "rgba(88,211,141,0.98)"
-        : "rgba(240,180,41,0.98)";
-
-      const verticalGuideColor = isVerticalLocked
-        ? "rgba(88,211,141,0.98)"
-        : "rgba(255,255,255,0.96)";
-
-      const centerMarkerColor = isNearTarget
-        ? "rgba(88,211,141,0.99)"
-        : "rgba(88,211,141,0.92)";
-
-      const outerHorizontalGuide = outerRingRadius * 0.98;
-      const innerHorizontalGuide = outerRingRadius * 0.78;
-
-      ctx.beginPath();
-      ctx.moveTo(-outerHorizontalGuide, 0);
-      ctx.lineTo(-innerHorizontalGuide, 0);
-      ctx.moveTo(innerHorizontalGuide, 0);
-      ctx.lineTo(outerHorizontalGuide, 0);
-      ctx.lineWidth = Math.max(2.2, outerRingRadius * 0.0105);
-      ctx.strokeStyle = horizontalGuideColor;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(-halfLineWidth, 0);
-      ctx.lineTo(halfLineWidth, 0);
-      ctx.lineWidth = Math.max(4.4, outerRingRadius * 0.0185);
-      ctx.strokeStyle = horizontalGuideColor;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(-outerRingRadius * 0.16, 0);
-      ctx.lineTo(outerRingRadius * 0.16, 0);
-      ctx.lineWidth = Math.max(7.5, outerRingRadius * 0.031);
-      ctx.strokeStyle = centerMarkerColor;
-      ctx.stroke();
-
-      const thinVerticalOuter = outerRingRadius * 0.98;
-      const thickVerticalInner = outerRingRadius * 0.24;
-
-      ctx.beginPath();
-      ctx.moveTo(0, -thinVerticalOuter);
-      ctx.lineTo(0, -thickVerticalInner);
-      ctx.moveTo(0, thickVerticalInner);
-      ctx.lineTo(0, thinVerticalOuter);
-      ctx.lineWidth = Math.max(1.6, outerRingRadius * 0.007);
-      ctx.strokeStyle = verticalGuideColor;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(0, -outerRingRadius * 0.24);
-      ctx.lineTo(0, outerRingRadius * 0.24);
-      ctx.lineWidth = Math.max(3.1, outerRingRadius * 0.0135);
-      ctx.strokeStyle = verticalGuideColor;
-      ctx.stroke();
-
-      ctx.restore();
-
-      ctx.beginPath();
-      ctx.arc(0, 0, Math.max(5, outerRingRadius * 0.024), 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(255,255,255,0.98)";
-      ctx.fill();
-
-      ctx.restore();
-
-      const targetLabel = `${String(clampAxis180(targetDeg)).padStart(3, "0")}°`;
-      const tiltLabel = `${formatSignedAngle(rollDeg)} • Δ${diffToTarget.toFixed(1)}°`;
-
-      ctx.save();
-      const boxWidth = Math.max(170, width * 0.28);
-      const boxHeight = Math.max(60, height * 0.095);
-      const boxX = (width - boxWidth) / 2;
-      const boxY = Math.max(14, height * 0.028);
-      ctx.fillStyle = "rgba(0,0,0,0.34)";
-      ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-      ctx.strokeStyle = "rgba(255,255,255,0.18)";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
-      ctx.restore();
-
-      drawText(ctx, targetLabel, width / 2, Math.max(42, height * 0.072), {
-        font: `900 ${Math.max(34, Math.round(height * 0.058))}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
-        fillStyle: targetStroke
-      });
-
-      drawText(ctx, tiltLabel, width / 2, height * 0.66, {
-        font: `800 ${Math.max(17, Math.round(height * 0.026))}px -apple-system, BlinkMacSystemFont, Segoe UI, Arial`,
-        fillStyle: diffToTarget <= 3 ? "rgba(88,211,141,0.98)" : "rgba(240,180,41,0.98)"
-      });
-
-      return { cx, cy, innerActiveRadius, outerActiveRadius };
-    }
-
-    function drawOverlay() {
-      resizeOverlayCanvas();
-      drawOverlayOnContext(
-        overlayCtx,
-        overlayCanvasEl.width,
-        overlayCanvasEl.height,
-        getCurrentRollDeg(),
-        getTargetAngle()
-      );
-    }
-
-    function startOverlayLoop() {
-      if (overlayAnimationId !== null) cancelAnimationFrame(overlayAnimationId);
-      const loop = () => {
-        drawOverlay();
-        overlayAnimationId = requestAnimationFrame(loop);
-      };
-      loop();
-    }
-
-    function eventPointToAxisAngle(clientX, clientY) {
-      const rect = previewShellEl.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-      const cx = rect.width / 2;
-      const cy = rect.height / 2;
-      const dx = x - cx;
-      const dy = cy - y;
-      const r = Math.sqrt(dx * dx + dy * dy);
-
-      const ringRadius = Math.min(rect.width, rect.height) * 0.33;
-      const innerActiveRadius = ringRadius * 0.72;
-      const outerActiveRadius = ringRadius * 1.03;
-
-      if (r < innerActiveRadius || r > outerActiveRadius) return null;
-
-      const deg360 = clampAngle360(Math.atan2(dy, dx) * 180 / Math.PI);
-      return deg360 > 180 ? deg360 - 180 : deg360;
-    }
-
-    function updateAxisFromPointerEvent(event) {
-      const point = event.touches?.[0] || event;
-      if (!point) return;
-      const angle = eventPointToAxisAngle(point.clientX, point.clientY);
-      if (angle === null) return;
-      setTargetAngle(angle);
-    }
-
-    function renderGallery() {
-      galleryListEl.innerHTML = "";
-      let previousDate = "";
-
-      for (const item of galleryItems) {
-        const itemDate = formatDateOnly(item.createdAt);
-        if (itemDate !== previousDate) {
-          const separator = document.createElement("div");
-          separator.className = "gallery-date-separator";
-          separator.textContent = itemDate;
-          galleryListEl.appendChild(separator);
-          previousDate = itemDate;
-        }
-        galleryListEl.appendChild(createGalleryCard(item));
-      }
-
-      galleryListEl.appendChild(galleryEmptyEl);
-      updateGalleryUi();
-    }
-
-    function createGalleryCard(item) {
-      const card = document.createElement("article");
-      card.className = "gallery-card";
-      card.dataset.id = item.id;
-
-      const thumbWrap = document.createElement("div");
-      thumbWrap.className = "gallery-thumb-wrap";
-
-      const img = document.createElement("img");
-      img.className = "gallery-thumb";
-      img.src = item.objectUrl;
-      img.alt = item.fileName;
-      thumbWrap.appendChild(img);
-
-      const meta = document.createElement("div");
-      meta.className = "gallery-meta";
-      meta.innerHTML = `
-        <div class="gallery-name">${item.fileName}</div>
-        <div>${item.createdAtLabel}</div>
-        <div>${item.width}x${item.height} • ${formatBytes(item.size)}</div>
-      `;
-
-      const actions = document.createElement("div");
-      actions.className = "gallery-actions";
-
-      const saveBtn = document.createElement("button");
-      saveBtn.className = "icon-mini-btn";
-      saveBtn.type = "button";
-      saveBtn.setAttribute("aria-label", "Kaydet");
-      saveBtn.title = "Kaydet";
-      saveBtn.textContent = "⬇️";
-      saveBtn.addEventListener("click", event => {
-        event.stopPropagation();
-        downloadBlob(item.blob, item.fileName);
-      });
-
-      const deleteBtn = document.createElement("button");
-      deleteBtn.className = "icon-mini-btn danger";
-      deleteBtn.type = "button";
-      deleteBtn.setAttribute("aria-label", "Sil");
-      deleteBtn.title = "Sil";
-      deleteBtn.textContent = "🗑️";
-      deleteBtn.addEventListener("click", async event => {
-        event.stopPropagation();
-        const yes = window.confirm(`Bu foto silinsin mi?\n${item.fileName}`);
-        if (!yes) return;
-        await removeGalleryItem(item.id);
-      });
-
-      actions.appendChild(saveBtn);
-      actions.appendChild(deleteBtn);
-
-      let lastTapAt = 0;
-      card.addEventListener("click", () => toggleGallerySelection(item.id));
-      card.addEventListener("dblclick", event => {
-        event.preventDefault();
-        openPreviewModal(item.id);
-      });
-
-      card.addEventListener("touchend", event => {
-        const now = Date.now();
-        if (now - lastTapAt < 280) {
-          event.preventDefault();
-          openPreviewModal(item.id);
-        }
-        lastTapAt = now;
-      }, { passive: false });
-
-      if (item.selected) card.classList.add("selected");
-
-      card.appendChild(thumbWrap);
-      card.appendChild(meta);
-      card.appendChild(actions);
-
-      return card;
-    }
-
-    async function persistGalleryItem(item) {
-      if (!db) return;
-      const stored = {
-        id: item.id,
-        fileName: item.fileName,
-        blob: item.blob,
-        createdAt: item.createdAt,
-        createdAtLabel: item.createdAtLabel,
-        width: item.width,
-        height: item.height,
-        size: item.size,
-        patientName: item.patientName || "",
-        iolType: item.iolType || ""
-      };
-      await dbPut(stored);
-    }
-
-    async function addGalleryItem(item) {
-      galleryItems.unshift(item);
-      renderGallery();
-      await persistGalleryItem(item);
-    }
-
-    function toggleGallerySelection(id) {
-      const item = galleryItems.find(entry => entry.id === id);
-      if (!item) return;
-      item.selected = !item.selected;
-      const card = galleryListEl.querySelector(`[data-id="${CSS.escape(id)}"]`);
-      card?.classList.toggle("selected", item.selected);
-      updateGalleryUi();
-    }
-
-    function toggleSelectAllGalleryItems() {
-      if (!galleryItems.length) return;
-      const allSelected = galleryItems.every(item => item.selected);
-      for (const item of galleryItems) item.selected = !allSelected;
-      renderGallery();
-    }
-
-    async function removeGalleryItem(id) {
-      const index = galleryItems.findIndex(item => item.id === id);
-      if (index < 0) return;
-
-      const [item] = galleryItems.splice(index, 1);
-      URL.revokeObjectURL(item.objectUrl);
-
-      if (db) await dbDelete(id);
-
-      if (modalItemId === id) closePreviewModal();
-
-      if (lastCapturedItemId === id) {
-        const nextItem = galleryItems[0] || null;
-        if (nextItem) {
-          showLastCapturePreview(nextItem);
-        } else {
-          lastCapturedItemId = null;
-          capturePreviewDismissed = false;
-          capturePreviewBtnEl.classList.remove("visible");
-          capturePreviewImgEl.removeAttribute("src");
-        }
-      }
-
-      renderGallery();
-    }
-
-    async function deleteSelectedGalleryItems() {
-      const selected = getSelectedGalleryItems();
-      for (const item of [...selected]) await removeGalleryItem(item.id);
-    }
-
-    async function saveGalleryItems(items) {
-      for (const item of items) {
-        downloadBlob(item.blob, item.fileName);
-        await new Promise(resolve => setTimeout(resolve, 120));
-      }
-    }
-
-    function openPreviewModal(id) {
-      const item = getGalleryItemById(id);
-      if (!item) return;
-      modalItemId = id;
-      modalImageEl.src = item.objectUrl;
-      modalTitleEl.textContent = item.fileName;
-      previewModalEl.classList.add("active");
-      resetModalTransform();
-    }
-
-    function closePreviewModal() {
-      modalItemId = null;
-      modalImageEl.src = "";
-      modalTitleEl.textContent = "Önizleme";
-      previewModalEl.classList.remove("active");
-      resetModalTransform();
-    }
-
-    function applyPreviewSwipeTransform(offsetY) {
-      const limited = Math.max(-140, Math.min(140, offsetY));
-      const opacity = Math.max(0.12, 1 - Math.abs(limited) / 140);
-
-      capturePreviewBtnEl.style.transition = "none";
-      capturePreviewBtnEl.style.transform = `translateY(${limited}px) scale(${1 - Math.min(Math.abs(limited) / 500, 0.12)})`;
-      capturePreviewBtnEl.style.opacity = String(opacity);
-
-      if (limited > 8) {
-        showGestureHint(previewGestureHintEl, "↓ Kapat");
-      } else if (limited < -8) {
-        showGestureHint(previewGestureHintEl, "↑ Paylaş");
-      } else {
-        hideGestureHint(previewGestureHintEl);
-      }
-    }
-
-    function applyModalSwipeTransform(offsetY) {
-      const limited = Math.max(-180, Math.min(180, offsetY));
-      const bgAlpha = Math.max(0.10, 0.82 - Math.abs(limited) / 180);
-
-      modalCardEl.style.transition = "none";
-      previewModalEl.style.transition = "none";
-      modalCardEl.style.transform = `translateY(${limited}px) scale(${1 - Math.min(Math.abs(limited) / 700, 0.08)})`;
-      previewModalEl.style.background = `rgba(0,0,0,${bgAlpha})`;
-
-      if (limited > 8) {
-        showGestureHint(modalGestureHintEl, "↓ Kapat");
-      } else if (limited < -8) {
-        showGestureHint(modalGestureHintEl, "↑ Paylaş");
-      } else {
-        hideGestureHint(modalGestureHintEl);
-      }
-    }
-
-    function previewSwipeStart(event) {
-      if (!capturePreviewBtnEl.classList.contains("visible")) return;
-      previewSwipeState.active = true;
-      previewSwipeState.dragging = false;
-      previewSwipeState.pointerId = event.pointerId;
-      previewSwipeState.startY = event.clientY;
-      previewSwipeState.startX = event.clientX;
-      previewSwipeState.currentY = event.clientY;
-      previewSwipeState.currentX = event.clientX;
-      capturePreviewBtnEl.setPointerCapture?.(event.pointerId);
-    }
-
-    function previewSwipeMove(event) {
-      if (!previewSwipeState.active || previewSwipeState.pointerId !== event.pointerId) return;
-
-      previewSwipeState.currentY = event.clientY;
-      previewSwipeState.currentX = event.clientX;
-      const dy = previewSwipeState.currentY - previewSwipeState.startY;
-      const dx = previewSwipeState.currentX - previewSwipeState.startX;
-
-      if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx) * 1.25) {
-        previewSwipeState.dragging = true;
-        applyPreviewSwipeTransform(dy);
-      }
-    }
-
-    async function previewSwipeEnd(event) {
-      if (!previewSwipeState.active || previewSwipeState.pointerId !== event.pointerId) return;
-
-      const dy = previewSwipeState.currentY - previewSwipeState.startY;
-      const shouldClose = dy > SWIPE_CLOSE_THRESHOLD;
-      const shouldShare = dy < -SWIPE_SHARE_THRESHOLD;
-
-      previewSwipeState.active = false;
-      previewSwipeState.pointerId = null;
-
-      if (previewSwipeState.dragging && shouldClose) {
-        dismissCapturePreview();
-        vibratePattern(8);
-      } else if (previewSwipeState.dragging && shouldShare) {
-        resetCapturePreviewTransform();
-        vibratePattern(8);
-        await shareGalleryItemById(lastCapturedItemId);
-      } else {
-        resetCapturePreviewTransform();
-        if (!previewSwipeState.dragging) openLastCapturePreview();
-      }
-
-      previewSwipeState.dragging = false;
-    }
-
-    function modalSwipeStart(event) {
-      if (!previewModalEl.classList.contains("active")) return;
-
-      modalSwipeState.active = true;
-      modalSwipeState.dragging = false;
-      modalSwipeState.pointerId = event.pointerId;
-      modalSwipeState.startY = event.clientY;
-      modalSwipeState.startX = event.clientX;
-      modalSwipeState.currentY = event.clientY;
-      modalSwipeState.currentX = event.clientX;
-      modalCardEl.setPointerCapture?.(event.pointerId);
-    }
-
-    function modalSwipeMove(event) {
-      if (!modalSwipeState.active || modalSwipeState.pointerId !== event.pointerId) return;
-
-      modalSwipeState.currentY = event.clientY;
-      modalSwipeState.currentX = event.clientX;
-      const dy = modalSwipeState.currentY - modalSwipeState.startY;
-      const dx = modalSwipeState.currentX - modalSwipeState.startX;
-
-      if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx) * 1.25) {
-        modalSwipeState.dragging = true;
-        applyModalSwipeTransform(dy);
-      }
-    }
-
-    async function modalSwipeEnd(event) {
-      if (!modalSwipeState.active || modalSwipeState.pointerId !== event.pointerId) return;
-
-      const dy = modalSwipeState.currentY - modalSwipeState.startY;
-      const shouldClose = dy > SWIPE_CLOSE_THRESHOLD;
-      const shouldShare = dy < -SWIPE_SHARE_THRESHOLD;
-
-      modalSwipeState.active = false;
-      modalSwipeState.pointerId = null;
-
-      if (modalSwipeState.dragging && shouldClose) {
-        closePreviewModal();
-        vibratePattern(8);
-      } else if (modalSwipeState.dragging && shouldShare) {
-        resetModalTransform();
-        vibratePattern(8);
-        await shareGalleryItemById(modalItemId);
-      } else {
-        resetModalTransform();
-      }
-
-      modalSwipeState.dragging = false;
-    }
-
-    function moveCaretToEnd(input) {
-      const value = input.value ?? "";
-      const end = value.length;
-      input.setSelectionRange(end, end);
-    }
-
-    function attachSmartFieldSelection(input) {
-      let pointerDownX = 0;
-      let pointerDownY = 0;
-      let pointerMoved = false;
-
-      input.addEventListener("pointerdown", event => {
-        pointerDownX = event.clientX;
-        pointerDownY = event.clientY;
-        pointerMoved = false;
-      });
-
-      input.addEventListener("pointermove", event => {
-        if (Math.abs(event.clientX - pointerDownX) > 6 || Math.abs(event.clientY - pointerDownY) > 6) {
-          pointerMoved = true;
-        }
-      });
-
-      input.addEventListener("focus", () => {
-        requestAnimationFrame(() => {
-          if (document.activeElement === input) input.select();
-        });
-      });
-
-      input.addEventListener("pointerup", event => {
-        if (pointerMoved) return;
-        if (document.activeElement !== input) return;
-
-        const rect = input.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const valueLength = (input.value ?? "").length;
-
-        if (!valueLength) {
-          input.select();
-          return;
-        }
-
-        const isNearEnd = x > rect.width * 0.82;
-
-        requestAnimationFrame(() => {
-          if (document.activeElement !== input) return;
-          if (isNearEnd) {
-            moveCaretToEnd(input);
-          } else {
-            input.select();
-          }
-        });
-      });
-    }
-
-    function attachDecimalSanitizer(inputEl, options) {
-      inputEl.addEventListener("input", () => {
-        normalizeDecimalFieldInput(inputEl, options);
-      });
-
-      inputEl.addEventListener("blur", () => {
-        const parsed = normalizeDecimalFieldInput(inputEl, options);
-        if (parsed !== null) inputEl.value = String(parsed);
-      });
-    }
-
-    async function capturePhoto() {
-      if (!currentStream) throw new Error("Önce kamera açılmalı.");
+      if (!currentStream) throw new Error(t("cameraRequired"));
 
       const width = videoEl.videoWidth;
-      const height = videoEl.videoHeight;
-      if (!width || !height) throw new Error("Video hazır değil.");
 
-      playShutterSound();
-      flashCapture();
+      const height = videoEl.videoHeight;
+
+      if (!width || !height) throw new Error(t("videoNotReady"));
 
       const canvas = document.createElement("canvas");
+
       canvas.width = width;
+
       canvas.height = height;
 
-      const ctx = canvas.getContext("2d", { alpha: false, willReadFrequently: false });
-      if (!ctx) throw new Error("Canvas alınamadı.");
+      const ctx = canvas.getContext("2d");
 
-      ctx.drawImage(videoEl, 0, 0, width, height);
+      if (!ctx) throw new Error(t("canvasFailed"));
 
-      const overlayCanvas = document.createElement("canvas");
-      overlayCanvas.width = width;
-      overlayCanvas.height = height;
+      drawVideoToCanvasWithZoom(ctx, width, height);
 
-      const overlayCanvasCtx = overlayCanvas.getContext("2d", { alpha: true, willReadFrequently: false });
-      if (!overlayCanvasCtx) throw new Error("Overlay canvas alınamadı.");
+      drawOverlayComposite(ctx, width, height, {
 
-      drawOverlayOnContext(
-        overlayCanvasCtx,
-        width,
-        height,
-        getCurrentRollDeg(),
-        getTargetAngle()
-      );
+        patientName: getOverlayPatientName(),
 
-      ctx.drawImage(overlayCanvas, 0, 0, width, height);
-      drawMetadataOnContext(ctx, width, height);
+        timestampLabel: formatDateTimeLabel(Date.now()),
 
-      const blob = await new Promise((resolve, reject) => {
-        canvas.toBlob(result => {
-          if (!result) {
-            reject(new Error("PNG üretilemedi."));
-            return;
-          }
-          resolve(result);
-        }, "image/png");
+        logoImage: liveLogoLoaded ? liveLogoImage : null
+
       });
+
+      const blob = await getCanvasBlob(canvas, "image/png");
 
       const createdAt = Date.now();
-      const fileName = `${getOutputBaseName()}_${createTimeStampFilePart(createdAt)}.png`;
-      const objectUrl = URL.createObjectURL(blob);
 
-      const item = {
-        id: `gallery_${createdAt}_${Math.random().toString(36).slice(2, 8)}`,
-        fileName,
+      const prefix = sourceLabel === "auto" ? "auto_image" : "image";
+
+      const displayId = `${prefix}_${createTimeStampFilePart(createdAt)}`;
+
+      await addGalleryItem({
+
+        uid: generateUniqueId(prefix),
+
+        id: displayId,
+
+        displayId,
+
+        kind: "image",
+
         blob,
-        objectUrl,
+
         createdAt,
-        createdAtLabel: formatDateTime(createdAt),
-        width,
-        height,
+
+        createdAtLabel: formatDateTimeLabel(createdAt),
+
         size: blob.size,
-        selected: false,
-        patientName: patientNameInputEl.value.trim(),
-        iolType: iolTypeInputEl.value.trim()
+
+        mimeType: blob.type || "image/png",
+
+        width,
+
+        height,
+
+        durationMs: null,
+
+        deviceLabel: getSelectedDeviceLabel(),
+
+        patientName: getOverlayPatientName()
+
+      });
+
+      playShutterClick();
+
+      return { width, height, createdAt };
+
+    }
+
+    async function createTimedVideoCapture(durationSeconds, sourceLabel = "auto") {
+
+      if (!currentStream) throw new Error(t("streamRequired"));
+
+      if (!selectedRecordingMimeType) throw new Error(t("mp4NotSupported"));
+
+      const localChunks = [];
+
+      const startedAt = Date.now();
+
+      const localRecorder = new MediaRecorder(currentStream, {
+
+        mimeType: selectedRecordingMimeType
+
+      });
+
+      localRecorder.addEventListener("dataavailable", event => {
+
+        if (event.data && event.data.size > 0) {
+
+          localChunks.push(event.data);
+
+        }
+
+      });
+
+      const stopPromise = new Promise((resolve, reject) => {
+
+        localRecorder.addEventListener("stop", resolve, { once: true });
+
+        localRecorder.addEventListener("error", () => reject(new Error(t("mediaRecorderError"))), { once: true });
+
+      });
+
+      localRecorder.start(500);
+
+      await sleep(Math.max(1, durationSeconds) * 1000);
+
+      if (localRecorder.state === "recording") {
+
+        localRecorder.stop();
+
+      }
+
+      await stopPromise;
+
+      if (!localChunks.length) {
+
+        throw new Error(t("recordNoData"));
+
+      }
+
+      const blob = new Blob(localChunks, { type: selectedRecordingMimeType });
+
+      const createdAt = Date.now();
+
+      const displayId = `${sourceLabel}_video_${createTimeStampFilePart(createdAt)}`;
+
+      await addGalleryItem({
+
+        uid: generateUniqueId("video"),
+
+        id: displayId,
+
+        displayId,
+
+        kind: "video",
+
+        blob,
+
+        createdAt,
+
+        createdAtLabel: formatDateTimeLabel(createdAt),
+
+        size: blob.size,
+
+        mimeType: selectedRecordingMimeType,
+
+        width: videoEl.videoWidth || null,
+
+        height: videoEl.videoHeight || null,
+
+        durationMs: createdAt - startedAt,
+
+        deviceLabel: getSelectedDeviceLabel(),
+
+        patientName: getOverlayPatientName()
+
+      });
+
+      return {
+
+        createdAt,
+
+        size: blob.size,
+
+        durationMs: createdAt - startedAt,
+
+        width: videoEl.videoWidth || 0,
+
+        height: videoEl.videoHeight || 0
+
       };
 
-      await addGalleryItem(item);
-      showLastCapturePreview(item);
-      updateDiagnosticStatus(`Foto çekildi.\nGaleride saklandı: ${fileName}`);
     }
 
-    async function handleMainAction() {
-      if (!currentStream) {
-        await primeAudio();
-        await requestSensorPermissionFromGesture();
-        updateDiagnosticStatus("Sensör izni alındı.");
+    async function captureFrame() {
 
-        await requestCameraPermission();
-        await populateDevices();
-        await startSelectedCamera();
-        updateUiState();
+      const result = await createPngCapture("manual");
 
-        window.setTimeout(() => {
-          if (!lastOrientationAt && !lastMotionAt) {
-            sensorSource = "none";
-            updateStatePills();
-            setStatus(
-              [
-                "Sensör event gelmiyor.",
-                "1) HTTPS gerekli",
-                "2) iPhone/Safari ise Motion & Orientation Access aç",
-                "3) WebView/iframe sensör engelliyor olabilir",
-                "4) Masaüstünde sensör olmayabilir"
-              ].join("\n")
-            );
-          } else {
-            updateDiagnosticStatus("Kamera ve sensör hazır.");
-          }
-        }, 1200);
+      setStatus(t("pngAdded", {
+
+        width: result.width,
+
+        height: result.height,
+
+        date: formatDateTimeLabel(result.createdAt)
+
+      }));
+
+    }
+
+    async function runAutoCaptureStep() {
+
+      if (!autoCaptureRunning || !currentStream) {
+
+        finishAutoCapture("");
 
         return;
+
       }
 
-      await capturePhoto();
-    }
+      if (autoCaptureRemaining <= 0) {
 
-    async function setupPwa() {
-      try {
-        const manifest = {
-          name: "Torik IOL Marker",
-          short_name: "Torik Marker",
-          start_url: ".",
-          display: "standalone",
-          background_color: "#0b0f16",
-          theme_color: "#0b0f16",
-          icons: [{
-            src: "data:image/svg+xml;base64," + btoa(`
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-                <rect width="192" height="192" rx="36" fill="#0b0f16"/>
-                <circle cx="96" cy="96" r="58" fill="none" stroke="#4da3ff" stroke-width="10"/>
-                <circle cx="96" cy="96" r="36" fill="none" stroke="#58d38d" stroke-width="8"/>
-                <line x1="38" y1="96" x2="154" y2="96" stroke="#f0b429" stroke-width="8"/>
-              </svg>
-            `),
-            sizes: "192x192",
-            type: "image/svg+xml"
-          }]
-        };
+        finishAutoCapture(
 
-        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
-        const manifestUrl = URL.createObjectURL(manifestBlob);
-        let link = document.querySelector('link[rel="manifest"]');
-        if (!link) {
-          link = document.createElement("link");
-          link.rel = "manifest";
-          document.head.appendChild(link);
+          t("autoDone", {
+
+            total: autoCaptureTotal,
+
+            mode: autoCaptureMode === "video" ? t("autoUnitVideo") : t("autoUnitPhoto"),
+
+            width: "-",
+
+            height: "-"
+
+          })
+
+        );
+
+        return;
+
+      }
+
+      const stepNo = autoCaptureTotal - autoCaptureRemaining + 1;
+
+      if (autoCaptureMode === "photo") {
+
+        const result = await createPngCapture("auto");
+
+        autoCaptureRemaining -= 1;
+
+        if (autoCaptureRemaining > 0) {
+
+          autoInfoEl.textContent = t("autoStepDone", {
+
+            step: stepNo,
+
+            total: autoCaptureTotal,
+
+            interval: autoCaptureIntervalSeconds
+
+          });
+
+          updateUiState();
+
+        } else {
+
+          finishAutoCapture(
+
+            t("autoDone", {
+
+              total: autoCaptureTotal,
+
+              mode: t("autoUnitPhoto"),
+
+              width: result.width,
+
+              height: result.height
+
+            })
+
+          );
+
         }
-        link.href = manifestUrl;
-      } catch (_) {}
 
-      if ("serviceWorker" in navigator) {
-        try {
-          const swCode = `
-            self.addEventListener("install", event => { self.skipWaiting(); });
-            self.addEventListener("activate", event => { event.waitUntil(self.clients.claim()); });
-            self.addEventListener("fetch", event => {});
-          `;
-          const swBlob = new Blob([swCode], { type: "text/javascript" });
-          const swUrl = URL.createObjectURL(swBlob);
-          await navigator.serviceWorker.register(swUrl);
-        } catch (_) {}
+        return;
+
       }
 
-      window.addEventListener("beforeinstallprompt", event => {
-        event.preventDefault();
-        deferredInstallPrompt = event;
-        installBtnEl.classList.add("visible");
-      });
+      const result = await createTimedVideoCapture(autoCaptureIntervalSeconds, "auto");
 
-      installBtnEl.addEventListener("click", async () => {
-        if (!deferredInstallPrompt) return;
-        deferredInstallPrompt.prompt();
-        try { await deferredInstallPrompt.userChoice; } catch (_) {}
-        deferredInstallPrompt = null;
-        installBtnEl.classList.remove("visible");
-      });
+      autoCaptureRemaining -= 1;
+
+      if (autoCaptureRemaining > 0) {
+
+        autoInfoEl.textContent = t("autoStepDone", {
+
+          step: stepNo,
+
+          total: autoCaptureTotal,
+
+          interval: autoCaptureIntervalSeconds
+
+        });
+
+        updateUiState();
+
+      } else {
+
+        finishAutoCapture(
+
+          t("autoDone", {
+
+            total: autoCaptureTotal,
+
+            mode: t("autoUnitVideo"),
+
+            width: result.width || "-",
+
+            height: result.height || "-"
+
+          })
+
+        );
+
+      }
+
     }
 
-    mainActionBtnEl.addEventListener("click", async () => {
-      try {
-        await handleMainAction();
-      } catch (error) {
-        setStatus(`Hata:\n${error instanceof Error ? error.message : String(error)}`);
+    function startAutoCaptureCountdown() {
+
+      autoCaptureDelaySeconds = readPositiveInt(autoDelayInputEl, 6);
+
+      autoCaptureIntervalSeconds = readPositiveInt(autoIntervalInputEl, 3);
+
+      autoCaptureTotal = readPositiveInt(autoCountInputEl, 6);
+
+      autoCaptureRunning = true;
+
+      autoCaptureStarted = false;
+
+      autoCaptureRemaining = autoCaptureTotal;
+
+      let countdown = autoCaptureDelaySeconds;
+
+      autoInfoEl.textContent = t("autoWaiting", {
+
+        delay: countdown,
+
+        interval: autoCaptureIntervalSeconds,
+
+        count: autoCaptureTotal,
+
+        mode: autoCaptureMode === "video" ? t("autoUnitVideo") : t("autoUnitPhoto")
+
+      });
+
+      updateUiState();
+
+      playSimpleBeep();
+
+      autoCountdownIntervalId = window.setInterval(() => {
+
+        countdown -= 1;
+
+        if (countdown > 0) {
+
+          playSimpleBeep();
+
+          autoInfoEl.textContent = t("autoWaiting", {
+
+            delay: countdown,
+
+            interval: autoCaptureIntervalSeconds,
+
+            count: autoCaptureTotal,
+
+            mode: autoCaptureMode === "video" ? t("autoUnitVideo") : t("autoUnitPhoto")
+
+          });
+
+        }
+
+      }, 1000);
+
+      autoCaptureTimeoutId = window.setTimeout(async () => {
+
+        autoCaptureTimeoutId = null;
+
+        stopAutoCountdownTimer();
+
+        if (!autoCaptureRunning) return;
+
+        autoCaptureStarted = true;
+
+        autoInfoEl.textContent = t("autoStarted", {
+
+          total: autoCaptureTotal,
+
+          mode: autoCaptureMode === "video" ? t("autoUnitVideo") : t("autoUnitPhoto")
+
+        });
+
+        updateUiState();
+
+        try {
+
+          await runAutoCaptureStep();
+
+          if (!autoCaptureRunning || autoCaptureRemaining <= 0) return;
+
+          if (autoCaptureMode === "photo") {
+
+            autoCaptureIntervalId = window.setInterval(async () => {
+
+              if (!autoCaptureRunning) return;
+
+              if (autoCaptureRemaining <= 0) {
+
+                finishAutoCapture(
+
+                  t("autoDone", {
+
+                    total: autoCaptureTotal,
+
+                    mode: t("autoUnitPhoto"),
+
+                    width: "-",
+
+                    height: "-"
+
+                  })
+
+                );
+
+                return;
+
+              }
+
+              playSimpleBeep();
+
+              try {
+
+                await runAutoCaptureStep();
+
+              } catch (error) {
+
+                handleError(error);
+
+                finishAutoCapture(t("autoStopped"));
+
+              }
+
+            }, autoCaptureIntervalSeconds * 1000);
+
+            return;
+
+          }
+
+          const runNextVideo = async () => {
+
+            while (autoCaptureRunning && autoCaptureRemaining > 0) {
+
+              await sleep(300);
+
+              try {
+
+                await runAutoCaptureStep();
+
+              } catch (error) {
+
+                handleError(error);
+
+                finishAutoCapture(t("autoStopped"));
+
+                return;
+
+              }
+
+            }
+
+          };
+
+          await runNextVideo();
+
+        } catch (error) {
+
+          handleError(error);
+
+          finishAutoCapture(t("autoStopped"));
+
+        }
+
+      }, autoCaptureDelaySeconds * 1000);
+
+    }
+
+    function getSelectedGalleryItems() {
+
+      return galleryItems
+
+        .filter(item => item.selected)
+
+        .sort((a, b) => a.createdAt - b.createdAt);
+
+    }
+
+    async function startRecording() {
+
+      if (!currentStream) throw new Error(t("streamRequired"));
+
+      if (!selectedRecordingMimeType) throw new Error(t("mp4NotSupported"));
+
+      if (mediaRecorder?.state === "recording") throw new Error(t("recordAlready"));
+
+      finishAutoCapture("");
+
+      recordedChunks = [];
+
+      const recordingStartTime = Date.now();
+
+      mediaRecorder = new MediaRecorder(currentStream, { mimeType: selectedRecordingMimeType });
+
+      mediaRecorder.addEventListener("dataavailable", event => {
+
+        if (event.data && event.data.size > 0) {
+
+          recordedChunks.push(event.data);
+
+        }
+
+      });
+
+      mediaRecorder.addEventListener("stop", async () => {
+
+        stopRecordingTimer();
+
+        if (!recordedChunks.length) {
+
+          mediaRecorder = null;
+
+          updateUiState();
+
+          setStatus(t("recordNoData"));
+
+          return;
+
+        }
+
+        const blob = new Blob(recordedChunks, { type: selectedRecordingMimeType });
+
+        const createdAt = Date.now();
+
+        const displayId = `video_${createTimeStampFilePart(createdAt)}`;
+
+        await addGalleryItem({
+
+          uid: generateUniqueId("video"),
+
+          id: displayId,
+
+          displayId,
+
+          kind: "video",
+
+          blob,
+
+          createdAt,
+
+          createdAtLabel: formatDateTimeLabel(createdAt),
+
+          size: blob.size,
+
+          mimeType: selectedRecordingMimeType,
+
+          width: videoEl.videoWidth || null,
+
+          height: videoEl.videoHeight || null,
+
+          durationMs: createdAt - recordingStartTime,
+
+          deviceLabel: getSelectedDeviceLabel(),
+
+          patientName: getOverlayPatientName()
+
+        });
+
+        mediaRecorder = null;
+
+        resetRecordingDuration();
+
+        updateUiState();
+
+        setStatus(t("recordAdded", {
+
+          size: bytesToLabel(blob.size),
+
+          duration: msToLabel(createdAt - recordingStartTime),
+
+          date: formatDateTimeLabel(createdAt)
+
+        }));
+
+      });
+
+      mediaRecorder.addEventListener("error", event => {
+
+        mediaRecorder = null;
+
+        stopRecordingTimer();
+
+        updateUiState();
+
+        setStatus(t("errorPrefix", { message: event.error?.message || t("mediaRecorderError") }));
+
+      });
+
+      mediaRecorder.start(1000);
+
+      startRecordingTimer();
+
+      updateUiState();
+
+      setStatus(t("recordStarted", { mime: selectedRecordingMimeType }));
+
+    }
+
+    async function deleteGalleryItemsByIds(uids) {
+
+      const uidSet = new Set(uids);
+
+      galleryItems.forEach(item => {
+
+        if (uidSet.has(item.uid) && item.objectUrl) {
+
+          URL.revokeObjectURL(item.objectUrl);
+
+        }
+
+      });
+
+      galleryItems = galleryItems.filter(item => !uidSet.has(item.uid));
+
+      await deleteItemsFromCache(uids);
+
+      renderGallery();
+
+      setStatus(t("deletedItems", { count: uids.length }));
+
+    }
+
+    async function deleteSingleGalleryItem(uid) {
+
+      const target = findGalleryItemByUid(uid);
+
+      if (!target) return;
+
+      await deleteGalleryItemsByIds([uid]);
+
+    }
+
+    async function saveSelectedToFolder() {
+
+      const items = getSelectedGalleryItems();
+
+      if (!items.length) throw new Error(t("selectedFirst"));
+
+      await ensureWritableFolderHandle();
+
+      const baseName = sanitizeBaseName(patientNameInputEl.value || "capture");
+
+      for (let index = 0; index < items.length; index += 1) {
+
+        const item = items[index];
+
+        const no = pad2(index + 1);
+
+        const ext = item.kind === "image" ? "png" : "mp4";
+
+        const datePart = createTimeStampFilePart(item.createdAt);
+
+        const fileName = `${baseName}_${no}_${datePart}.${ext}`;
+
+        const fileHandle = await folderHandle.getFileHandle(fileName, { create: true });
+
+        const writable = await fileHandle.createWritable();
+
+        await writable.write(item.blob);
+
+        await writable.close();
+
       }
+
+      updateUiState();
+
+      setStatus(t("savedItems", {
+
+        count: items.length,
+
+        folder: folderName,
+
+        pattern: `${baseName}_01_YYYYMMDD_HHMMSS`
+
+      }));
+
+    }
+
+    function handleError(error) {
+
+      const message = error instanceof Error ? error.message : String(error);
+
+      console.error(error);
+
+      setStatus(t("errorPrefix", { message }));
+
+      updateUiState();
+
+    }
+
+    grantBtnEl.addEventListener("click", async () => {
+
+      try {
+
+        ensureAudioContext();
+
+        await initializeAndAutoStart();
+
+      } catch (error) {
+
+        handleError(error);
+
+      }
+
     });
 
     refreshBtnEl.addEventListener("click", async () => {
+
       try {
-        await populateDevices();
-        await startSelectedCamera();
+
+        const ok = await populateVideoDevices();
+
+        if (ok && permissionGranted) {
+
+          await startSelectedCamera();
+
+        }
+
       } catch (error) {
-        setStatus(`Hata:\n${error instanceof Error ? error.message : String(error)}`);
+
+        handleError(error);
+
       }
+
     });
 
-    videoDeviceEl.addEventListener("change", async () => {
+    deviceSelectEl.addEventListener("change", async () => {
+
       try {
-        await startSelectedCamera();
+
+        if (permissionGranted) {
+
+          await startSelectedCamera();
+
+        }
+
       } catch (error) {
-        setStatus(`Hata:\n${error instanceof Error ? error.message : String(error)}`);
+
+        handleError(error);
+
       }
+
     });
 
-    torchBtnEl.addEventListener("click", async () => {
+    captureBtnEl.addEventListener("click", async () => {
+
       try {
-        await toggleTorch();
+
+        ensureAudioContext();
+
+        await captureFrame();
+
       } catch (error) {
-        setStatus(`Hata:\n${error instanceof Error ? error.message : String(error)}`);
+
+        handleError(error);
+
       }
+
     });
 
-    dataTabBtnEl.addEventListener("click", () => setActiveTab("data"));
-    galleryTabBtnEl.addEventListener("click", () => setActiveTab("gallery"));
+    recordToggleBtnEl.addEventListener("click", async () => {
 
-    galleryToggleSelectBtnEl.addEventListener("click", () => {
-      toggleSelectAllGalleryItems();
+      try {
+
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+
+          await stopRecordingIfNeeded();
+
+        } else {
+
+          await startRecording();
+
+        }
+
+      } catch (error) {
+
+        handleError(error);
+
+      }
+
     });
 
-    gallerySaveSelectedBtnEl.addEventListener("click", async () => {
-      const selected = getSelectedGalleryItems();
-      if (!selected.length) return;
-      await saveGalleryItems(selected);
+    zoomOutBtnEl.addEventListener("click", async () => {
+
+      await stepZoom(-zoomStep);
+
     });
 
-    galleryDeleteSelectedBtnEl.addEventListener("click", async () => {
-      const selected = getSelectedGalleryItems();
-      if (!selected.length) return;
-      const names = selected.slice(0, 3).map(item => item.fileName).join("\n");
-      const extra = selected.length > 3 ? `\n+${selected.length - 3} daha` : "";
-      if (!window.confirm(`${selected.length} seçili foto silinsin mi?\n\n${names}${extra}`)) return;
-      await deleteSelectedGalleryItems();
-      updateDiagnosticStatus("Seçili fotoğraflar silindi.");
+    zoomInBtnEl.addEventListener("click", async () => {
+
+      await stepZoom(zoomStep);
+
     });
 
-    capturePreviewBtnEl.addEventListener("pointerdown", previewSwipeStart);
-    capturePreviewBtnEl.addEventListener("pointermove", previewSwipeMove);
-    capturePreviewBtnEl.addEventListener("pointerup", previewSwipeEnd);
-    capturePreviewBtnEl.addEventListener("pointercancel", previewSwipeEnd);
+    zoomResetBtnEl.addEventListener("click", async () => {
 
-    modalCardEl.addEventListener("pointerdown", modalSwipeStart);
-    modalCardEl.addEventListener("pointermove", modalSwipeMove);
-    modalCardEl.addEventListener("pointerup", modalSwipeEnd);
-    modalCardEl.addEventListener("pointercancel", modalSwipeEnd);
+      try {
 
-    modalCloseBtnEl.addEventListener("click", closePreviewModal);
-    modalDismissBtnEl.addEventListener("click", closePreviewModal);
+        await applyZoom(1);
+
+      } catch (error) {
+
+        handleError(error);
+
+      }
+
+    });
+
+    autoModeToggleBtnEl.addEventListener("click", () => {
+
+      if (autoCaptureRunning) return;
+
+      autoCaptureMode = autoCaptureMode === "photo" ? "video" : "photo";
+
+      updateUiState();
+
+    });
+
+    autoToggleBtnEl.addEventListener("click", () => {
+
+      try {
+
+        ensureAudioContext();
+
+        if (autoCaptureRunning) {
+
+          finishAutoCapture(t("autoStopped"));
+
+          return;
+
+        }
+
+        if (!currentStream) {
+
+          throw new Error(t("streamRequired"));
+
+        }
+
+        startAutoCaptureCountdown();
+
+      } catch (error) {
+
+        handleError(error);
+
+      }
+
+    });
+
+    pickFolderBtnEl.addEventListener("click", async () => {
+
+      try {
+
+        await pickFolder();
+
+      } catch (error) {
+
+        handleError(error);
+
+      }
+
+    });
+
+    langToggleBtnEl.addEventListener("click", () => {
+
+      setLanguage(currentLang === "tr" ? "de" : "tr");
+
+    });
+
+    selectAllBtnEl.addEventListener("click", () => {
+
+      const shouldSelect = galleryItems.some(item => !item.selected);
+
+      galleryItems.forEach(item => {
+
+        item.selected = shouldSelect;
+
+      });
+
+      renderGallery();
+
+      setStatus(shouldSelect ? t("selectedAll") : t("allSelectionsRemoved"));
+
+    });
+
+    clearSelectionBtnEl.addEventListener("click", () => {
+
+      galleryItems.forEach(item => {
+
+        item.selected = false;
+
+      });
+
+      renderGallery();
+
+      setStatus(t("selectionCleared"));
+
+    });
+
+    deleteSelectedBtnEl.addEventListener("click", async () => {
+
+      try {
+
+        const ids = getSelectedGalleryItems().map(item => item.uid);
+
+        if (!ids.length) throw new Error(t("selectedFirst"));
+
+        if (!window.confirm(t("confirmDeleteSelected"))) return;
+
+        await deleteGalleryItemsByIds(ids);
+
+      } catch (error) {
+
+        handleError(error);
+
+      }
+
+    });
+
+    clearCacheBtnEl.addEventListener("click", async () => {
+
+      try {
+
+        if (!galleryItems.length) return;
+
+        if (!window.confirm(t("confirmClearCache"))) return;
+
+        await clearGalleryAndCache();
+
+      } catch (error) {
+
+        handleError(error);
+
+      }
+
+    });
+
+    saveSelectedBtnEl.addEventListener("click", async () => {
+
+      try {
+
+        await saveSelectedToFolder();
+
+      } catch (error) {
+
+        handleError(error);
+
+      }
+
+    });
+
+    closeModalBtnEl.addEventListener("click", closePreviewModal);
 
     previewModalEl.addEventListener("click", event => {
-      if (event.target === previewModalEl) closePreviewModal();
-    });
 
-    modalSaveBtnEl.addEventListener("click", () => {
-      if (!modalItemId) return;
-      const item = getGalleryItemById(modalItemId);
-      if (!item) return;
-      downloadBlob(item.blob, item.fileName);
-    });
+      if (event.target === previewModalEl) {
 
-    modalDeleteBtnEl.addEventListener("click", async () => {
-      if (!modalItemId) return;
-      const item = getGalleryItemById(modalItemId);
-      if (!item) return;
-      if (!window.confirm(`Bu foto silinsin mi?\n${item.fileName}`)) return;
-      await removeGalleryItem(modalItemId);
-    });
+        closePreviewModal();
 
-    [
-      patientNameInputEl,
-      iolTypeInputEl,
-      sphInputEl,
-      cylInputEl,
-      axlInputEl,
-      targetAngleInputEl
-    ].forEach(attachSmartFieldSelection);
-
-    attachDecimalSanitizer(sphInputEl, { min: -99, max: 99, allowNegative: true });
-    attachDecimalSanitizer(cylInputEl, { min: -99, max: 99, allowNegative: true });
-
-    targetAngleInputEl.addEventListener("input", () => {
-      targetAngleInputEl.value = sanitizeIntegerInput(targetAngleInputEl.value);
-      const value = syncAxisFieldsFrom("target");
-      maybeHapticOnAngle(value);
-      drawOverlay();
-    });
-
-    axlInputEl.addEventListener("input", () => {
-      axlInputEl.value = sanitizeIntegerInput(axlInputEl.value);
-      const value = syncAxisFieldsFrom("axl");
-      maybeHapticOnAngle(value);
-      drawOverlay();
-    });
-
-    targetAngleInputEl.addEventListener("blur", () => {
-      const value = normalizeAngleFieldInput(targetAngleInputEl, 63);
-      setTargetAngle(value);
-    });
-
-    axlInputEl.addEventListener("blur", () => {
-      const value = normalizeAngleFieldInput(axlInputEl, 63);
-      setTargetAngle(value);
-    });
-
-    previewShellEl.addEventListener("pointerdown", event => {
-      const angle = eventPointToAxisAngle(event.clientX, event.clientY);
-      if (angle === null) {
-        isDraggingAxis = false;
-        return;
       }
 
-      isDraggingAxis = true;
-      previewShellEl.setPointerCapture?.(event.pointerId);
-      setTargetAngle(angle);
-    });
-
-    previewShellEl.addEventListener("pointermove", event => {
-      if (!isDraggingAxis) return;
-      updateAxisFromPointerEvent(event);
-    });
-
-    previewShellEl.addEventListener("pointerup", () => {
-      isDraggingAxis = false;
-    });
-
-    previewShellEl.addEventListener("pointercancel", () => {
-      isDraggingAxis = false;
-    });
-
-    window.addEventListener("resize", () => {
-      drawOverlay();
-    });
-
-    navigator.mediaDevices?.addEventListener?.("devicechange", async () => {
-      if (!permissionGranted) return;
-      try {
-        await populateDevices();
-        updateUiState();
-      } catch (_) {}
     });
 
     window.addEventListener("keydown", event => {
-      if (event.key === "Escape") closePreviewModal();
+
+      if (event.key === "Escape" && previewModalEl.classList.contains("open")) {
+
+        closePreviewModal();
+
+      }
+
+    });
+
+    window.addEventListener("resize", () => {
+
+      drawLivePreviewOverlay();
+
+    });
+
+    navigator.mediaDevices?.addEventListener?.("devicechange", async () => {
+
+      if (!permissionGranted) return;
+
+      try {
+
+        const ok = await populateVideoDevices();
+
+        if (ok && !currentStream) {
+
+          await startSelectedCamera();
+
+        }
+
+      } catch (error) {
+
+        handleError(error);
+
+      }
+
+    });
+
+    [autoDelayInputEl, autoIntervalInputEl, autoCountInputEl].forEach((inputEl, index) => {
+
+      const fallback = index === 0 ? 6 : index === 1 ? 3 : 6;
+
+      inputEl.addEventListener("blur", () => {
+
+        readPositiveInt(inputEl, fallback);
+
+      });
+
+    });
+
+    patientNameInputEl.addEventListener("input", () => {
+
+      drawLivePreviewOverlay();
+
     });
 
     window.addEventListener("beforeunload", () => {
+
+      stopAutoCaptureTimers();
+
+      stopRecordingTimer();
+
       cleanupStream();
 
-      if (motionListening) window.removeEventListener("devicemotion", handleDeviceMotion, true);
-      if (orientationListening) window.removeEventListener("deviceorientation", handleDeviceOrientation, true);
-      if (overlayAnimationId !== null) cancelAnimationFrame(overlayAnimationId);
-      if (sensorWatchdogId !== null) clearInterval(sensorWatchdogId);
+      revokeGalleryObjectUrls();
 
-      for (const item of galleryItems) URL.revokeObjectURL(item.objectUrl);
+      stopLiveOverlayLoop();
+
     });
 
-    (async () => {
-      setTargetAngle(63);
-      setActiveTab("data");
-      updateUiState();
-      drawOverlay();
-      startOverlayLoop();
-      startSensorWatchdog();
-      await setupPwa();
+    (async function init() {
 
       try {
-        await initDb();
+
+        ensureBrowserSupport();
+
+        selectedRecordingMimeType = pickSupportedMp4MimeType();
+
+        setMetaInfo({
+
+          device: "-",
+
+          resolution: "-",
+
+          mime: selectedRecordingMimeType || "MP4 desteklenmiyor"
+
+        });
+
+        resetRecordingDuration();
+
+        resetZoomState();
+
+        autoCaptureMode = "photo";
+
+        autoDelayInputEl.value = "6";
+
+        autoIntervalInputEl.value = "3";
+
+        autoCountInputEl.value = "6";
+
+        await initDatabases();
+
+        await restoreFolderHandleFromSettings();
+
+        await restoreGalleryFromCache();
+
+        applyTranslations();
+
+        clearUserStatus();
+
+        setStatus(t("ready"), false);
+
+        drawLivePreviewOverlay();
+
       } catch (error) {
-        setStatus(`Galeri veritabanı açılamadı:\n${error instanceof Error ? error.message : String(error)}`);
+
+        handleError(error);
+
       }
+
     })();
+
   </script>
+
 </body>
+
 </html>
